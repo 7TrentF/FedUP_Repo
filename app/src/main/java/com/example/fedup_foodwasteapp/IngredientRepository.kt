@@ -7,4 +7,12 @@ class IngredientRepository(private val ingredientDao: IngredientDao) {
     suspend fun insert(ingredient: Ingredients) {
         ingredientDao.insert(ingredient)
     }
+
+    suspend fun delete(ingredient: Ingredients) {
+        ingredientDao.delete(ingredient)
+    }
+    // Method to get ingredients by category
+    fun getIngredientsByCategory(category: String): LiveData<List<Ingredients>> {
+        return ingredientDao.getIngredientByCategory(category)
+    }
 }

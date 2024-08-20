@@ -20,6 +20,7 @@ class IngredientAdapter : RecyclerView.Adapter<IngredientAdapter.IngredientViewH
         holder.nameTextView.text = current.productName
         holder.quantityTextView.text = current.quantity
         holder.expirationDateTextView.text = current.expirationDate
+        holder.categoryTextView.text = current.category
     }
 
     override fun getItemCount(): Int = ingredients.size
@@ -33,6 +34,7 @@ class IngredientAdapter : RecyclerView.Adapter<IngredientAdapter.IngredientViewH
         val nameTextView: TextView = itemView.findViewById(R.id.tv_ingredient_name)
         val quantityTextView: TextView = itemView.findViewById(R.id.tv_quantity)
         val expirationDateTextView: TextView = itemView.findViewById(R.id.tv_expiration_date)
+        val categoryTextView: TextView = itemView.findViewById(R.id.tv_category)
     }
 }
 

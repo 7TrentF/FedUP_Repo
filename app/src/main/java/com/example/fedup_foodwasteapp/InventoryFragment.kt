@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +26,9 @@ class InventoryFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var ingredientViewModel: IngredientViewModel
+    private lateinit var ingredientAdapter: IngredientAdapter
+
+    private lateinit var imgCategory: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +42,33 @@ class InventoryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_inventory1, container, false)
+        val view = inflater.inflate(R.layout.fragment_inventory1, container, false)
+
+        // Initialize views
+        val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        ingredientAdapter = IngredientAdapter()
+        recyclerView.adapter = ingredientAdapter
+
+        // Initialize ViewModel
+        ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
+
+        // Observe filtered ingredients
+        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
+            ingredientAdapter.setIngredients(ingredients)
+        })
+
+        // Initially observe all ingredients if needed
+        ingredientViewModel.allIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
+            ingredientAdapter.setIngredients(ingredients)
+        })
+
+        return view
+
+    }
+
+    fun filterByCategory(category: String) {
+        ingredientViewModel.filterIngredientsByCategory(category)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -10,7 +10,7 @@
 
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tv_inventory"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
         android:text="Email"
@@ -27,7 +27,8 @@
         android:layout_width="240dp"
         android:layout_height="40dp"
         android:padding="10dp"
-        android:text="                        Sign In"
+        android:text="Sign In"
+        android:textAlignment="center"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

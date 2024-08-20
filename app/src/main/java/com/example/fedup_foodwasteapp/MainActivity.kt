@@ -4,17 +4,22 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.navigation.fragment.NavHostFragment
 
@@ -27,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private val rotateClose: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_close_animate) }
     private val fromBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_bottom_animate) }
     private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) } // Corrected from_bottom_animate
+    private lateinit var ingredientViewModel: IngredientViewModel
 
     private var clicked = false
 
@@ -35,48 +41,73 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        addFabItem = findViewById(R.id.add_fab_item)
-        categoryFab = findViewById(R.id.category_fab)
+        ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, InventoryFragment())
-                .commit()
+        val categoryButton: ImageButton = findViewById(R.id.img_category)
+
+        categoryButton.setOnClickListener {
+            showCategorySelectionDialog()
+
+            addFabItem = findViewById(R.id.add_fab_item)
+            categoryFab = findViewById(R.id.category_fab)
+
+            if (savedInstanceState == null) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, InventoryFragment())
+                    .commit()
+            }
+
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                insets
+            }
+
+            val navHome = findViewById<LinearLayout>(R.id.nav_inventory)
+            val navSearch = findViewById<LinearLayout>(R.id.nav_Recipe)
+            val navProfile = findViewById<LinearLayout>(R.id.nav_settings)
+
+            addFabItem.setOnClickListener {
+                onAddButtonClicked()
+                loadFragment(AddIngredientFragment(),fullScreen = false )
+            }
+
+            categoryFab.setOnClickListener {
+                Toast.makeText(this, "Category button clicked", Toast.LENGTH_SHORT).show()
+            }
+
+            navHome.setOnClickListener {
+                loadFragment(InventoryFragment(),fullScreen = false)
+                updateSelectedNavItem(R.id.nav_inventory)
+            }
+
+            navSearch.setOnClickListener {
+                loadFragment(RecipeFragment(),fullScreen = true)
+                updateSelectedNavItem(R.id.nav_Recipe)
+            }
+
+            navProfile.setOnClickListener {
+                loadFragment(SettingsFragment(),fullScreen = true)
+                updateSelectedNavItem(R.id.nav_settings)
+            }
         }
+    }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+    private fun showCategorySelectionDialog() {
+        val categories = arrayOf("Fridge", "Freezer", "Pantry") // Example categories
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Select Category")
+        builder.setItems(categories) { dialog, which ->
+            val selectedCategory = categories[which]
+            // Pass selectedCategory to InventoryFragment
+            filterIngredientsByCategory(selectedCategory)
         }
+        builder.show()
+    }
 
-        val navHome = findViewById<LinearLayout>(R.id.nav_inventory)
-        val navSearch = findViewById<LinearLayout>(R.id.nav_Recipe)
-        val navProfile = findViewById<LinearLayout>(R.id.nav_settings)
-
-        addFabItem.setOnClickListener {
-            onAddButtonClicked()
-            loadFragment(AddIngredientFragment())
-        }
-
-        categoryFab.setOnClickListener {
-            Toast.makeText(this, "Category button clicked", Toast.LENGTH_SHORT).show()
-        }
-
-        navHome.setOnClickListener {
-            loadFragment(InventoryFragment())
-            updateSelectedNavItem(R.id.nav_inventory)
-        }
-
-        navSearch.setOnClickListener {
-            loadFragment(RecipeFragment())
-            updateSelectedNavItem(R.id.nav_Recipe)
-        }
-
-        navProfile.setOnClickListener {
-            loadFragment(SettingsFragment())
-            updateSelectedNavItem(R.id.nav_settings)
-        }
+    private fun filterIngredientsByCategory(category: String) {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? InventoryFragment
+        fragment?.filterByCategory(category)
     }
 
     private fun onAddButtonClicked() {
@@ -103,10 +134,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadFragment(fragment: Fragment) {
+    private fun loadFragment(fragment: Fragment, fullScreen: Boolean) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+
+        adjustContainerSize(fullScreen)
+    }
+
+    private fun adjustContainerSize(fullScreen: Boolean) {
+        val container = findViewById<FrameLayout>(R.id.fragment_container)
+        val params = container.layoutParams as ConstraintLayout.LayoutParams
+
+        if (fullScreen) {
+            params.width = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+            params.height = ConstraintLayout.LayoutParams.MATCH_CONSTRAINT
+        } else {
+            params.width = ConstraintLayout.LayoutParams.WRAP_CONTENT
+            params.height = ConstraintLayout.LayoutParams.WRAP_CONTENT
+        }
+
+        container.layoutParams = params
+    }
+
+
+
+    private fun updateFabVisibility(fragment: Fragment) {
+        when (fragment) {
+            is InventoryFragment -> addFabItem.visibility = View.VISIBLE
+            is AddIngredientFragment -> addFabItem.visibility = View.GONE
+            else -> addFabItem.visibility = View.GONE
+        }
     }
 
     private fun updateSelectedNavItem(selectedItemId: Int) {

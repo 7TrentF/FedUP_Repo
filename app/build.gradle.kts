@@ -37,12 +37,15 @@ android {
 }
 
 dependencies {
-    implementation("androidx.room:room-runtime:2.5.1")
+    // Room KTX for Kotlin extensions
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.navigation.fragment.ktx)
-    kapt("androidx.room:room-compiler:2.5.1") // Now kapt should be recognized
-    implementation("androidx.room:room-ktx:2.5.1")
+    kapt("androidx.room:room-compiler:2.5.1")
+    implementation(libs.androidx.room.ktx.v251)
     val lifecycle_version = "2.4.1" // Check for the latest version
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation (libs.androidx.cardview)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

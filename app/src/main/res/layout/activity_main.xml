@@ -9,39 +9,68 @@
     tools:context=".MainActivity">
 
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="418dp"
-        android:layout_height="648dp"
+    <ImageView
+        android:id="@+id/img_logo"
+        android:layout_width="175dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_logo_no_slogan"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.122"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </FrameLayout>
+    <ImageButton
+        android:id="@+id/img_category"
+        android:layout_width="43dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/grey"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_category"
+        app:layout_constraintEnd_toStartOf="@+id/tv_inventory"
+        app:layout_constraintHorizontal_bias="0.396"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_logo" />
 
-    <include
-            android:id="@+id/custom_bottom_navigation"
-            layout="@layout/bottom_nav_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+    <ImageButton
+        android:id="@+id/img_sort"
+        android:layout_width="43dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="92dp"
+        android:background="@color/grey"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_sort"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.623"
+        app:layout_constraintStart_toEndOf="@+id/tv_inventory"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="306dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#3C3E42"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.638"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_inventory" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_fab_item"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
-        android:background="@color/grey"
+        android:layout_width="58dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="400dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/orange"
+        android:backgroundTint="@color/grey"
         android:clickable="true"
         android:focusable="true"
-      android:backgroundTint="@color/orange"
-
-        app:layout_constraintBottom_toBottomOf="@+id/fragment_container"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/add" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -55,6 +84,38 @@
         app:layout_constraintBottom_toTopOf="@+id/add_fab_item"
         app:layout_constraintEnd_toEndOf="@+id/add_fab_item"
         app:srcCompat="@drawable/ic_category" />
+
+    <TextView
+        android:id="@+id/tv_inventory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="92dp"
+        android:text="Inventory"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="232dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/custom_bottom_navigation"
+        layout="@layout/bottom_nav_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

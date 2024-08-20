@@ -2,4 +2,10 @@
     <string name="app_name">Fed Up</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="quantity">Quantity</string>
+    <string name="ingredient_name">Ingredient Name</string>
+    <string name="category">category</string>
+    <string name="expiration_date">Expiration Date</string>
+    <string name="remove_item">Remove item</string>
+    <string name="icon">icon</string>
 </resources>
