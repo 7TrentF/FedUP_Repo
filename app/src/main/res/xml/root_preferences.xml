@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <!-- Feature Toggle -->
+    <SwitchPreferenceCompat
+        android:key="enable_feature"
+        android:title="Enable Feature"
+        android:summary="Toggle this to enable or disable the feature" />
+
+    <!-- User Information -->
+    <EditTextPreference
+        android:key="user_name"
+        android:title="User Name"
+        android:summary="Enter your user name here"
+        android:dialogTitle="User Name" />
+
+    <!-- Appearance Settings -->
+    <ListPreference
+        android:key="theme_color"
+        android:title="Theme Color"
+        android:summary="Select the theme color" />
+    <!--
+       android:entries="@array/theme_colors"
+       android:entryValues="@array/theme_color_values" /> -->
+
+    <!-- Privacy Settings -->
+    <CheckBoxPreference
+        android:key="share_data"
+        android:title="Share Data"
+        android:summary="Allow sharing data with third parties" />
+
+    <!-- Account Management -->
+    <PreferenceCategory
+        android:title="Account Management">
+        <Preference
+            android:key="change_password"
+            android:title="Change Password"
+            android:summary="Change your account password" />
+        <Preference
+            android:key="logout"
+            android:title="Log Out"
+            android:summary="Log out of your account" />
+    </PreferenceCategory>
+
+    <!-- Help & Support -->
+    <Preference
+        android:key="help_support"
+        android:title="Help &amp; Support"
+        android:summary="Get help and contact support" />
+
+    <!-- Data Management -->
+    <Preference
+        android:key="clear_cache"
+        android:title="Clear Cache"
+        android:summary="Clear cached data" />
+
+</PreferenceScreen>

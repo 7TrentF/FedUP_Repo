@@ -34,6 +34,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -41,6 +44,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.preference)
+    implementation(libs.androidx.preference.ktx)
     kapt("androidx.room:room-compiler:2.5.1")
     implementation(libs.androidx.room.ktx.v251)
     val lifecycle_version = "2.4.1" // Check for the latest version

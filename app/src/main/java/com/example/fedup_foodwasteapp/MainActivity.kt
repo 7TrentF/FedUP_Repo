@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +23,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.navigation.fragment.NavHostFragment
-
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,7 +35,8 @@ class MainActivity : AppCompatActivity() {
     private val fromBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_bottom_animate) }
     private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) } // Corrected from_bottom_animate
     private lateinit var ingredientViewModel: IngredientViewModel
-
+    private lateinit var FrameContainer : FrameLayout
+    private lateinit var recipeContainer: FrameLayout
     private var clicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,11 +45,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
+         recipeContainer = findViewById(R.id.fragment_Recipe_container)
+        FrameContainer  = findViewById(R.id.fragment_container)
 
-        val categoryButton: ImageButton = findViewById(R.id.img_category)
 
-        categoryButton.setOnClickListener {
-            showCategorySelectionDialog()
 
             addFabItem = findViewById(R.id.add_fab_item)
             categoryFab = findViewById(R.id.category_fab)
@@ -63,57 +65,46 @@ class MainActivity : AppCompatActivity() {
                 insets
             }
 
-            val navHome = findViewById<LinearLayout>(R.id.nav_inventory)
-            val navSearch = findViewById<LinearLayout>(R.id.nav_Recipe)
-            val navProfile = findViewById<LinearLayout>(R.id.nav_settings)
+            val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
+            val navRecipe = findViewById<LinearLayout>(R.id.nav_Recipe)
+            val navSettings = findViewById<LinearLayout>(R.id.nav_settings)
 
             addFabItem.setOnClickListener {
                 onAddButtonClicked()
-                loadFragment(AddIngredientFragment(),fullScreen = false )
+               // AddIngredientDialog() // Show the dialog instead of loading a fragment
             }
 
             categoryFab.setOnClickListener {
                 Toast.makeText(this, "Category button clicked", Toast.LENGTH_SHORT).show()
             }
 
-            navHome.setOnClickListener {
-                loadFragment(InventoryFragment(),fullScreen = false)
+            navInventory.setOnClickListener {
+                loadFragment(InventoryFragment())
                 updateSelectedNavItem(R.id.nav_inventory)
             }
 
-            navSearch.setOnClickListener {
-                loadFragment(RecipeFragment(),fullScreen = true)
+            navRecipe.setOnClickListener {
+                loadRecipeFragment(RecipeFragment())
                 updateSelectedNavItem(R.id.nav_Recipe)
             }
 
-            navProfile.setOnClickListener {
-                loadFragment(SettingsFragment(),fullScreen = true)
+            navSettings.setOnClickListener {
+                loadFragment(SettingsFragment())
                 updateSelectedNavItem(R.id.nav_settings)
             }
-        }
-    }
 
-    private fun showCategorySelectionDialog() {
-        val categories = arrayOf("Fridge", "Freezer", "Pantry") // Example categories
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Select Category")
-        builder.setItems(categories) { dialog, which ->
-            val selectedCategory = categories[which]
-            // Pass selectedCategory to InventoryFragment
-            filterIngredientsByCategory(selectedCategory)
-        }
-        builder.show()
-    }
-
-    private fun filterIngredientsByCategory(category: String) {
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as? InventoryFragment
-        fragment?.filterByCategory(category)
     }
 
     private fun onAddButtonClicked() {
-        setVisibility(clicked)
-        setAnimation(clicked)
+        //setVisibility(clicked)
+        //setAnimation(clicked)
         clicked = !clicked
+
+        if (clicked) {
+            // Show the dialog when the button is clicked
+            val dialog = AddIngredientFragment()
+            dialog.show(supportFragmentManager, "AddIngredientDialog")
+        }
     }
 
     private fun setAnimation(clicked: Boolean) {
@@ -134,12 +125,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadFragment(fragment: Fragment, fullScreen: Boolean) {
+    private fun loadFragment(fragment: Fragment) {
+        recipeContainer.visibility = View.GONE // Ensure the container is visible
+        FrameContainer.visibility = View.VISIBLE
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
+           // .addToBackStack(null) // Optional: Adds the transaction to the back stack
             .commit()
 
-        adjustContainerSize(fullScreen)
+       // adjustContainerSize(fullScreen)
+    }
+
+    private fun loadRecipeFragment(fragment: Fragment) {
+         FrameContainer.visibility = View.GONE
+        recipeContainer.visibility = View.VISIBLE // Ensure the container is visible
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_Recipe_container, fragment)
+            // .addToBackStack(null) // Optional: Adds the transaction to the back stack
+            .commit()
+        // adjustContainerSize(fullScreen)
     }
 
     private fun adjustContainerSize(fullScreen: Boolean) {
@@ -156,8 +161,6 @@ class MainActivity : AppCompatActivity() {
 
         container.layoutParams = params
     }
-
-
 
     private fun updateFabVisibility(fragment: Fragment) {
         when (fragment) {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +28,7 @@ class InventoryFragment : Fragment() {
     private var param2: String? = null
     private lateinit var ingredientViewModel: IngredientViewModel
     private lateinit var ingredientAdapter: IngredientAdapter
-
+  private lateinit var categoryButton: ImageButton
     private lateinit var imgCategory: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +45,13 @@ class InventoryFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_inventory1, container, false)
 
-        // Initialize views
+        imgCategory = view.findViewById(R.id.img_category)
+
+        imgCategory.setOnClickListener {
+             showCategorySelectionDialog()
+         }
+
+        // Initialize RecyclerView
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         ingredientAdapter = IngredientAdapter()
@@ -53,22 +60,27 @@ class InventoryFragment : Fragment() {
         // Initialize ViewModel
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
-        // Observe filtered ingredients
+        // Observe filtered ingredients only
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
             ingredientAdapter.setIngredients(ingredients)
         })
 
-        // Initially observe all ingredients if needed
-        ingredientViewModel.allIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
-            ingredientAdapter.setIngredients(ingredients)
-        })
-
         return view
-
     }
 
-    fun filterByCategory(category: String) {
+    private fun filterByCategory(category: String) {
         ingredientViewModel.filterIngredientsByCategory(category)
+    }
+
+    private fun showCategorySelectionDialog() {
+        val categories = Category.values().map { it.displayName }.toTypedArray()
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Select Category")
+        builder.setItems(categories) { dialog, which ->
+            val selectedCategory = Category.values()[which].name
+            filterByCategory(selectedCategory)
+        }
+        builder.show()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

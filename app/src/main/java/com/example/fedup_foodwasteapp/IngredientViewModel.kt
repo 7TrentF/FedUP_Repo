@@ -14,7 +14,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val _filteredIngredients = MutableLiveData<List<Ingredients>>()
     val filteredIngredients: LiveData<List<Ingredients>> get() = _filteredIngredients
 
-
     // LiveData to hold the result of the insertion operation
     private val _insertResult = MutableLiveData<Boolean>()
     val insertResult: LiveData<Boolean> get() = _insertResult
@@ -36,12 +35,13 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun filterIngredientsByCategory(category: String) {
-        viewModelScope.launch {
-            repository.getIngredientsByCategory(category).observeForever { ingredients ->
-                _filteredIngredients.postValue(ingredients)
-            }
+        repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
+            _filteredIngredients.postValue(ingredientsByCategory)
         }
     }
+
+
+
 
 }
 
