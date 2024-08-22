@@ -8,7 +8,6 @@
     android:background="@color/grey"
     android:orientation="vertical">
 
-        <!-- UI elements for the ingredients list -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -24,6 +24,9 @@ private const val ARG_PARAM2 = "param2"
 class AddIngredientFragment : DialogFragment() {
 
     private lateinit var ingredientViewModel: IngredientViewModel
+    private lateinit var tvCategory: TextView
+    private lateinit var btnPlus: ImageButton
+    private lateinit var btnMinus: ImageButton
     private var currentCategoryIndex = 0
 
     override fun onCreateView(
@@ -46,11 +49,11 @@ class AddIngredientFragment : DialogFragment() {
             }
         })
 
-        val tvCategory: TextView = view.findViewById(R.id.tv_category)
-        val btnPlus: ImageButton = view.findViewById(R.id.btn_plus)
-        val btnMinus: ImageButton = view.findViewById(R.id.btn_minus)
-        val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)        // Categories array
-        val categories = Category.entries.toTypedArray()
+         tvCategory = view.findViewById(R.id.tv_category)
+         btnPlus    = view.findViewById(R.id.btn_plus)
+         btnMinus   = view.findViewById(R.id.btn_minus)
+         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)        // Categories array
+         val categories = Category.entries.toTypedArray()
 
         // Initialize TextView with the first category
         tvCategory.text = categories[currentCategoryIndex].displayName
@@ -99,6 +102,7 @@ class AddIngredientFragment : DialogFragment() {
             val quantity = view.findViewById<EditText>(R.id.et_quantity).text.toString()
             val category = categories[currentCategoryIndex].displayName
             val expirationDate = expirationDateEditText.text.toString()
+
             // Create Ingredient object and insert into the database
             val ingredient = Ingredients(
                 productName = name,

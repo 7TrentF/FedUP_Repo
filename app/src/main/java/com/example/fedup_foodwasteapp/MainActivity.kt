@@ -26,87 +26,100 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 
+// MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
 
+    // FloatingActionButton for adding a new item.
     private lateinit var addFabItem: FloatingActionButton
+
+    // FloatingActionButton for selecting a category.
     private lateinit var categoryFab: FloatingActionButton
+
+    // Animations for the FloatingActionButtons.
     private val rotateOpen: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_open_animate) }
     private val rotateClose: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.rotate_close_animate) }
     private val fromBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_bottom_animate) }
-    private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) } // Corrected from_bottom_animate
+    private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) }
+
+    // ViewModel for managing UI-related data in a lifecycle-conscious way.
     private lateinit var ingredientViewModel: IngredientViewModel
-    private lateinit var FrameContainer : FrameLayout
+
+    // FrameLayouts to contain fragments.
+    private lateinit var FrameContainer: FrameLayout
     private lateinit var recipeContainer: FrameLayout
+
+    // Boolean to track whether the FAB menu is open.
     private var clicked = false
 
+    // Called when the activity is created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+        // Initialize navigation elements and other UI components.
+        val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
+        val navRecipe = findViewById<LinearLayout>(R.id.nav_Recipe)
+        val navSettings = findViewById<LinearLayout>(R.id.nav_settings)
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
-         recipeContainer = findViewById(R.id.fragment_Recipe_container)
-        FrameContainer  = findViewById(R.id.fragment_container)
+        recipeContainer = findViewById(R.id.fragment_Recipe_container)
+        FrameContainer = findViewById(R.id.fragment_container)
+        addFabItem = findViewById(R.id.add_fab_item)
+        categoryFab = findViewById(R.id.category_fab)
 
+        // Load the InventoryFragment if there is no saved state.
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, InventoryFragment())
+                .commit()
+        }
 
+        // Handle system window insets for proper padding.
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
-            addFabItem = findViewById(R.id.add_fab_item)
-            categoryFab = findViewById(R.id.category_fab)
+        // Set up the click listener for the add FAB.
+        addFabItem.setOnClickListener {
+            onAddButtonClicked()
+        }
 
-            if (savedInstanceState == null) {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, InventoryFragment())
-                    .commit()
-            }
+        // Set up the click listener for the category FAB.
+        categoryFab.setOnClickListener {
+            Toast.makeText(this, "Category button clicked", Toast.LENGTH_SHORT).show()
+        }
 
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
-            }
+        // Set up the click listeners for the navigation items.
+        navInventory.setOnClickListener {
+            loadFragment(InventoryFragment())
+            updateSelectedNavItem(R.id.nav_inventory)
+        }
 
-            val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
-            val navRecipe = findViewById<LinearLayout>(R.id.nav_Recipe)
-            val navSettings = findViewById<LinearLayout>(R.id.nav_settings)
+        navRecipe.setOnClickListener {
+            loadRecipeFragment(RecipeFragment())
+            updateSelectedNavItem(R.id.nav_Recipe)
+        }
 
-            addFabItem.setOnClickListener {
-                onAddButtonClicked()
-               // AddIngredientDialog() // Show the dialog instead of loading a fragment
-            }
-
-            categoryFab.setOnClickListener {
-                Toast.makeText(this, "Category button clicked", Toast.LENGTH_SHORT).show()
-            }
-
-            navInventory.setOnClickListener {
-                loadFragment(InventoryFragment())
-                updateSelectedNavItem(R.id.nav_inventory)
-            }
-
-            navRecipe.setOnClickListener {
-                loadRecipeFragment(RecipeFragment())
-                updateSelectedNavItem(R.id.nav_Recipe)
-            }
-
-            navSettings.setOnClickListener {
-                loadFragment(SettingsFragment())
-                updateSelectedNavItem(R.id.nav_settings)
-            }
-
+        navSettings.setOnClickListener {
+            loadFragment(SettingsFragment())
+            updateSelectedNavItem(R.id.nav_settings)
+        }
     }
 
+    // Handles the click action for the add button.
     private fun onAddButtonClicked() {
-        //setVisibility(clicked)
-        //setAnimation(clicked)
         clicked = !clicked
 
         if (clicked) {
-            // Show the dialog when the button is clicked
+            // Show the AddIngredientFragment dialog when the button is clicked.
             val dialog = AddIngredientFragment()
             dialog.show(supportFragmentManager, "AddIngredientDialog")
         }
     }
 
+    // Handles the animation of the FABs based on their state (opened or closed).
     private fun setAnimation(clicked: Boolean) {
         if (!clicked) {
             categoryFab.startAnimation(fromBottom)
@@ -117,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Sets the visibility of the category FAB based on the state (opened or closed).
     private fun setVisibility(clicked: Boolean) {
         if (!clicked) {
             categoryFab.visibility = View.VISIBLE
@@ -125,28 +139,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Loads a given fragment into the FrameContainer.
     private fun loadFragment(fragment: Fragment) {
-        recipeContainer.visibility = View.GONE // Ensure the container is visible
+        recipeContainer.visibility = View.GONE
         FrameContainer.visibility = View.VISIBLE
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
-           // .addToBackStack(null) // Optional: Adds the transaction to the back stack
             .commit()
-
-       // adjustContainerSize(fullScreen)
     }
 
+    // Loads a given fragment into the recipeContainer.
     private fun loadRecipeFragment(fragment: Fragment) {
-         FrameContainer.visibility = View.GONE
-        recipeContainer.visibility = View.VISIBLE // Ensure the container is visible
-
+        FrameContainer.visibility = View.GONE
+        recipeContainer.visibility = View.VISIBLE
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_Recipe_container, fragment)
-            // .addToBackStack(null) // Optional: Adds the transaction to the back stack
             .commit()
-        // adjustContainerSize(fullScreen)
     }
 
+    // Adjusts the container size (full-screen or wrap-content).
     private fun adjustContainerSize(fullScreen: Boolean) {
         val container = findViewById<FrameLayout>(R.id.fragment_container)
         val params = container.layoutParams as ConstraintLayout.LayoutParams
@@ -162,6 +173,7 @@ class MainActivity : AppCompatActivity() {
         container.layoutParams = params
     }
 
+    // Updates the visibility of the FABs based on the currently loaded fragment.
     private fun updateFabVisibility(fragment: Fragment) {
         when (fragment) {
             is InventoryFragment -> addFabItem.visibility = View.VISIBLE
@@ -170,21 +182,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Updates the UI to highlight the selected navigation item.
     private fun updateSelectedNavItem(selectedItemId: Int) {
-        // Reset all items to default state
+        // Reset all navigation items to their default state.
         resetNavItem(R.id.nav_inventory, R.id.nav_inventory_icon, R.id.nav_inventory_text)
         resetNavItem(R.id.nav_Recipe, R.id.nav_Recipe_icon, R.id.nav_Recipe_text)
         resetNavItem(R.id.nav_settings, R.id.nav_settings_icon, R.id.nav_settings_text)
 
-        // Highlight the selected item
+        // Highlight the selected item.
         highlightSelectedItem(selectedItemId)
     }
 
+    // Resets the specified navigation item to its default appearance.
     private fun resetNavItem(layoutId: Int, iconId: Int, textId: Int) {
         findViewById<ImageView>(iconId).setColorFilter(ContextCompat.getColor(this, R.color.white))
         findViewById<TextView>(textId).setTextColor(ContextCompat.getColor(this, R.color.white))
     }
 
+    // Highlights the selected navigation item.
     private fun highlightSelectedItem(selectedItemId: Int) {
         val selectedIconId: Int
         val selectedTextId: Int
@@ -205,8 +220,9 @@ class MainActivity : AppCompatActivity() {
             else -> return
         }
 
-        // Set selected colors for the icon and text
+        // Set selected colors for the icon and text.
         findViewById<ImageView>(selectedIconId).setColorFilter(ContextCompat.getColor(this, R.color.green))
         findViewById<TextView>(selectedTextId).setTextColor(ContextCompat.getColor(this, R.color.green))
     }
 }
+

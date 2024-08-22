@@ -13,7 +13,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="8dp"
         android:text="Add Ingredient"
         android:textColor="@color/white"
@@ -30,6 +30,7 @@
         android:layout_marginTop="48dp"
         android:background="@color/orange"
         android:src="@drawable/ic_question_mark"
+        android:contentDescription="Category Icon"
         app:layout_constraintStart_toEndOf="@+id/btn_plus"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,6 +93,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:background="@drawable/custom_button"
+        android:contentDescription="decrease quantity"
         android:src="@drawable/ic_minus"
         app:layout_constraintBottom_toBottomOf="@+id/tv_category"
         app:layout_constraintEnd_toStartOf="@+id/tv_category"
@@ -106,6 +108,7 @@
         android:background="@drawable/custom_button"
         android:backgroundTint="@color/green"
         android:src="@drawable/ic_plus"
+        android:contentDescription="increase quantity"
         app:layout_constraintBottom_toBottomOf="@+id/tv_category"
         app:layout_constraintStart_toEndOf="@+id/tv_category"
         app:layout_constraintTop_toTopOf="@+id/tv_category" />
@@ -175,6 +178,7 @@
         android:layout_marginEnd="12dp"
         android:background="@drawable/custom_text_box"
         android:textColor="@color/white"
+        android:contentDescription="Ingredient notes"
         android:textColorHint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_quantity" />
@@ -188,6 +192,7 @@
         android:background="@drawable/custom_button"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_tick"
+        android:contentDescription="Save Ingredient Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText" />
 

@@ -17,50 +17,63 @@ import androidx.recyclerview.widget.RecyclerView
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [InventoryFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+// InventoryFragment class represents the fragment that displays the inventory of ingredients.
 class InventoryFragment : Fragment() {
 
+    // Nullable parameters that can be passed to the fragment as arguments.
     private var param1: String? = null
     private var param2: String? = null
+
+    // ViewModel for managing UI-related data in a lifecycle-conscious way.
     private lateinit var ingredientViewModel: IngredientViewModel
+
+    // Adapter for the RecyclerView that displays the list of ingredients.
     private lateinit var ingredientAdapter: IngredientAdapter
-  private lateinit var categoryButton: ImageButton
+
+    // ImageButton for selecting a category.
+    private lateinit var categoryButton: ImageButton
+
+    // ImageButton for selecting a category (likely the same as above).
     private lateinit var imgCategory: ImageButton
 
+    // Called when the fragment is being created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Retrieve the arguments passed to the fragment (if any).
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
     }
 
+    // Called to create the view hierarchy associated with the fragment.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_inventory1, container, false)
+        // Inflate the layout for this fragment.
+        val view = inflater.inflate(R.layout.fragment_inventory, container, false)
 
+        // Initialize the category selection ImageButton.
         imgCategory = view.findViewById(R.id.img_category)
-
         imgCategory.setOnClickListener {
-             showCategorySelectionDialog()
-         }
+            // Show a dialog to select a category when the button is clicked.
+            showCategorySelectionDialog()
+        }
 
-        // Initialize RecyclerView
+        // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Set up the adapter for the RecyclerView.
         ingredientAdapter = IngredientAdapter()
         recyclerView.adapter = ingredientAdapter
 
-        // Initialize ViewModel
+        // Initialize the ViewModel associated with this fragment.
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
-        // Observe filtered ingredients only
+        // Observe the filtered ingredients LiveData from the ViewModel.
+        // Update the adapter when the data changes.
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
             ingredientAdapter.setIngredients(ingredients)
         })
@@ -68,14 +81,18 @@ class InventoryFragment : Fragment() {
         return view
     }
 
+    // Filters the ingredients by the selected category.
     private fun filterByCategory(category: String) {
         ingredientViewModel.filterIngredientsByCategory(category)
     }
 
+    // Displays a dialog for category selection.
     private fun showCategorySelectionDialog() {
+        // Get the display names of the categories.
         val categories = Category.values().map { it.displayName }.toTypedArray()
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Select Category")
+        // Set up the dialog with the category names and handle the selection.
         builder.setItems(categories) { dialog, which ->
             val selectedCategory = Category.values()[which].name
             filterByCategory(selectedCategory)
@@ -83,26 +100,26 @@ class InventoryFragment : Fragment() {
         builder.show()
     }
 
+    // Called after the view hierarchy associated with the fragment has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize RecyclerView
+        // Re-initialize the RecyclerView and its adapter.
         val recyclerView = view.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
         val adapter = IngredientAdapter()
         recyclerView.layoutManager = LinearLayoutManager(context)
-
-        // Set the adapter
         recyclerView.adapter = adapter
 
-        // Initialize ViewModel
+        // Re-initialize the ViewModel.
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        // Observe LiveData with viewLifecycleOwner
+        // Observe all ingredients LiveData and update the adapter when the data changes.
         ingredientViewModel.allIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
             ingredients?.let { adapter.setIngredients(it) }
         })
     }
 
+    // Companion object to create a new instance of InventoryFragment with arguments.
     companion object {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
@@ -114,3 +131,4 @@ class InventoryFragment : Fragment() {
             }
     }
 }
+
