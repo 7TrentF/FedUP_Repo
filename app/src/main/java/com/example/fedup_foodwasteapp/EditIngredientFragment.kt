@@ -10,50 +10,48 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import java.util.Calendar
 
-// TODO: Rename parameter arguments, choose names that match
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-class AddIngredientFragment : DialogFragment() {
+class EditIngredientFragment : DialogFragment() {
 
     private lateinit var ingredientViewModel: IngredientViewModel
     private lateinit var tvCategory: TextView
     private lateinit var btnPlus: ImageButton
     private lateinit var btnMinus: ImageButton
     private var currentCategoryIndex = 0
+    private var ingredientId: Long = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_add_ingredient, container, false)
-        // Set the dialog background color programmatically
+        val view = inflater.inflate(R.layout.fragment_edit_ingredient, container, false)
         dialog?.window?.setBackgroundDrawableResource(R.color.grey)
-        // Initialize ViewModel
+
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        // Observe the result of the insertion operation
-        ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
-            if (success) {
-                Toast.makeText(requireContext(), "Ingredient was added", Toast.LENGTH_SHORT).show()
-                dismiss() // Close the dialog
-            } else {
-                Toast.makeText(requireContext(), "Something went wrong", Toast.LENGTH_SHORT).show()
-            }
-        })
+        // Retrieve the ingredient details from the arguments
+        val ingredientName = arguments?.getString("ingredientName") ?: ""
+        val ingredientQuantity = arguments?.getString("ingredientQuantity") ?: ""
+        val ingredientExpirationDate = arguments?.getString("ingredientExpirationDate") ?: ""
+        val ingredientCategory = arguments?.getString("ingredientCategory") ?: ""
+        ingredientId = arguments?.getLong("ingredientId") ?: -1
 
-         tvCategory = view.findViewById(R.id.tv_category)
-         btnPlus    = view.findViewById(R.id.btn_plus)
-         btnMinus   = view.findViewById(R.id.btn_minus)
-         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)        // Categories array
-         val categories = Category.entries.toTypedArray()
+        // Initialize UI components
+        tvCategory = view.findViewById(R.id.tv_category)
+        btnPlus = view.findViewById(R.id.btn_plus)
+        btnMinus = view.findViewById(R.id.btn_minus)
+        val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)
 
-        // Initialize TextView with the first category
+        // Set initial values in UI
+        view.findViewById<EditText>(R.id.et_ingredient_name).setText(ingredientName)
+        view.findViewById<EditText>(R.id.et_quantity).setText(ingredientQuantity)
+        expirationDateEditText.setText(ingredientExpirationDate)
+
+        // Categories array
+        val categories = Category.entries.toTypedArray()
+        currentCategoryIndex = categories.indexOfFirst { it.displayName == ingredientCategory }
         tvCategory.text = categories[currentCategoryIndex].displayName
 
         // Plus button click
@@ -72,18 +70,16 @@ class AddIngredientFragment : DialogFragment() {
             tvCategory.text = categories[currentCategoryIndex].displayName
         }
 
+        // Date picker for expiration date
         expirationDateEditText.setOnClickListener {
-            // Get current date
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-            // Create and show the DatePickerDialog
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 { _, selectedYear, selectedMonth, selectedDay ->
-                    // Update EditText with the selected date
                     val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                     expirationDateEditText.setText(formattedDate)
                 },
@@ -101,15 +97,22 @@ class AddIngredientFragment : DialogFragment() {
             val category = categories[currentCategoryIndex].displayName
             val expirationDate = expirationDateEditText.text.toString()
 
-            // Create Ingredient object and insert into the database
-            val ingredient = Ingredients(
+            // Create Ingredient object with updated data
+            val updatedIngredient = Ingredients(
+                id = ingredientId,  // Make sure you use the correct ID for the existing ingredient
                 productName = name,
                 quantity = quantity,
                 expirationDate = expirationDate,
                 category = category
             )
-            ingredientViewModel.insert(ingredient)
+
+            // Call the update method in the ViewModel
+            ingredientViewModel.update(updatedIngredient)
+
+            Toast.makeText(requireContext(), "Ingredient updated successfully", Toast.LENGTH_SHORT).show()
+            dismiss()
         }
+
         return view
     }
 }

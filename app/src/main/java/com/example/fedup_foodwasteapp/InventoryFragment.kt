@@ -65,8 +65,11 @@ class InventoryFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        // Initialize the IngredientDao from the Room database.
+        val ingredientDao = AppDatabase.getDatabase(requireContext()).ingredientDao()
+
         // Set up the adapter for the RecyclerView.
-        ingredientAdapter = IngredientAdapter()
+        ingredientAdapter = IngredientAdapter(requireContext(), ingredientDao)
         recyclerView.adapter = ingredientAdapter
 
         // Initialize the ViewModel associated with this fragment.
@@ -106,7 +109,8 @@ class InventoryFragment : Fragment() {
 
         // Re-initialize the RecyclerView and its adapter.
         val recyclerView = view.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
-        val adapter = IngredientAdapter()
+        val ingredientDao = AppDatabase.getDatabase(requireContext()).ingredientDao()
+        val adapter = IngredientAdapter(requireContext(), ingredientDao)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
@@ -119,6 +123,8 @@ class InventoryFragment : Fragment() {
         })
     }
 
+
+
     // Companion object to create a new instance of InventoryFragment with arguments.
     companion object {
         @JvmStatic
@@ -129,6 +135,7 @@ class InventoryFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+
+
     }
 }
-

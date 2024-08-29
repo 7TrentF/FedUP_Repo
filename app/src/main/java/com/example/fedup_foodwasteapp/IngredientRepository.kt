@@ -22,6 +22,11 @@ class IngredientRepository(private val ingredientDao: IngredientDao) {
         ingredientDao.delete(ingredient)
     }
 
+    // Add the update method in the repository
+    suspend fun update(ingredient: Ingredients) {
+        ingredientDao.update(ingredient)
+    }
+
     // This function retrieves ingredients by category from the database.
     // It calls the DAO's getIngredientByCategory function and returns the result as LiveData.
     fun getIngredientsByCategory(category: String): LiveData<List<Ingredients>> {

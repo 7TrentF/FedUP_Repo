@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
 
+
     // An instance of IngredientRepository to manage data operations.
     private val repository: IngredientRepository
 
@@ -65,6 +66,23 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     fun filterIngredientsByCategory(category: String) {
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
             _filteredIngredients.postValue(ingredientsByCategory)
+        }
+    }
+
+    fun deleteIngredient(ingredient: Ingredients) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.delete(ingredient)
+        }
+    }
+
+    fun update(ingredient: Ingredients) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.update(ingredient) // Call the update method from the repository
+            // If needed, you can use a similar success flag as in the insert method
+            // _updateResult.postValue(true)
+        } catch (e: Exception) {
+            // Handle exceptions if necessary
+            // _updateResult.postValue(false)
         }
     }
 }

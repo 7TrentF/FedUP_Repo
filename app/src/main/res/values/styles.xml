@@ -4,4 +4,9 @@
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
+
+    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupBackground">@color/darkgrey</item>
+        <item name="android:textColor">@android:color/white</item> <!-- Change text color to white or any suitable color -->
+    </style>
 </resources>

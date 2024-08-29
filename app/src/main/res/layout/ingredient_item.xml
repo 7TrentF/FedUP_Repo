@@ -66,11 +66,13 @@
                     -->
 
                 <ImageButton
+                    android:id="@+id/options_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-                    android:background="@drawable/vert_menu"
-                    android:contentDescription="@string/remove_item" />
+                    android:src="@drawable/vert_menu"
+                    android:contentDescription="@string/options"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_gravity="end"/>
 
             </LinearLayout>
 
