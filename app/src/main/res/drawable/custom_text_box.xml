@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/edittext_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#3C3E42"/> <!-- Grey fill color -->
+    <stroke
+        android:color="@color/white"
+    android:width="1dp"/> <!-- Outline thickness -->
+    <corners android:radius="10dp"/> <!-- Rounded corners (optional) -->
+</shape>
