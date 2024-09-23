@@ -1,10 +1,7 @@
 package com.example.fedup_foodwasteapp
 
-import com.example.fedup_foodwasteapp.Ingredients
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,64 +13,38 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-
-
-
 // The IngredientViewModel class extends AndroidViewModel, providing the application context.
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: IngredientRepository
-    val allIngredients: LiveData<List<Ingredients>>
 
+    private val repository: IngredientRepository
+    val allIngredients: LiveData<List<Ingredient>>
+    private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
+    val filteredIngredients: LiveData<List<Ingredient>> get() = _filteredIngredients
+    private val _insertResult = MutableLiveData<Boolean>()
+    val insertResult: LiveData<Boolean> get() = _insertResult
     private val apiService = RetrofitClient.apiService
-    private val authManager = AuthManager()
+    private val authManager = AuthManager.getInstance()
 
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
-        repository = IngredientRepository(ingredientDao)
+        repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
+        _filteredIngredients.value = emptyList()
         fetchIngredientsFromFirebase()
     }
 
-
-    // API call to fetch ingredients
-    fun fetchIngredients(authToken: String, onResult: (List<Ingredient>?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val response = RetrofitClient.apiService.getIngredients("Bearer $authToken")
-                if (response.isSuccessful) {
-                    onResult(response.body())
-                } else {
-                    onResult(null)
-                }
-            } catch (e: Exception) {
-                onResult(null)
-            }
+    fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.insert(ingredient)
+            _insertResult.postValue(true)
+            // Optionally, sync to REST API
+            syncIngredientToApi(ingredient)
+        } catch (e: Exception) {
+            _insertResult.postValue(false)
+            Log.e("IngredientViewModel", "Insert failed: ${e.message}")
         }
     }
-
-    // Load ingredients using the token
-    fun loadIngredients() {
-        authManager.getIdToken { token ->
-            token?.let {
-                // Call the fetchIngredients method directly
-                fetchIngredients(it) { ingredients ->
-                    if (ingredients != null) {
-                        // Update LiveData or UI
-                    } else {
-                        // Handle error
-                    }
-                }
-            } ?: run {
-                // Handle unauthenticated state
-            }
-        }
-    }
-
-
 
     private fun fetchIngredientsFromFirebase() {
         val user = FirebaseAuth.getInstance().currentUser
@@ -81,13 +52,13 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
             database.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val ingredientsList = mutableListOf<Ingredients>()
+                    val ingredientsList = mutableListOf<Ingredient>()
                     for (ingredientSnapshot in snapshot.children) {
-                        val ingredient = ingredientSnapshot.getValue(Ingredients::class.java)
+                        val ingredient = ingredientSnapshot.getValue(Ingredient::class.java)
                         ingredient?.let { ingredientsList.add(it) }
                     }
-                    // Update Room Database using viewModelScope
-                    syncIngredients(ingredientsList)
+                    // Synchronize with Room Database
+                    repository.syncIngredients(viewModelScope, ingredientsList)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -97,57 +68,70 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
-    // A MutableLiveData object that holds the filtered list of ingredients.
-    // This is private and mutable to ensure that it can only be modified within the ViewModel.
-    private val _filteredIngredients = MutableLiveData<List<Ingredients>>()
-
-    // A public getter for the filtered ingredients, returning an immutable LiveData.
-    val filteredIngredients: LiveData<List<Ingredients>> get() = _filteredIngredients
-
-    // A MutableLiveData object to hold the result of an insert operation (success or failure).
-    private val _insertResult = MutableLiveData<Boolean>()
-
-    // A public getter for the insert result, returning an immutable LiveData.
-    val insertResult: LiveData<Boolean> get() = _insertResult
-
-    // The init block initializes the repository and retrieves all ingredients from the database.
-    init {
-
-    }
-
-    // This function inserts a new ingredient into the database.
-    // It runs in a background thread (IO Dispatcher) to avoid blocking the main thread.
-    fun insert(ingredient: Ingredients) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            // The repository's insert function is called.
-            repository.insert(ingredient)
-
-            // If successful, the result LiveData is updated to true.
-            _insertResult.postValue(true)
-        } catch (e: Exception) {
-            // If an error occurs, the result LiveData is updated to false.
-            _insertResult.postValue(false)
+    fun loadIngredients() {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                // Fetch from REST API
+                repository.fetchIngredients(viewModelScope, token) { ingredients, fetchError ->
+                    if (ingredients != null) {
+                        // Update local Room database with fetched data
+                        viewModelScope.launch(Dispatchers.IO) {
+                            repository.syncIngredients(viewModelScope, ingredients)
+                        }
+                    } else {
+                        // Handle error
+                        Log.e("IngredientViewModel", "Fetch failed: $fetchError")
+                    }
+                }
+            } else {
+                // Handle unauthenticated state or fetch error
+                Log.e("IngredientViewModel", "Token retrieval failed: $error")
+            }
         }
     }
 
-    // This function filters ingredients by category.
-    // The results are observed forever, and the filtered ingredients LiveData is updated with the result.
+    private fun syncIngredientToApi(ingredient: Ingredient) {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        val response = repository.apiService.addIngredient("Bearer $token", ingredient)
+                        if (response.isSuccessful) {
+                            Log.d("IngredientViewModel", "Ingredient synced to API successfully.")
+                        } else {
+                            Log.e("IngredientViewModel", "API sync failed: ${response.code()} ${response.message()}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("IngredientViewModel", "API sync exception: ${e.message}")
+                    }
+                }
+            } else {
+                Log.e("IngredientViewModel", "API sync token retrieval failed: $error")
+            }
+        }
+    }
+
+
+// Extension function to map Ingredients to Ingredient API model
+fun Ingredient.toApiModel(): Ingredient {
+    return Ingredient(
+        id = this.id,
+        productName = this.productName,
+        quantity = this.quantity,
+        expirationDate = this.expirationDate,
+        category = this.category,
+        userId = this.userId
+    )
+}
+
+
     fun filterIngredientsByCategory(category: String) {
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
             _filteredIngredients.postValue(ingredientsByCategory)
         }
     }
-    // This function is called when the insert is successful.
+
     fun onInsertSuccess() {
-
-        // For example, you might want to trigger additional actions or update UI
-    }
-
-    private fun syncIngredients(ingredients: List<Ingredients>) = viewModelScope.launch(Dispatchers.IO) {
-        repository.syncIngredients(ingredients)
+        // Implementation can be added as per requirements
     }
 }
-
-

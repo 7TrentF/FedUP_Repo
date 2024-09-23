@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
@@ -14,37 +15,27 @@ import androidx.room.Update
 @Dao
 interface IngredientDao {
 
-    // The @Insert annotation marks this function to insert a new record into the 'ingredients' table.
-    // The parameter is an instance of the Ingredients class, representing the record to be inserted.
-    @Insert
-    fun insert(ingredients: Ingredients)
+    @Query("SELECT * FROM ingredients")
+    fun getAllIngredients(): LiveData<List<Ingredient>>
 
-    // The @Update annotation marks this function to update an existing record in the 'ingredients' table.
-    // The parameter is an instance of the Ingredients class, representing the record to be updated.
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(ingredient: Ingredient)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(ingredients: List<Ingredient>)
+
     @Update
-    fun update(ingredient: Ingredients)
+    suspend fun update(ingredient: Ingredient)
 
-    // The @Delete annotation marks this function to delete a record from the 'ingredients' table.
-    // The parameter is an instance of the Ingredients class, representing the record to be deleted.
     @Delete
-    fun delete(ingredients: Ingredients)
+    suspend fun delete(ingredient: Ingredient)
 
-    // This function retrieves all records from the 'ingredients' table,
-    // ordered by the expiration date in ascending order.
-    // It returns a LiveData object, which allows the UI to observe changes in the data.
-    @Query("SELECT * FROM ingredients ORDER BY expiration_date ASC")
-    fun getAllIngredients(): LiveData<List<Ingredients>>
+    @Query("DELETE FROM ingredients")
+    suspend fun deleteAll()
 
-    // This function retrieves all records from the 'ingredients' table that belong to a specific category.
-    // The category is passed as a parameter, and it returns a LiveData object to observe the results.
     @Query("SELECT * FROM ingredients WHERE category = :category")
-    fun getIngredientByCategory(category: String): LiveData<List<Ingredients>>
+    fun getIngredientByCategory(category: String): LiveData<List<Ingredient>>
 
-    // This function retrieves a single record from the 'ingredients' table by its ID.
-    // It returns an instance of the Ingredients class, representing the record found.
-    // If no record is found, it returns null.
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
-    fun getIngredientById(id: Int): Ingredients?
-    fun deleteAll()
-    abstract fun insertAll(ingredients: List<Ingredients>)
+    fun getIngredientById(id: Int): Ingredient?
 }

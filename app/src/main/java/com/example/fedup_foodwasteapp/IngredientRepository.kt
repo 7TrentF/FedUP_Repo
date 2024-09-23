@@ -1,41 +1,63 @@
 package com.example.fedup_foodwasteapp
 
-import com.example.fedup_foodwasteapp.Ingredients
+import android.util.Log
 import androidx.lifecycle.LiveData
+
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.ViewModel
-import com.example.fedup_foodwasteapp.RetrofitClient.apiService
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-// The IngredientRepository class acts as a mediator between the ViewModel and the DAO.
-// It abstracts the data operations, making it easier to manage the data in the application.
-class IngredientRepository(private val ingredientDao: IngredientDao) {
+class IngredientRepository(
+    private val ingredientDao: IngredientDao,
+    val apiService: ApiService // Made apiService public for ViewModel access
+) {
+    val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients()
 
-    val allIngredients: LiveData<List<Ingredients>> = ingredientDao.getAllIngredients()
-
-    suspend fun insert(ingredient: Ingredients) {
+    suspend fun insert(ingredient: Ingredient) {
         ingredientDao.insert(ingredient)
     }
 
-    suspend fun update(ingredient: Ingredients) {
+    suspend fun update(ingredient: Ingredient) {
         ingredientDao.update(ingredient)
     }
 
-    suspend fun delete(ingredient: Ingredients) {
+    suspend fun delete(ingredient: Ingredient) {
         ingredientDao.delete(ingredient)
     }
 
-    suspend fun syncIngredients(ingredients: List<Ingredients>) {
-        ingredientDao.deleteAll()
-        ingredientDao.insertAll(ingredients)
+    // Synchronize ingredients from Firebase to Room
+    fun syncIngredients(coroutineScope: CoroutineScope, ingredients: List<Ingredient>) {
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                ingredientDao.deleteAll()
+                ingredientDao.insertAll(ingredients)
+            } catch (e: Exception) {
+                Log.e("IngredientRepository", "Sync failed: ${e.message}")
+            }
+        }
     }
 
-    // This function retrieves ingredients by category from the database.
-    // It calls the DAO's getIngredientByCategory function and returns the result as LiveData.
-    fun getIngredientsByCategory(category: String): LiveData<List<Ingredients>> {
+    fun getIngredientsByCategory(category: String): LiveData<List<Ingredient>> {
         return ingredientDao.getIngredientByCategory(category)
     }
 
-
+    // Fetch ingredients from REST API
+    fun fetchIngredients(coroutineScope: CoroutineScope, authToken: String, onResult: (List<Ingredient>?, String?) -> Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                val response = apiService.getIngredients("Bearer $authToken")
+                if (response.isSuccessful) {
+                    val ingredients = response.body()
+                    onResult(ingredients, null)
+                } else {
+                    onResult(null, "Error: ${response.code()} ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onResult(null, e.localizedMessage)
+            }
+        }
+    }
 }

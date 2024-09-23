@@ -117,7 +117,7 @@ class AddIngredientFragment : DialogFragment() {
             if (key != null) {
                 database.child(key).setValue(ingredient).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                       ingredientViewModel.onInsertSuccess()
+                        ingredientViewModel.onInsertSuccess()
                     } else {
                         Toast.makeText(requireContext(), "Failed to add ingredient to Firebase.", Toast.LENGTH_SHORT).show()
                     }

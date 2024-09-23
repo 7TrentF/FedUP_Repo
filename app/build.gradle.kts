@@ -47,7 +47,7 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.logging.interceptor)
 
-
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
     //Firebase Auth
     implementation (libs.firebase.auth)

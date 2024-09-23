@@ -6,11 +6,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://fed-up-9ac4f.firebaseio.com/" // Replace with your API base URL
+    private const val BASE_URL = "https://10.0.2.2:7043/" // For emulator. Replace with actual URL for production
 
     private val retrofit by lazy {
         val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY) // Use BASIC or NONE in production
 
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
@@ -27,3 +27,4 @@ object RetrofitClient {
         retrofit.create(ApiService::class.java)
     }
 }
+
