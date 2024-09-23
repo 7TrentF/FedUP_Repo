@@ -30,7 +30,7 @@ class Register : AppCompatActivity() {
         editTextPassword = findViewById(R.id.edtPassword);
         btGoogle=findViewById(R.id.GoogleBtn)
         btSignUp=findViewById(R.id.BtnSignUp)
-        auth= Firebase.auth
+       auth= Firebase.auth
 
         btSignUp.setOnClickListener() {
             val userEmail = editTextEmail.text.toString()

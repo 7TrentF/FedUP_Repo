@@ -1,7 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    id("org.jetbrains.kotlin.kapt")
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.gms.google-services")
 }
@@ -42,12 +42,12 @@ android {
 }
 
 dependencies {
-    //Retro fit
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation (libs.logging.interceptor)
-
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    // Coroutines
+    implementation (libs.kotlinx.coroutines.play.services)
 
     //Firebase Auth
     implementation (libs.firebase.auth)
@@ -55,18 +55,20 @@ dependencies {
     //Realtime database
     implementation (libs.firebase.database)
     implementation (libs.androidx.lifecycle.viewmodel.ktx.v261)
-    // Room KTX for Kotlin extensions
+
+    // Room components
+    implementation(libs.androidx.room.runtime.v261)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.preference)
     implementation(libs.androidx.preference.ktx)
-    implementation(libs.androidx.media3.common)
-    kapt("androidx.room:room-compiler:2.5.1")
-    implementation(libs.androidx.room.ktx.v251)
-    val lifecycle_version = "2.4.1" // Check for the latest version
-    implementation (libs.androidx.cardview)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    // Lifecycle components
+    implementation(libs.androidx.lifecycle.viewmodel.ktx) // Update to latest
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // UI Components
+    implementation(libs.androidx.cardview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -75,8 +77,10 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.ktx)
+
+
+    // Testing
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit.v121)
+    androidTestImplementation(libs.androidx.espresso.core.v361)
 }

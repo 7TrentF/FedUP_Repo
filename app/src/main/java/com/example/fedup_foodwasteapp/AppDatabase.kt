@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlin.concurrent.Volatile
 
-@Database(entities = [Ingredient::class], version = 1, exportSchema = false)
+@Database(entities = [Ingredient::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun ingredientDao(): IngredientDao
 

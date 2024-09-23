@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://10.0.2.2:7043/" // For emulator. Replace with actual URL for production
+    private const val BASE_URL = "http://192.168.1.68:7043/" // For emulator. Replace with actual URL for production
 
     private val retrofit by lazy {
         val logging = HttpLoggingInterceptor()

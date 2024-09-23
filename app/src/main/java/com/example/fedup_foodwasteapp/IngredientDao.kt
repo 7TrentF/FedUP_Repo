@@ -1,6 +1,6 @@
 package com.example.fedup_foodwasteapp
 
-import com.example.fedup_foodwasteapp.Ingredients
+
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
@@ -10,8 +10,8 @@ import androidx.room.Query
 import androidx.room.Update
 
 
-// The @Dao annotation marks this interface as a Data Access Object (DAO),
-// which provides methods for interacting with the database.
+import androidx.room.*
+
 @Dao
 interface IngredientDao {
 
@@ -19,23 +19,24 @@ interface IngredientDao {
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(ingredient: Ingredient)
+    suspend fun insert(ingredient: Ingredient): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(ingredients: List<Ingredient>)
+    suspend fun insertAll(ingredients: List<Ingredient>): List<Long>
 
     @Update
-    suspend fun update(ingredient: Ingredient)
+    suspend fun update(ingredient: Ingredient): Int
 
     @Delete
-    suspend fun delete(ingredient: Ingredient)
+    suspend fun delete(ingredient: Ingredient): Int
 
     @Query("DELETE FROM ingredients")
-    suspend fun deleteAll()
+    suspend fun deleteAll(): Int
 
     @Query("SELECT * FROM ingredients WHERE category = :category")
     fun getIngredientByCategory(category: String): LiveData<List<Ingredient>>
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
-    fun getIngredientById(id: Int): Ingredient?
+    fun getIngredientById(id: Int): LiveData<Ingredient?>
 }
+

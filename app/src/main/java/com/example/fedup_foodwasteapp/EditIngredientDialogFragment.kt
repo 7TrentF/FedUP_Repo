@@ -2,7 +2,7 @@ package com.example.fedup_foodwasteapp
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import com.example.fedup_foodwasteapp.Ingredients
+import com.example.fedup_foodwasteapp.Ingredient
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,22 +19,22 @@ class EditIngredientDialogFragment : DialogFragment() {
     private val categories = Category.values()
     private var currentCategoryIndex = 0
 
-    private lateinit var ingredient: Ingredients
+    private lateinit var ingredient: Ingredient
 
     // Listener for edit events
-    private var listener: ((Ingredients) -> Unit)? = null
+    private var listener: ((Ingredient) -> Unit)? = null
 
     /**
      * Sets the listener that will be triggered when the ingredient is edited.
      */
-    fun setOnSaveListener(listener: (Ingredients) -> Unit) {
+    fun setOnSaveListener(listener: (Ingredient) -> Unit) {
         this.listener = listener
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            ingredient = it.getSerializable("ingredient") as Ingredients
+            ingredient = it.getSerializable("ingredient") as Ingredient
         }
     }
 
@@ -142,7 +142,7 @@ class EditIngredientDialogFragment : DialogFragment() {
          * @param ingredient The ingredient to be edited.
          * @return A new instance of EditIngredientDialogFragment.
          */
-        fun newInstance(ingredient: Ingredients): EditIngredientDialogFragment {
+        fun newInstance(ingredient: Ingredient): EditIngredientDialogFragment {
             val fragment = EditIngredientDialogFragment()
             val args = Bundle()
             args.putSerializable("ingredient", ingredient)

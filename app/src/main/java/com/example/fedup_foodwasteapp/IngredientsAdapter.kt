@@ -1,6 +1,6 @@
 package com.example.fedup_foodwasteapp
 
-import com.example.fedup_foodwasteapp.Ingredients
+
 import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
@@ -23,7 +23,7 @@ class IngredientAdapter(
     private val ingredientDao: IngredientDao
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
-    private var ingredients = emptyList<Ingredients>()
+    private var ingredients = emptyList<Ingredient>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ingredient_item, parent, false)
@@ -45,12 +45,12 @@ class IngredientAdapter(
 
     override fun getItemCount(): Int = ingredients.size
 
-    fun setIngredients(ingredients: List<Ingredients>) {
+    fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
         notifyDataSetChanged()
     }
 
-    private fun showPopupMenu(view: View, ingredient: Ingredients) {
+    private fun showPopupMenu(view: View, ingredient: Ingredient) {
         val popupMenu = androidx.appcompat.widget.PopupMenu(context, view)
         popupMenu.inflate(R.menu.ingredient_options_menu)
 
@@ -73,7 +73,7 @@ class IngredientAdapter(
         popupMenu.show()
     }
 
-    private fun showEditIngredientDialog(ingredient: Ingredients) {
+    private fun showEditIngredientDialog(ingredient: Ingredient) {
         val fragmentActivity = context as? FragmentActivity
         if (fragmentActivity != null) {
             try {
@@ -111,7 +111,7 @@ class IngredientAdapter(
         }
     }
 
-    private fun showDeleteConfirmationDialog(ingredient: Ingredients) {
+    private fun showDeleteConfirmationDialog(ingredient: Ingredient) {
         AlertDialog.Builder(context)
             .setTitle("Delete Ingredient")
             .setMessage("Are you sure you want to delete ${ingredient.productName}?")
@@ -133,7 +133,7 @@ class IngredientAdapter(
             .show()
     }
 
-    private fun updateIngredient(updatedIngredient: Ingredients) {
+    private fun updateIngredient(updatedIngredient: Ingredient) {
         CoroutineScope(Dispatchers.IO).launch {
             // Update the ingredient in the database
             ingredientDao.update(updatedIngredient)
