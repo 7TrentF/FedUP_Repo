@@ -16,11 +16,20 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
+
+
 // The IngredientViewModel class extends AndroidViewModel, providing the application context.
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredients>>
+
+    private val apiService = RetrofitClient.apiService
+    private val authManager = AuthManager()
 
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
@@ -28,6 +37,43 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         allIngredients = repository.allIngredients
         fetchIngredientsFromFirebase()
     }
+
+
+    // API call to fetch ingredients
+    fun fetchIngredients(authToken: String, onResult: (List<Ingredient>?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getIngredients("Bearer $authToken")
+                if (response.isSuccessful) {
+                    onResult(response.body())
+                } else {
+                    onResult(null)
+                }
+            } catch (e: Exception) {
+                onResult(null)
+            }
+        }
+    }
+
+    // Load ingredients using the token
+    fun loadIngredients() {
+        authManager.getIdToken { token ->
+            token?.let {
+                // Call the fetchIngredients method directly
+                fetchIngredients(it) { ingredients ->
+                    if (ingredients != null) {
+                        // Update LiveData or UI
+                    } else {
+                        // Handle error
+                    }
+                }
+            } ?: run {
+                // Handle unauthenticated state
+            }
+        }
+    }
+
+
 
     private fun fetchIngredientsFromFirebase() {
         val user = FirebaseAuth.getInstance().currentUser

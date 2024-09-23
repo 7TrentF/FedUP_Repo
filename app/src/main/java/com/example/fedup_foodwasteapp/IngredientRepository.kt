@@ -4,7 +4,9 @@ import com.example.fedup_foodwasteapp.Ingredients
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import androidx.lifecycle.viewModelScope
-
+import androidx.lifecycle.ViewModel
+import com.example.fedup_foodwasteapp.RetrofitClient.apiService
+import kotlinx.coroutines.launch
 
 // The IngredientRepository class acts as a mediator between the ViewModel and the DAO.
 // It abstracts the data operations, making it easier to manage the data in the application.
@@ -34,4 +36,6 @@ class IngredientRepository(private val ingredientDao: IngredientDao) {
     fun getIngredientsByCategory(category: String): LiveData<List<Ingredients>> {
         return ingredientDao.getIngredientByCategory(category)
     }
+
+
 }

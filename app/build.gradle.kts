@@ -42,6 +42,13 @@ android {
 }
 
 dependencies {
+    //Retro fit
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.logging.interceptor)
+
+
+
     //Firebase Auth
     implementation (libs.firebase.auth)
 
