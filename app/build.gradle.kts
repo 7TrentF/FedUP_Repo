@@ -45,6 +45,9 @@ dependencies {
     //Firebase Auth
     implementation (libs.firebase.auth)
 
+    //Realtime database
+    implementation (libs.firebase.database)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx.v261)
     // Room KTX for Kotlin extensions
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)

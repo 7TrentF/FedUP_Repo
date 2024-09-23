@@ -30,7 +30,10 @@ data class Ingredients(
 
     // The 'category' column stores the category of the ingredient.
     @ColumnInfo(name = "category")
-    val category: String
+    val category: String,
+
+    @ColumnInfo(name = "user_id")
+    val userId: String
 ): Serializable
 
 

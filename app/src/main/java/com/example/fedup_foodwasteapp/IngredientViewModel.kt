@@ -2,21 +2,56 @@ package com.example.fedup_foodwasteapp
 
 import com.example.fedup_foodwasteapp.Ingredients
 import android.app.Application
+import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 // The IngredientViewModel class extends AndroidViewModel, providing the application context.
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
-
-    // An instance of IngredientRepository to manage data operations.
     private val repository: IngredientRepository
-
-    // A LiveData object holding all the ingredients, which is observed by the UI for changes.
     val allIngredients: LiveData<List<Ingredients>>
+
+    init {
+        val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
+        repository = IngredientRepository(ingredientDao)
+        allIngredients = repository.allIngredients
+        fetchIngredientsFromFirebase()
+    }
+
+    private fun fetchIngredientsFromFirebase() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
+            database.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val ingredientsList = mutableListOf<Ingredients>()
+                    for (ingredientSnapshot in snapshot.children) {
+                        val ingredient = ingredientSnapshot.getValue(Ingredients::class.java)
+                        ingredient?.let { ingredientsList.add(it) }
+                    }
+                    // Update Room Database using viewModelScope
+                    syncIngredients(ingredientsList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("IngredientViewModel", "Failed to read ingredients.", error.toException())
+                }
+            })
+        }
+    }
+
+
 
     // A MutableLiveData object that holds the filtered list of ingredients.
     // This is private and mutable to ensure that it can only be modified within the ViewModel.
@@ -33,17 +68,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
     // The init block initializes the repository and retrieves all ingredients from the database.
     init {
-        // The DAO is obtained from the AppDatabase singleton.
-        val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
 
-        // The repository is instantiated with the DAO.
-        repository = IngredientRepository(ingredientDao)
-
-        // All ingredients are fetched and assigned to the LiveData object.
-        allIngredients = repository.allIngredients
-
-        // The filtered ingredients LiveData is initialized with an empty list.
-        _filteredIngredients.value = emptyList()
     }
 
     // This function inserts a new ingredient into the database.
@@ -67,6 +92,15 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
             _filteredIngredients.postValue(ingredientsByCategory)
         }
+    }
+    // This function is called when the insert is successful.
+    fun onInsertSuccess() {
+
+        // For example, you might want to trigger additional actions or update UI
+    }
+
+    private fun syncIngredients(ingredients: List<Ingredients>) = viewModelScope.launch(Dispatchers.IO) {
+        repository.syncIngredients(ingredients)
     }
 }
 

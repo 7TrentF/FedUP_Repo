@@ -45,4 +45,6 @@ interface IngredientDao {
     // If no record is found, it returns null.
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     fun getIngredientById(id: Int): Ingredients?
+    fun deleteAll()
+    abstract fun insertAll(ingredients: List<Ingredients>)
 }
