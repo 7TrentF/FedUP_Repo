@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.fedup_foodwasteapp" />
+                  <option name="mobileSdkAppId" value="1:160835827466:android:391aacaebf38db5111ecf3" />
+                  <option name="projectId" value="fed-up-9ac4f" />
+                  <option name="projectNumber" value="160835827466" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

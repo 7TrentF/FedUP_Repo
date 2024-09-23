@@ -61,8 +61,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.637" />
 
+
     <EditText
-        android:id="@+id/editTextEmailAddress"
+        android:id="@+id/editTextEmail"
         android:layout_width="240dp"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"
@@ -76,6 +77,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.389" />
+
 
     <EditText
         android:id="@+id/editTextPassword"
@@ -93,6 +95,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.544" />
 
+
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="240dp"
@@ -105,8 +108,9 @@
         app:layout_constraintVertical_bias="0.027"
         app:srcCompat="@drawable/logo" />
 
+
     <Button
-        android:id="@+id/signIn_btn"
+        android:id="@+id/BtnSignUp"
         android:layout_width="80dp"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"
@@ -121,7 +125,7 @@
         app:layout_constraintVertical_bias="0.866" />
 
     <Button
-        android:id="@+id/google_btn"
+        android:id="@+id/GoogleBtn"
         android:layout_width="240dp"
         android:layout_height="50dp"
         android:layout_marginHorizontal="50dp"

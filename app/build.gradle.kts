@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("org.jetbrains.kotlin.kapt")
     id("kotlin-parcelize")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,6 +42,9 @@ android {
 }
 
 dependencies {
+    //Firebase Auth
+    implementation (libs.firebase.auth)
+
     // Room KTX for Kotlin extensions
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
