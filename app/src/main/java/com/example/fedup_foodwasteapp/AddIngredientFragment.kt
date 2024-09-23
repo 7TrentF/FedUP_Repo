@@ -103,7 +103,7 @@ class AddIngredientFragment : DialogFragment() {
     private fun insertIngredient(name: String, quantity: String, category: String, expirationDate: String) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            val ingredient = Ingredients(
+            val ingredient = Ingredient(
                 productName = name,
                 quantity = quantity,
                 expirationDate = expirationDate,
