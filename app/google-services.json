@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "160835827466",
+    "project_id": "fed-up-9ac4f",
+    "storage_bucket": "fed-up-9ac4f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160835827466:android:391aacaebf38db5111ecf3",
+        "android_client_info": {
+          "package_name": "com.example.fedup_foodwasteapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlMcyaQYtuFJZesJFVw2U5fVGEad-7KmY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
