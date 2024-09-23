@@ -7,8 +7,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -29,7 +27,7 @@ class Register : AppCompatActivity() {
 
         // Initialize views
         editTextEmail = findViewById(R.id.editTextEmail);
-        editTextPassword = findViewById(R.id.editTextPassword);
+        editTextPassword = findViewById(R.id.edtPassword);
         btGoogle=findViewById(R.id.GoogleBtn)
         btSignUp=findViewById(R.id.BtnSignUp)
         auth= Firebase.auth

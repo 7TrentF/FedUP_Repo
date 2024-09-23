@@ -1,5 +1,6 @@
 package com.example.fedup_foodwasteapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -25,6 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.navigation.fragment.NavHostFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import com.google.firebase.auth.FirebaseAuth
 
 // MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
@@ -224,5 +226,13 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageView>(selectedIconId).setColorFilter(ContextCompat.getColor(this, R.color.green))
         findViewById<TextView>(selectedTextId).setTextColor(ContextCompat.getColor(this, R.color.green))
     }
+
+    fun logout() {
+        FirebaseAuth.getInstance().signOut()
+        val intent = Intent(this, Login::class.java)
+        startActivity(intent)
+        finish()
+    }
+
 }
 

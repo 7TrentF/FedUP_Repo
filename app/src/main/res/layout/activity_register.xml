@@ -80,7 +80,7 @@
 
 
     <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/edtPassword"
         android:layout_width="240dp"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"

@@ -79,6 +79,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.389" />
 
+
     <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="240dp"
@@ -107,8 +108,9 @@
         app:layout_constraintVertical_bias="0.027"
         app:srcCompat="@drawable/logo" />
 
+
     <Button
-        android:id="@+id/signIn_btn"
+        android:id="@+id/btnSignIn"
         android:layout_width="80dp"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"
@@ -123,7 +125,7 @@
         app:layout_constraintVertical_bias="0.85" />
 
     <Button
-        android:id="@+id/google_btn"
+        android:id="@+id/btnGoogleSSO"
         android:layout_width="240dp"
         android:layout_height="50dp"
         android:layout_marginHorizontal="50dp"
@@ -143,6 +145,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.721" />
 
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="165dp"
@@ -157,8 +160,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
 
+
     <Button
-        android:id="@+id/signUp_btn"
+        android:id="@+id/SignUpButton"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"
