@@ -18,6 +18,9 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients")
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
+    @Query("SELECT * FROM ingredients")
+    suspend fun getAllIngredientsNonLive(): List<Ingredient>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ingredient: Ingredient): Long
 

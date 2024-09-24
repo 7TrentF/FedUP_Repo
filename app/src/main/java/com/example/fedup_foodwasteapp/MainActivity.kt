@@ -17,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -58,6 +59,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+
+
 
         // Initialize navigation elements and other UI components.
         val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
@@ -109,6 +113,13 @@ class MainActivity : AppCompatActivity() {
             updateSelectedNavItem(R.id.nav_settings)
         }
     }
+
+
+
+
+
+
+
 
     // Handles the click action for the add button.
     private fun onAddButtonClicked() {

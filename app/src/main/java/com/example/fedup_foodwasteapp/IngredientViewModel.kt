@@ -1,10 +1,15 @@
 package com.example.fedup_foodwasteapp
 
 import android.app.Application
+import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -26,23 +31,72 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val apiService = RetrofitClient.apiService
     private val authManager = AuthManager.getInstance()
 
+    // LiveData for synchronization status
+    private val _syncStatus = MutableLiveData<String>()
+    val syncStatus: LiveData<String> get() = _syncStatus
+
+
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
         fetchIngredientsFromFirebase()
+        syncData()
     }
 
+    private fun syncData() {
+        if (!NetworkUtils.isNetworkAvailable(getApplication())) {
+            Log.d("IngredientViewModel", "No network available. Sync postponed.")
+            _syncStatus.postValue("No network. Sync postponed.")
+            return
+        }
+
+        // Push local data to Firebase
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val localIngredients = repository.getAllIngredientsLocalSync()
+                localIngredients.forEach { ingredient ->
+                    repository.addIngredientToFirebaseSync(ingredient)
+                }
+                _syncStatus.postValue("Local data synced to Firebase.")
+            } catch (e: Exception) {
+                Log.e("IngredientViewModel", "Failed to push local ingredients to Firebase.", e)
+                _syncStatus.postValue("Failed to sync local data.")
+            }
+        }
+
+        // Listen for Firebase changes and update Room
+        repository.listenToFirebaseChanges { ingredients ->
+            syncIngredients(ingredients)
+        }
+    }
+
+    private fun syncIngredients(ingredients: List<Ingredient>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.syncIngredients(viewModelScope, ingredients)
+                _syncStatus.postValue("Firebase data synced to local database.")
+            } catch (e: Exception) {
+                Log.e("IngredientViewModel", "Failed to sync ingredients to Room.", e)
+                _syncStatus.postValue("Failed to sync Firebase data.")
+            }
+        }
+    }
+
+
+
+    // Insert Ingredient
     fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.insert(ingredient)
             _insertResult.postValue(true)
-            // Optionally, sync to REST API
-            syncIngredientToApi(ingredient)
+            _syncStatus.postValue("Ingredient inserted locally.")
+            // Optionally push to Firebase immediately
+            repository.addIngredientToFirebaseSync(ingredient)
         } catch (e: Exception) {
             _insertResult.postValue(false)
-            Log.e("IngredientViewModel", "Insert failed: ${e.message}")
+            _syncStatus.postValue("Failed to insert ingredient.")
         }
     }
 
@@ -68,8 +122,11 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+
+
+
     fun loadIngredients() {
-        authManager.getIdToken { token, error ->
+        AuthManager.getInstance().getIdToken { token, error ->
             if (token != null) {
                 // Fetch from REST API
                 repository.fetchIngredients(viewModelScope, token) { ingredients, fetchError ->
@@ -132,6 +189,10 @@ fun Ingredient.toApiModel(): Ingredient {
     }
 
     fun onInsertSuccess() {
-        // Implementation can be added as per requirements
+        _insertResult.postValue(true)
     }
+
+
+
+
 }

@@ -97,6 +97,19 @@ class AddIngredientFragment : DialogFragment() {
 
             insertIngredient(name, quantity, categories[currentCategoryIndex].displayName, expirationDate)
         }
+
+
+
+        // Observe the insert result
+        ingredientViewModel.insertResult.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess) {
+                Toast.makeText(requireContext(), "Ingredient added successfully!", Toast.LENGTH_SHORT).show()
+                // Optionally, navigate back or clear the input fields
+
+            } else {
+                Toast.makeText(requireContext(), "Failed to add ingredient.", Toast.LENGTH_SHORT).show()
+            }
+        }
         return view
     }
 
@@ -110,6 +123,7 @@ class AddIngredientFragment : DialogFragment() {
                 category = category,
                 userId = user.uid
             )
+
             ingredientViewModel.insert(ingredient)
 
             val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
@@ -123,7 +137,9 @@ class AddIngredientFragment : DialogFragment() {
                     }
                 }
             }
-        } else {
+        }
+
+        else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }
     }

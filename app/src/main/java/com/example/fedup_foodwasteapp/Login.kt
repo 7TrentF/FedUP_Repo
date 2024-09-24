@@ -3,6 +3,7 @@ package com.example.fedup_foodwasteapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -54,26 +55,47 @@ class Login : AppCompatActivity() {
     }
 
 
-
-
     private fun userLogin(loginEmail: String, loginPassword: String) {
         mAuth.signInWithEmailAndPassword(loginEmail, loginPassword)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Toast.makeText(baseContext,"Login Successful", Toast.LENGTH_LONG).show()
-                    val intent = Intent( this@Login,MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                    // Sign in success, now get the Firebase token
+                    getFirebaseToken { token ->
+                        Log.d("Login", "User authenticated, token: $token")
+                        // Now you have the token, make the network request to your API
+                        Toast.makeText(baseContext,"Login Successful", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this@Login, MainActivity::class.java)
+                        // Pass token to MainActivity if needed
+                        intent.putExtra("jwt_token", token)
+                        startActivity(intent)
+                        finish()
+                    }
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Toast.makeText(
-                        baseContext,
-                        "Login failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    // If sign-in fails, display a message to the user
+                    Toast.makeText(baseContext, "Login failed.", Toast.LENGTH_SHORT).show()
                 }
             }
-
     }
+
+
+    // Get Firebase JWT token
+    private fun getFirebaseToken(onTokenReceived: (String) -> Unit) {
+        val user = mAuth.currentUser
+        user?.getIdToken(true)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val idToken = task.result?.token
+                    if (idToken != null) {
+                         Log.d("JWT Token", "Token received: $idToken") // Print to Logcat
+                        Toast.makeText(baseContext, "Token: $idToken", Toast.LENGTH_LONG).show() // Display in Toast
+                        onTokenReceived(idToken)
+                    }
+                } else {
+                    // Handle error
+                    Toast.makeText(baseContext, "Failed to get token", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+
 }
