@@ -14,8 +14,6 @@ import androidx.room.*
 
 @Dao
 interface IngredientDao {
-
-
     @Query("SELECT * FROM ingredients")
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
@@ -42,5 +40,17 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     fun getIngredientById(id: Int): LiveData<Ingredient?>
+
+
+    @Query("SELECT * FROM ingredients WHERE isSynced = 0")
+    suspend fun getUnsyncedIngredients(): List<Ingredient>
+
+    @Update
+    suspend fun updateIngredients(ingredients: List<Ingredient>)
+
+    @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
+    suspend fun getIngredientByIdSuspend(id: Int): Ingredient?
+
+
 }
 

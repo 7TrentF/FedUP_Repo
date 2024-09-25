@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,34 +36,114 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val _syncStatus = MutableLiveData<String>()
     val syncStatus: LiveData<String> get() = _syncStatus
 
-
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
         //fetchIngredientsFromFirebase()
-        syncApiToFirebase()  // Sync from API to Firebase
-        syncData()   // Sync from Firebase to RoomDB
+       // syncApiToFirebase()  // Sync from API to Firebase
+       // syncData()   // Sync from Firebase to RoomDB
     }
+
+    // Your new method to sync RoomDB with API
+    fun syncRoomWithApi() {
+        if (NetworkUtils.isNetworkAvailable(getApplication())) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val unsyncedIngredients = repository.getUnsyncedIngredients() // Fetch unsynced ingredients
+
+                if (unsyncedIngredients.isNotEmpty()) {
+                    authManager.getIdToken { token, error ->
+                        if (token != null) {
+                            viewModelScope.launch {
+                                unsyncedIngredients.forEach { ingredient ->
+                                    repository.addIngredientToApi(ingredient) // Sync RoomDB to API
+                                }
+                                repository.markIngredientsAsSynced(unsyncedIngredients) // Mark ingredients as synced locally
+                            }
+                        }
+                    }
+                }
+
+                fetchIngredientsFromApi() // Fetch updated data from API and sync RoomDB
+            }
+        }
+    }
+
+
+    fun fetchIngredientsFromApi() {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val ingredients = repository.fetchIngredientsFromApi(token)
+                    if (ingredients != null) {
+                        // Pass viewModelScope to syncIngredientsWithRoom
+                        repository.syncIngredientsWithRoom(viewModelScope, ingredients)
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
 
 
     // Sync Data Between Firebase and RoomDB
     private fun syncData() {
         // Listen to Firebase and sync to Room
-        repository.listenToFirebaseChanges { ingredients ->
+        repository.listenToFirebaseChanges(viewModelScope) { ingredients ->
             repository.syncIngredients(viewModelScope, ingredients)  // Sync Firebase -> Room
         }
     }
 
-    // Sync from REST API to Firebase
-    fun syncApiToFirebase() {
-        authManager.getIdToken { token, error ->
-            if (token != null) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    repository.syncApiToFirebase(token)
+
+
+
+    // Insert Ingredient
+    fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.insert(ingredient)
+            _insertResult.postValue(true)
+            _syncStatus.postValue("Ingredient inserted locally.")
+
+            // Optionally push to Firebase immediately
+            repository.addIngredientToFirebaseSync(ingredient)
+        } catch (e: Exception) {
+            _insertResult.postValue(false)
+            _syncStatus.postValue("Failed to insert ingredient.")
+        }
+    }
+
+    fun filterIngredientsByCategory(category: String) {
+        repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
+            _filteredIngredients.postValue(ingredientsByCategory)
+        }
+    }
+
+    fun onInsertSuccess() {
+        _insertResult.postValue(true)
+    }
+
+    fun updateIngredient(id: Int, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.update(ingredient)
+            authManager.getIdToken { token, error ->
+                if (token != null) {
+                    viewModelScope.launch {
+                        repository.updateIngredientInApi(id, ingredient)
+                    }
+
                 }
             }
+        } catch (e: Exception) {
+            Log.e("ViewModel", "Failed to update ingredient.")
         }
     }
 
@@ -79,7 +160,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             authManager.getIdToken { token, error ->
                 if (token != null) {
                     viewModelScope.launch {
-                        repository.addIngredientToApi(token, ingredient)
+                        repository.addIngredientToApi(ingredient)
                     }
                 }
             }
@@ -88,6 +169,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+
+    /*
 
     // Fetch Ingredients from API (for additional external syncing)
     fun fetchIngredientsFromApi() {
@@ -104,48 +187,46 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    // Insert Ingredient
-    fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            repository.insert(ingredient)
-            _insertResult.postValue(true)
-            _syncStatus.postValue("Ingredient inserted locally.")
-            // Optionally push to Firebase immediately
-            repository.addIngredientToFirebaseSync(ingredient)
-        } catch (e: Exception) {
-            _insertResult.postValue(false)
-            _syncStatus.postValue("Failed to insert ingredient.")
-        }
-    }
 
-    fun onInsertSuccess() {
-        _insertResult.postValue(true)
-    }
 
-    fun filterIngredientsByCategory(category: String) {
-        repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
-            _filteredIngredients.postValue(ingredientsByCategory)
-        }
-    }
+    // Sync from REST API to Firebase
+    fun syncApiToFirebase() {
+        Log.d("SyncAPI", "Attempting to sync API to Firebase...")
 
-    fun updateIngredient(id: Int, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            repository.update(ingredient)
-            authManager.getIdToken { token, error ->
-                if (token != null) {
-                    viewModelScope.launch {
-                        repository.updateIngredientInApi(token, id, ingredient)
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                Log.d("SyncAPI", "Token retrieved successfully. Starting sync...")
+                Log.d("Token", "syncApiToFirebase Token being used: $token")
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        // Log before starting the sync operation
+                        Log.d("SyncAPI", "Syncing data from API to Firebase...")
+
+                        repository.syncApiToFirebase(token)
+
+                        // Log after successful sync operation
+                        Log.d("SyncAPI", "Data synced successfully from API to Firebase.")
+                    } catch (e: Exception) {
+                        // Log any errors during the sync process
+                        Log.e("SyncAPI", "Error syncing data from API to Firebase: ${e.localizedMessage}", e)
                     }
-
+                }
+            } else {
+                // Log if there was an error getting the token
+                if (error != null) {
+                    Log.e("SyncAPI", "Error retrieving token: ${error.toString()}")
+                } else {
+                    Log.e("SyncAPI", "Error retrieving token: Unknown error occurred.")
                 }
             }
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Failed to update ingredient.")
         }
     }
 
 
-    /*
+
+
+
+
     private fun syncData() {
         if (!NetworkUtils.isNetworkAvailable(getApplication())) {
             Log.d("IngredientViewModel", "No network available. Sync postponed.")

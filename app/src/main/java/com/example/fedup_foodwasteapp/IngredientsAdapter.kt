@@ -13,9 +13,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class IngredientAdapter(
@@ -24,7 +27,7 @@ class IngredientAdapter(
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
     private var ingredients = emptyList<Ingredient>()
-
+    private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ingredient_item, parent, false)
         return IngredientViewHolder(view)
@@ -118,20 +121,43 @@ class IngredientAdapter(
             .setPositiveButton("Yes") { _, _ ->
                 // Perform the delete operation on a background thread
                 CoroutineScope(Dispatchers.IO).launch {
-                    // Delete the ingredient from the database
-                    ingredientDao.delete(ingredient)
+                    try {
+                        // Delete the ingredient from RoomDB
+                        ingredientDao.delete(ingredient)
 
-                    // Switch to the main thread to update the UI
-                    withContext(Dispatchers.Main) {
-                        // Update the list to reflect the deletion
-                        setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
-                        Toast.makeText(context, "${ingredient.productName} deleted.", Toast.LENGTH_SHORT).show()
+                        // Delete the ingredient from Firebase
+                        deleteIngredientFromFirebase(ingredient)
+
+                        // Switch to the main thread to update the UI
+                        withContext(Dispatchers.Main) {
+                            // Update the list to reflect the deletion
+                            setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
+                            Toast.makeText(context, "${ingredient.productName} deleted.", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Failed to delete ${ingredient.productName}.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
             .setNegativeButton("No", null)
             .show()
     }
+
+    private suspend fun deleteIngredientFromFirebase(ingredient: Ingredient) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val database = FirebaseDatabase.getInstance()
+                .getReference("ingredients")
+                .child(user.uid)
+
+            // To find the exact child in Firebase, you need to have the unique key of the ingredient
+            // stored in Firebase. Assuming you have stored the ingredient with a key as part of its data.
+            database.child(ingredient.id.toString()).removeValue().await() // Using Coroutines
+        }
+    }
+
 
     private fun updateIngredient(updatedIngredient: Ingredient) {
         CoroutineScope(Dispatchers.IO).launch {

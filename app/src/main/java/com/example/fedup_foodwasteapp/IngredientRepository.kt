@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,20 +30,42 @@ class IngredientRepository(
         ingredientDao.delete(ingredient)
     }
 
-
     // Listen for Firebase Changes
-    fun listenToFirebaseChanges(callback: (List<Ingredient>) -> Unit) {
+    fun listenToFirebaseChanges(scope: CoroutineScope, callback: (List<Ingredient>) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
             database.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val ingredientsList = mutableListOf<Ingredient>()
+                    val ingredientsListFromFirebase = mutableListOf<Ingredient>()
                     for (ingredientSnapshot in snapshot.children) {
                         val ingredient = ingredientSnapshot.getValue(Ingredient::class.java)
-                        ingredient?.let { ingredientsList.add(it) }
+                        ingredient?.let { ingredientsListFromFirebase.add(it) }
                     }
-                    callback(ingredientsList)  // Callback to update RoomDB and UI
+
+                    // Use the passed scope
+                    scope.launch {
+                        val ingredientsInRoom = ingredientDao.getAllIngredientsNonLive() // Fetch all ingredients from RoomDB as a list
+
+                        val ingredientsToInsert = ingredientsListFromFirebase.filter { firebaseIngredient ->
+                            // Check if the ingredient already exists in RoomDB based on a unique property (e.g., id or name)
+                            !ingredientsInRoom.any { roomIngredient ->
+                                roomIngredient.id == firebaseIngredient.id // Compare by ID (or use name if no ID)
+                            }
+                        }
+
+                        val ingredientsToUpdate = ingredientsListFromFirebase.filter { firebaseIngredient ->
+                            ingredientsInRoom.any { roomIngredient ->
+                                roomIngredient.id == firebaseIngredient.id // Compare by ID (or use name)
+                            }
+                        }
+
+                        // Insert new ingredients and update existing ones
+                        ingredientsToInsert.forEach { ingredientDao.insert(it) }
+                        ingredientsToUpdate.forEach { ingredientDao.update(it) }
+
+                        callback(ingredientsListFromFirebase)  // Callback to update UI after syncing RoomDB
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -52,14 +75,44 @@ class IngredientRepository(
         }
     }
 
+    suspend fun markIngredientsAsSynced(ingredients: List<Ingredient>) {
+        ingredients.forEach { it.isSynced = true }
+        ingredientDao.updateIngredients(ingredients)
+    }
+
+    fun syncIngredientsWithRoom(coroutineScope: CoroutineScope, ingredients: List<Ingredient>) {
+        coroutineScope.launch(Dispatchers.IO) {
+            ingredients.forEach { ingredient ->
+                // Use the suspend function to get the local ingredient
+                val localIngredient = ingredientDao.getIngredientByIdSuspend(ingredient.id)
+
+                if (localIngredient == null) {
+                    ingredientDao.insert(ingredient) // Insert new ingredient if not present in RoomDB
+                } else if (localIngredient != ingredient) {
+                    ingredientDao.update(ingredient) // Update if ingredient details differ
+                }
+            }
+        }
+    }
+
+
+
+    // Inside IngredientRepository class
+    suspend fun getUnsyncedIngredients(): List<Ingredient> {
+        return ingredientDao.getUnsyncedIngredients() // You need to implement this in your DAO as well
+    }
+
+
     // Fetch from REST API
     suspend fun fetchIngredientsFromApi(token: String): List<Ingredient>? {
         try {
-            val response = apiService.getIngredients("Bearer $token")
+            val response = apiService.getIngredients()
+            Log.d("Token", "fetchIngredientsFromApi Token being used: $token")
             return if (response.isSuccessful) {
                 response.body()  // Return the ingredients list
             } else {
-                Log.e("Repository", "Failed to fetch ingredients from API: ${response.code()}")
+                Log.e("Repository", "Failed to fetch ingredients from API: ${response.code()} - ${response.message()}")
+
                 null
             }
         } catch (e: Exception) {
@@ -69,20 +122,6 @@ class IngredientRepository(
     }
 
 
-    // Push Local Ingredients to Firebase
-     fun syncLocalToFirebase(ingredients: List<Ingredient>) {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
-            ingredients.forEach { ingredient ->
-                val key = database.push().key ?: return@forEach
-                database.child(key).setValue(ingredient)
-                    .addOnSuccessListener { Log.d("IngredientRepository", "Ingredient synced to Firebase.") }
-                    .addOnFailureListener { e -> Log.e("IngredientRepository", "Sync failed", e) }
-            }
-        }
-    }
-
     // Add Ingredient to Firebase
     suspend fun addIngredientToFirebaseSync(ingredient: Ingredient) {
         val user = FirebaseAuth.getInstance().currentUser
@@ -91,12 +130,6 @@ class IngredientRepository(
             val key = database.push().key ?: return
             database.child(key).setValue(ingredient).await() // Use coroutines to sync
         }
-    }
-
-    // Sync from API to Firebase
-    suspend fun syncApiToFirebase(authToken: String) {
-        val apiIngredients = fetchIngredientsFromApi(authToken)
-        apiIngredients?.let { syncLocalToFirebase(it) }
     }
 
     // Sync Firebase with RoomDB (For Offline Access)
@@ -111,32 +144,14 @@ class IngredientRepository(
         }
     }
 
-
-    // Fetch ingredients from REST API
-    fun fetchIngredients(coroutineScope: CoroutineScope, authToken: String, onResult: (List<Ingredient>?, String?) -> Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val response = apiService.getIngredients("Bearer $authToken")
-                if (response.isSuccessful) {
-                    val ingredients = response.body()
-                    onResult(ingredients, null)
-                } else {
-                    onResult(null, "Error: ${response.code()} ${response.message()}")
-                }
-            } catch (e: Exception) {
-                onResult(null, e.localizedMessage)
-            }
-        }
-    }
-
     fun getIngredientsByCategory(category: String): LiveData<List<Ingredient>> {
         return ingredientDao.getIngredientByCategory(category)
     }
 
     // Add Ingredient to REST API
-    suspend fun addIngredientToApi(token: String, ingredient: Ingredient) {
+    suspend fun addIngredientToApi(ingredient: Ingredient) {
         try {
-            val response = apiService.addIngredient("Bearer $token", ingredient)
+            val response = apiService.addIngredient(ingredient)
             if (response.isSuccessful) {
                 Log.d("Repository", "Ingredient added to API.")
             } else {
@@ -147,10 +162,9 @@ class IngredientRepository(
         }
     }
 
-
-    suspend fun updateIngredientInApi(token: String, id: Int, ingredient: Ingredient) {
+    suspend fun updateIngredientInApi(id: Int, ingredient: Ingredient) {
         try {
-            val response = apiService.updateIngredient("Bearer $token", id, ingredient)
+            val response = apiService.updateIngredient( id, ingredient)
             if (response.isSuccessful) {
                 Log.d("Repository", "Ingredient updated in API.")
             } else {
@@ -171,9 +185,49 @@ class IngredientRepository(
         }
     }
 
+    // Fetch ingredients from REST API
+    fun fetchIngredients(coroutineScope: CoroutineScope,onResult: (List<Ingredient>?, String?) -> Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                val response = apiService.getIngredients()
+                if (response.isSuccessful) {
+                    val ingredients = response.body()
+                    onResult(ingredients, null)
+                } else {
+                    onResult(null, "Error: ${response.code()} ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onResult(null, e.localizedMessage)
+            }
+        }
+    }
+
+
+
 
 
     /*
+       // Sync from API to Firebase
+    suspend fun syncApiToFirebase(authToken: String) {
+        val apiIngredients = fetchIngredientsFromApi(authToken)
+        apiIngredients?.let { syncLocalToFirebase(it) }
+    }
+
+    // Push Local Ingredients to Firebase
+     fun syncLocalToFirebase(ingredients: List<Ingredient>) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
+            ingredients.forEach { ingredient ->
+                val key = database.push().key ?: return@forEach
+                database.child(key).setValue(ingredient)
+                    .addOnSuccessListener { Log.d("IngredientRepository", "Ingredient synced to Firebase.") }
+                    .addOnFailureListener { e -> Log.e("IngredientRepository", "Sync failed", e) }
+            }
+        }
+    }
+
+
     // Synchronize ingredients from Firebase to Room
     fun syncIngredients(coroutineScope: CoroutineScope, ingredients: List<Ingredient>) {
         coroutineScope.launch(Dispatchers.IO) {

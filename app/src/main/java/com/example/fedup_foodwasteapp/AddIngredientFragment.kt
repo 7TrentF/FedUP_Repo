@@ -17,11 +17,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import java.util.Calendar
 
-// TODO: Rename parameter arguments, choose names that match
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 class AddIngredientFragment : DialogFragment() {
 
     private lateinit var ingredientViewModel: IngredientViewModel
@@ -38,20 +33,10 @@ class AddIngredientFragment : DialogFragment() {
         dialog?.window?.setBackgroundDrawableResource(R.color.grey)
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
-        ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
-            if (success) {
-                Toast.makeText(requireContext(), "Ingredient was added", Toast.LENGTH_SHORT).show()
-                dismiss()
-            } else {
-                Toast.makeText(requireContext(), "Something went wrong", Toast.LENGTH_SHORT).show()
-            }
-        })
-
         tvCategory = view.findViewById(R.id.tv_category)
         btnPlus = view.findViewById(R.id.btn_plus)
         btnMinus = view.findViewById(R.id.btn_minus)
         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)
-
         val categories = Category.entries.toTypedArray()
         tvCategory.text = categories[currentCategoryIndex].displayName
 
@@ -98,18 +83,14 @@ class AddIngredientFragment : DialogFragment() {
             insertIngredient(name, quantity, categories[currentCategoryIndex].displayName, expirationDate)
         }
 
-
-
-        // Observe the insert result
-        ingredientViewModel.insertResult.observe(viewLifecycleOwner) { isSuccess ->
-            if (isSuccess) {
-                Toast.makeText(requireContext(), "Ingredient added successfully!", Toast.LENGTH_SHORT).show()
-                // Optionally, navigate back or clear the input fields
-
+        ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Ingredient was added", Toast.LENGTH_SHORT).show()
+                dismiss()
             } else {
-                Toast.makeText(requireContext(), "Failed to add ingredient.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Something went wrong", Toast.LENGTH_SHORT).show()
             }
-        }
+        })
         return view
     }
 
@@ -124,10 +105,9 @@ class AddIngredientFragment : DialogFragment() {
                 userId = user.uid
             )
 
-            ingredientViewModel.insert(ingredient)
-
             // Insert ingredient via ViewModel (this will handle both RoomDB and Firebase sync)
             ingredientViewModel.insert(ingredient)
+            dismiss()
         } else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }

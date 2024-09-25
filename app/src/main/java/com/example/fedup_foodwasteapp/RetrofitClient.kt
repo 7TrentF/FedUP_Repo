@@ -3,10 +3,11 @@ package com.example.fedup_foodwasteapp
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import android.util.Log
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.1.68:7043/"
+    private const val BASE_URL = "https://fedupmanagementapi20240925105410.azurewebsites.net/"
 
     private val retrofit by lazy {
         val logging = HttpLoggingInterceptor()
@@ -20,13 +21,13 @@ object RetrofitClient {
 
                 val requestBuilder = originalRequest.newBuilder()
                 if (token != null) {
+                    Log.d("Interceptor", "Token added to header: $token")
                     requestBuilder.addHeader("Authorization", "Bearer $token")
                 }
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
             .build()
-
 
         Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -35,9 +36,7 @@ object RetrofitClient {
             .build()
     }
 
-
     val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }
 }
-

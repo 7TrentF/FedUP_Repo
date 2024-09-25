@@ -34,8 +34,6 @@ import com.google.firebase.auth.FirebaseAuth
 // MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
 
-
-
     // FloatingActionButton for adding a new item.
     private lateinit var addFabItem: FloatingActionButton
 
@@ -239,8 +237,5 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
-
-
-
 }
 
