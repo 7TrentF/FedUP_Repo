@@ -41,10 +41,111 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
-        fetchIngredientsFromFirebase()
-        syncData()
+        //fetchIngredientsFromFirebase()
+        syncApiToFirebase()  // Sync from API to Firebase
+        syncData()   // Sync from Firebase to RoomDB
     }
 
+
+    // Sync Data Between Firebase and RoomDB
+    private fun syncData() {
+        // Listen to Firebase and sync to Room
+        repository.listenToFirebaseChanges { ingredients ->
+            repository.syncIngredients(viewModelScope, ingredients)  // Sync Firebase -> Room
+        }
+    }
+
+    // Sync from REST API to Firebase
+    fun syncApiToFirebase() {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.syncApiToFirebase(token)
+                }
+            }
+        }
+    }
+
+    // Add Ingredient and Push to Firebase
+    fun addIngredient(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            // Insert locally into RoomDB
+            repository.insert(ingredient)
+
+            // Sync with Firebase
+            repository.addIngredientToFirebaseSync(ingredient)
+
+            // Sync with REST API
+            authManager.getIdToken { token, error ->
+                if (token != null) {
+                    viewModelScope.launch {
+                        repository.addIngredientToApi(token, ingredient)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            _syncStatus.postValue("Failed to insert ingredient.")
+        }
+    }
+
+
+    // Fetch Ingredients from API (for additional external syncing)
+    fun fetchIngredientsFromApi() {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val ingredients = repository.fetchIngredientsFromApi(token)
+                    if (ingredients != null) {
+                        repository.syncIngredients(viewModelScope, ingredients)
+                    }
+                }
+            }
+        }
+    }
+
+
+    // Insert Ingredient
+    fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.insert(ingredient)
+            _insertResult.postValue(true)
+            _syncStatus.postValue("Ingredient inserted locally.")
+            // Optionally push to Firebase immediately
+            repository.addIngredientToFirebaseSync(ingredient)
+        } catch (e: Exception) {
+            _insertResult.postValue(false)
+            _syncStatus.postValue("Failed to insert ingredient.")
+        }
+    }
+
+    fun onInsertSuccess() {
+        _insertResult.postValue(true)
+    }
+
+    fun filterIngredientsByCategory(category: String) {
+        repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
+            _filteredIngredients.postValue(ingredientsByCategory)
+        }
+    }
+
+    fun updateIngredient(id: Int, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+        try {
+            repository.update(ingredient)
+            authManager.getIdToken { token, error ->
+                if (token != null) {
+                    viewModelScope.launch {
+                        repository.updateIngredientInApi(token, id, ingredient)
+                    }
+
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("ViewModel", "Failed to update ingredient.")
+        }
+    }
+
+
+    /*
     private fun syncData() {
         if (!NetworkUtils.isNetworkAvailable(getApplication())) {
             Log.d("IngredientViewModel", "No network available. Sync postponed.")
@@ -182,16 +283,12 @@ fun Ingredient.toApiModel(): Ingredient {
 }
 
 
-    fun filterIngredientsByCategory(category: String) {
-        repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
-            _filteredIngredients.postValue(ingredientsByCategory)
-        }
-    }
 
-    fun onInsertSuccess() {
-        _insertResult.postValue(true)
-    }
 
+
+
+
+     */
 
 
 

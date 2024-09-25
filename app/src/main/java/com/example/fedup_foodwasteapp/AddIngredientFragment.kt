@@ -126,20 +126,9 @@ class AddIngredientFragment : DialogFragment() {
 
             ingredientViewModel.insert(ingredient)
 
-            val database = FirebaseDatabase.getInstance().getReference("ingredients").child(user.uid)
-            val key = database.push().key
-            if (key != null) {
-                database.child(key).setValue(ingredient).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        ingredientViewModel.onInsertSuccess()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to add ingredient to Firebase.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-
-        else {
+            // Insert ingredient via ViewModel (this will handle both RoomDB and Firebase sync)
+            ingredientViewModel.insert(ingredient)
+        } else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }
     }

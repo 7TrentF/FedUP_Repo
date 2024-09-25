@@ -17,6 +17,9 @@ class AuthManager private constructor() {
         }
     }
 
+    // Method to get cached token
+    fun getCachedToken(): String? = cachedToken
+
     fun getIdToken(onTokenReceived: (String?, String?) -> Unit) {
         // Return cached token if available
         if (cachedToken != null) {
@@ -24,6 +27,7 @@ class AuthManager private constructor() {
             onTokenReceived(cachedToken, null)
             return
         }
+
 
         FirebaseAuth.getInstance().currentUser?.getIdToken(true)
             ?.addOnCompleteListener { task ->

@@ -15,21 +15,18 @@ object RetrofitClient {
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor { chain ->
-                // Add the token to each request
-                val original = chain.request()
-                val requestBuilder = original.newBuilder()
+                val originalRequest = chain.request()
+                val token = AuthManager.getInstance().getCachedToken() // Get cached token if available
 
-                AuthManager.getInstance().getIdToken { token, _ ->
-                    token?.let {
-                        val jwtToken = "Bearer $it"
-                        requestBuilder.addHeader("Authorization", jwtToken)
-                    }
+                val requestBuilder = originalRequest.newBuilder()
+                if (token != null) {
+                    requestBuilder.addHeader("Authorization", "Bearer $token")
                 }
-
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
             .build()
+
 
         Retrofit.Builder()
             .baseUrl(BASE_URL)

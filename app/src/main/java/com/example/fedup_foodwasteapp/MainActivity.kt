@@ -1,6 +1,8 @@
 package com.example.fedup_foodwasteapp
 
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -32,6 +34,8 @@ import com.google.firebase.auth.FirebaseAuth
 // MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
 
+
+
     // FloatingActionButton for adding a new item.
     private lateinit var addFabItem: FloatingActionButton
 
@@ -59,9 +63,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
-
-
 
         // Initialize navigation elements and other UI components.
         val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
@@ -113,12 +114,6 @@ class MainActivity : AppCompatActivity() {
             updateSelectedNavItem(R.id.nav_settings)
         }
     }
-
-
-
-
-
-
 
 
     // Handles the click action for the add button.
@@ -244,6 +239,8 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+
 
 }
 

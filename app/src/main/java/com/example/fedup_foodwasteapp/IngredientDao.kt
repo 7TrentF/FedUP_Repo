@@ -15,6 +15,7 @@ import androidx.room.*
 @Dao
 interface IngredientDao {
 
+
     @Query("SELECT * FROM ingredients")
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
