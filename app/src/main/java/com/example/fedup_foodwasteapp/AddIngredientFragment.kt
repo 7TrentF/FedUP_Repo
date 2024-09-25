@@ -15,6 +15,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.fedup_foodwasteapp.R.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class AddIngredientFragment : DialogFragment() {
@@ -80,7 +84,12 @@ class AddIngredientFragment : DialogFragment() {
             val quantity = view.findViewById<EditText>(R.id.et_quantity).text.toString()
             val expirationDate = expirationDateEditText.text.toString()
 
-            insertIngredient(name, quantity, categories[currentCategoryIndex].displayName, expirationDate)
+            insertIngredient(
+                name,
+                quantity,
+                categories[currentCategoryIndex].displayName,
+                expirationDate
+            )
         }
 
         ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
@@ -94,7 +103,12 @@ class AddIngredientFragment : DialogFragment() {
         return view
     }
 
-    private fun insertIngredient(name: String, quantity: String, category: String, expirationDate: String) {
+    private fun insertIngredient(
+        name: String,
+        quantity: String,
+        category: String,
+        expirationDate: String
+    ) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val ingredient = Ingredient(
@@ -105,9 +119,56 @@ class AddIngredientFragment : DialogFragment() {
                 userId = user.uid
             )
 
-            // Insert ingredient via ViewModel (this will handle both RoomDB and Firebase sync)
-            ingredientViewModel.insert(ingredient)
-            dismiss()
+            // Insert ingredient via REST API
+            AuthManager.getInstance().getIdToken { token, error ->
+                if (token != null) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            val response = RetrofitClient.apiService.addIngredient(ingredient)
+                            if (response.isSuccessful) {
+// Fetch updated ingredients from Firebase immediately
+                                ingredientViewModel.fetchIngredientsFromFirebase()
+                                // Run on UI thread to show success message
+                                withContext(Dispatchers.Main) {
+
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Ingredient added to Firebase.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    dismiss()
+                                }
+                            } else {
+                                // Handle API error
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Error adding ingredient: ${
+                                            response.errorBody()?.string()
+                                        }",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Handle exception
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Exception: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error retrieving token: $error",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }

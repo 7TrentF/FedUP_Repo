@@ -42,8 +42,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
         //fetchIngredientsFromFirebase()
-       // syncApiToFirebase()  // Sync from API to Firebase
-       // syncData()   // Sync from Firebase to RoomDB
+        // syncApiToFirebase()  // Sync from API to Firebase
+        // syncData()   // Sync from Firebase to RoomDB
     }
 
     // Your new method to sync RoomDB with API
@@ -85,14 +85,22 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
-
-
-
-
-
-
+    // Method to fetch ingredients from Firebase
+    fun fetchIngredientsFromFirebase() {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val ingredients = repository.fetchIngredientsFromApi(token)
+                    if (ingredients != null) {
+                        // Post the fetched ingredients to the LiveData
+                        _filteredIngredients.postValue(ingredients ?: emptyList()) // Post empty list if null
+                    }
+                }
+            } else {
+                Log.e("IngredientViewModel", "Failed to get token: $error")
+            }
+        }
+    }
 
 
     // Sync Data Between Firebase and RoomDB
@@ -103,23 +111,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
-
-    // Insert Ingredient
-    fun insert(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            repository.insert(ingredient)
-            _insertResult.postValue(true)
-            _syncStatus.postValue("Ingredient inserted locally.")
-
-            // Optionally push to Firebase immediately
-            repository.addIngredientToFirebaseSync(ingredient)
-        } catch (e: Exception) {
-            _insertResult.postValue(false)
-            _syncStatus.postValue("Failed to insert ingredient.")
-        }
-    }
 
     fun filterIngredientsByCategory(category: String) {
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
@@ -147,27 +138,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Add Ingredient and Push to Firebase
-    fun addIngredient(ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            // Insert locally into RoomDB
-            repository.insert(ingredient)
-
-            // Sync with Firebase
-            repository.addIngredientToFirebaseSync(ingredient)
-
-            // Sync with REST API
-            authManager.getIdToken { token, error ->
-                if (token != null) {
-                    viewModelScope.launch {
-                        repository.addIngredientToApi(ingredient)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            _syncStatus.postValue("Failed to insert ingredient.")
-        }
-    }
 
 
     /*

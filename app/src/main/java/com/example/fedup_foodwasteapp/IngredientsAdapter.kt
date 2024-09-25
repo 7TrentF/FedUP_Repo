@@ -1,6 +1,4 @@
 package com.example.fedup_foodwasteapp
-
-
 import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
@@ -125,18 +123,31 @@ class IngredientAdapter(
                         // Delete the ingredient from RoomDB
                         ingredientDao.delete(ingredient)
 
-                        // Delete the ingredient from Firebase
-                        deleteIngredientFromFirebase(ingredient)
+                        // Delete the ingredient from REST API
+                        val response = RetrofitClient.apiService.deleteIngredient(ingredient.id)
 
-                        // Switch to the main thread to update the UI
-                        withContext(Dispatchers.Main) {
-                            // Update the list to reflect the deletion
-                            setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
-                            Toast.makeText(context, "${ingredient.productName} deleted.", Toast.LENGTH_SHORT).show()
+                        if (response.isSuccessful) {
+                            // Switch to the main thread to update the UI
+                            withContext(Dispatchers.Main) {
+                                // Update the list to reflect the deletion
+                                setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
+                                Toast.makeText(context, "${ingredient.productName} deleted.", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            // Handle API failure case
+                            val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                            Log.e("DeleteIngredientError", "Error deleting ${ingredient.id}: $errorMessage")
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Failed to delete ${ingredient.productName} from server: $errorMessage", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     } catch (e: Exception) {
+                        // Log the exception details for further debugging
+                        Log.e("DeleteIngredientException", "Exception while deleting ${ingredient.productName}: ${e.message}", e)
+
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Failed to delete ${ingredient.productName}.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed to delete ${ingredient.productName}: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -144,6 +155,7 @@ class IngredientAdapter(
             .setNegativeButton("No", null)
             .show()
     }
+
 
     private suspend fun deleteIngredientFromFirebase(ingredient: Ingredient) {
         val user = FirebaseAuth.getInstance().currentUser
