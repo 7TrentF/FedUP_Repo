@@ -38,6 +38,7 @@ class IngredientAdapter(
         holder.expirationDateTextView.text = current.expirationDate
         holder.categoryTextView.text = current.category
 
+
         // Handle the options button click to show popup menu
         holder.optionsButton.setOnClickListener {
             showPopupMenu(it, current)
@@ -123,8 +124,8 @@ class IngredientAdapter(
                         // Delete the ingredient from RoomDB
                         ingredientDao.delete(ingredient)
 
-                        // Delete the ingredient from REST API
-                        val response = RetrofitClient.apiService.deleteIngredient(ingredient.id)
+                        // Delete the ingredient from the REST API
+                        val response = RetrofitClient.apiService.deleteIngredient(ingredient.id.toString()) // Use ID as string
 
                         if (response.isSuccessful) {
                             // Switch to the main thread to update the UI
@@ -155,6 +156,7 @@ class IngredientAdapter(
             .setNegativeButton("No", null)
             .show()
     }
+
 
 
     private suspend fun deleteIngredientFromFirebase(ingredient: Ingredient) {

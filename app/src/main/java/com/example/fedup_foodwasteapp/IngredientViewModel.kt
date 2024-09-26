@@ -85,6 +85,25 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun fetchIngredientById(id: String) {
+        authManager.getIdToken { token, error ->
+            if (token != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val response = repository.apiService.getIngredients()
+                    if (response.isSuccessful) {
+                        val ingredient = response.body()
+                        // Handle the ingredient object (e.g., update LiveData, etc.)
+                    } else {
+                        Log.e("IngredientViewModel", "Failed to fetch ingredient: ${response.code()}")
+                    }
+                }
+            } else {
+                Log.e("IngredientViewModel", "Failed to get token: $error")
+            }
+        }
+    }
+
+
     // Method to fetch ingredients from Firebase
     fun fetchIngredientsFromFirebase() {
         authManager.getIdToken { token, error ->

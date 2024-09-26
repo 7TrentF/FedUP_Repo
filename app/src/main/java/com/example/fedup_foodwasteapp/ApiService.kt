@@ -22,7 +22,7 @@ interface ApiService {
     @DELETE("api/Ingredients/{id}")
     suspend fun deleteIngredient(
 
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Response<Void>
 }
 
