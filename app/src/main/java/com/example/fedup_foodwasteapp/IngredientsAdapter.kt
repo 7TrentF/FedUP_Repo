@@ -28,6 +28,7 @@ class IngredientAdapter(
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
     private var ingredients = emptyList<Ingredient>()
+
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ingredient_item, parent, false)
@@ -57,6 +58,10 @@ class IngredientAdapter(
         notifyDataSetChanged()
     }
 
+    fun updateIngredients(newList: List<Ingredient>) {
+        ingredients = newList
+        notifyDataSetChanged()
+    }
 
 
 

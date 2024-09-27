@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,6 +43,8 @@ class InventoryFragment : Fragment() {
     // ImageButton for selecting a category (likely the same as above).
     private lateinit var imgCategory: ImageButton
 
+    private lateinit var imgSort: ImageButton
+
     // Called when the fragment is being created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +65,17 @@ class InventoryFragment : Fragment() {
 
         // Initialize the category selection ImageButton.
         imgCategory = view.findViewById(R.id.img_category)
+        imgSort =  view.findViewById(R.id.img_sort)
         imgCategory.setOnClickListener {
             // Show a dialog to select a category when the button is clicked.
             showCategorySelectionDialog()
         }
+
+        imgSort.setOnClickListener {
+            showSortSelectionDialog()
+        }
+
+
 
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
@@ -153,6 +164,74 @@ class InventoryFragment : Fragment() {
         }
         builder.show()
     }
+
+
+    private fun  showSortSelectionDialog(){
+        val options = arrayOf("About to Expire", "Alphabetical")
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Sort By")
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> { // About to Expire
+                    sortIngredientsByExpirationDate()
+                }
+                1 -> { // Alphabetical
+                    sortIngredientsAlphabetically()
+                }
+            }
+        }
+        builder.show()
+
+    }
+
+    private fun sortIngredientsByExpirationDate() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getIngredients() // Call the API to fetch ingredients
+                if (response.isSuccessful) {
+                    val ingredients = response.body()
+                    ingredients?.let {
+                        val currentDate = LocalDate.now()
+
+                        // Sort ingredients based on expiration date
+                        val sortedByExpiry = ingredients.sortedBy { ingredient ->
+                            val expirationDate = LocalDate.parse(ingredient.expirationDate) // Assuming your expirationDate is in ISO format
+                            ChronoUnit.DAYS.between(currentDate, expirationDate)
+                        }
+                        // Update RecyclerView with sorted ingredients
+                        ingredientAdapter.updateIngredients(sortedByExpiry)
+
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("SortError", "Error sorting ingredients: ${e.message}")
+            }
+        }
+    }
+
+
+    private fun sortIngredientsAlphabetically() {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getIngredients() // Call the API to fetch ingredients
+                if (response.isSuccessful) {
+                    val ingredients = response.body()
+                    ingredients?.let {
+                        // Sort ingredients by name alphabetically
+                        val sortedByName = ingredients.sortedBy { it.productName }
+                        // Update RecyclerView with sorted ingredients
+                        ingredientAdapter.updateIngredients(sortedByName)
+
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("SortError", "Error sorting ingredients: ${e.message}")
+            }
+        }
+    }
+
+
+
 
 
     // Called after the view hierarchy associated with the fragment has been created.
