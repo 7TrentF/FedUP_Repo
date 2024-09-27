@@ -25,8 +25,11 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
+
+    // Define the LiveData with the correct type
     private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
     val filteredIngredients: LiveData<List<Ingredient>> get() = _filteredIngredients
+
     private val _insertResult = MutableLiveData<Boolean>()
     val insertResult: LiveData<Boolean> get() = _insertResult
     private val apiService = RetrofitClient.apiService
@@ -35,6 +38,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     // LiveData for synchronization status
     private val _syncStatus = MutableLiveData<String>()
     val syncStatus: LiveData<String> get() = _syncStatus
+
+
 
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
@@ -103,16 +108,19 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    // Call this method in your fragment to set up real-time updates
+    fun observeIngredientChanges() {
+        observeIngredientChangesInFirebase() // Set up real-time listener
+    }
 
-    // Method to fetch ingredients from Firebase
+    // Fetch ingredients from the API and post to LiveData
     fun fetchIngredientsFromFirebase() {
         authManager.getIdToken { token, error ->
             if (token != null) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val ingredients = repository.fetchIngredientsFromApi(token)
                     if (ingredients != null) {
-                        // Post the fetched ingredients to the LiveData
-                        _filteredIngredients.postValue(ingredients ?: emptyList()) // Post empty list if null
+                        _filteredIngredients.postValue(ingredients ?: emptyList())
                     }
                 }
             } else {
@@ -120,6 +128,58 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
+
+    fun observeIngredientChangesInFirebase() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val ingredientsRef = FirebaseDatabase.getInstance().getReference("ingredients/$userId")
+
+            // Listen for any changes in the ingredients
+            ingredientsRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // Re-fetch ingredients from API when data changes in Firebase
+                    fetchIngredientsFromFirebase()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("IngredientViewModel", "Failed to listen for real-time updates: ${error.message}")
+                }
+            })
+        }
+    }
+
+
+    // Method to fetch ingredients in real-time from Firebase
+    fun fetchIngredientsFromFirebaseRealTime() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val ingredientsRef = FirebaseDatabase.getInstance().getReference("ingredients/$userId")
+
+            // Set up a ValueEventListener to listen for changes in real-time
+            ingredientsRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val ingredientList = mutableListOf<Ingredient>()
+
+                    // Loop through the data snapshot to retrieve each ingredient
+                    for (ingredientSnapshot in snapshot.children) {
+                        val ingredient = ingredientSnapshot.getValue(Ingredient::class.java)
+                        ingredient?.let { ingredientList.add(it) }
+                    }
+
+                    // Post the new list to LiveData, so the UI is updated
+                    _filteredIngredients.postValue(ingredientList)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("IngredientViewModel", "Failed to fetch real-time updates: ${error.message}")
+                }
+            })
+        } else {
+            Log.e("IngredientViewModel", "User is not authenticated")
+        }
+    }
+
+
 
 
     // Sync Data Between Firebase and RoomDB

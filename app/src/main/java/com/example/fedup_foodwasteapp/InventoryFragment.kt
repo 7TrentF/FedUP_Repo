@@ -75,13 +75,6 @@ class InventoryFragment : Fragment() {
         // Initialize the ViewModel associated with this fragment.
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
-
-        // Observe the filtered ingredients LiveData from the ViewModel.
-        // Update the adapter when the data changes.
-        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
-            ingredientAdapter.setIngredients(ingredients)
-        })
-
         return view
     }
 
@@ -114,16 +107,27 @@ class InventoryFragment : Fragment() {
         recyclerView.adapter = ingredientAdapter
 
         // Re-initialize the ViewModel.
-        ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
+        ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
+
 
         // Fetch ingredients from Firebase and observe the LiveData
-        ingredientViewModel.fetchIngredientsFromFirebase()
+       ingredientViewModel.fetchIngredientsFromFirebase()
 
-        // Observe the LiveData and update the adapter when data changes
+        // Start observing for real-time changes
+        ingredientViewModel.observeIngredientChanges()
+
+        // Observe the LiveData to update the RecyclerView when data changes
+        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
+            ingredientAdapter.setIngredients(ingredients ?: emptyList())
+        })
+
+        /* Observe the LiveData and update the adapter when data changes
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
             ingredientAdapter.setIngredients(ingredients)
 
-        })
+        }) */
+
+
     }
 
     // Companion object to create a new instance of InventoryFragment with arguments.

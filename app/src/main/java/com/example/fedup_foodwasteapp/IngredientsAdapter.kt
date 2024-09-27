@@ -89,17 +89,39 @@ class IngredientAdapter(
                     // Perform the update operation in a coroutine
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            ingredientDao.update(updatedIngredient)
+                            // Update the ingredient in the API first
+                            val response = RetrofitClient.apiService.updateIngredient(updatedIngredient.firebaseId!!, updatedIngredient)
 
-                            // Switch to the main thread to observe LiveData
-                            withContext(Dispatchers.Main) {
-                                ingredientDao.getAllIngredients().observe(fragmentActivity) { updatedList ->
-                                    setIngredients(updatedList)
+                            if (response.isSuccessful) {
+                                // Only update the local RoomDB if the API update is successful
+                                ingredientDao.update(updatedIngredient)
+
+
+
+                                    Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
+                                        "Ingredient updated successfully",
+                                        Snackbar.LENGTH_SHORT).show()
+
+                            } else {
+                                // Handle the failure case (e.g., logging)
+                                withContext(Dispatchers.Main) {
+                                    Log.e("EditIngredient", "API update failed: ${response.message()}")
+                                    Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
+                                        "Failed to update ingredient",
+                                        Snackbar.LENGTH_SHORT).show()
                                 }
                             }
                         } catch (e: Exception) {
                             // Log or handle the exception
                             Log.e("EditIngredient", "Update failed", e)
+                            withContext(Dispatchers.Main) {
+                                // Show error Snackbar
+                                Snackbar.make(
+                                    fragmentActivity.findViewById(android.R.id.content),
+                                    "An error occurred while updating",
+                                    Snackbar.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }
@@ -109,12 +131,19 @@ class IngredientAdapter(
             } catch (e: Exception) {
                 // Log or handle the exception
                 Log.e("EditIngredient", "Dialog creation failed", e)
-                Toast.makeText(context, "Unable to edit ingredient.", Toast.LENGTH_SHORT).show()
+                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
+                    "Unable to edit ingredient.",
+                    Snackbar.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(context, "Unable to edit ingredient.", Toast.LENGTH_SHORT).show()
+            if (fragmentActivity != null) {
+                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
+                    "Unable to edit ingredient.",
+                    Snackbar.LENGTH_SHORT).show()
+            }
         }
     }
+
 
     private fun showDeleteConfirmationDialog(ingredientId: String) {
         AlertDialog.Builder(context)

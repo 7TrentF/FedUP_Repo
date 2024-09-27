@@ -25,16 +25,33 @@
         app:layout_constraintVertical_bias="0.126" />
 
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Loading..."
+        android:textSize="28sp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/splash_logo" />
+
     <ProgressBar
         android:id="@+id/loading_bar"
         style="@android:style/Widget.ProgressBar.Horizontal"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:indeterminate="true"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_width="347dp"
+        android:layout_height="13dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@color/green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.128" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
