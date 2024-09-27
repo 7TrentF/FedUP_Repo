@@ -21,9 +21,9 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '11'
+        java-version: '17'   # Updated Java version to 17
 
-    # Add permission step to make gradlew executable
+    # Grant execute permission for the Gradle wrapper
     - name: Grant execute permission for Gradlew
       run: chmod +x ./gradlew
 
