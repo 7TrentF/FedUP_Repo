@@ -148,6 +148,23 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    // Fetch ingredients filtered by category from the API
+    fun filterIngredientsByCategory(category: String) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getIngredientsByCategory(category)
+                if (response.isSuccessful) {
+                    _filteredIngredients.value = response.body() ?: emptyList()
+                } else {
+                    Log.e("IngredientViewModel", "Error filtering ingredients by category: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                Log.e("IngredientViewModel", "Exception: ${e.message}")
+            }
+        }
+    }
+
+
 
     // Method to fetch ingredients in real-time from Firebase
     fun fetchIngredientsFromFirebaseRealTime() {
@@ -191,7 +208,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun filterIngredientsByCategory(category: String) {
+    fun filterIngredientsByCategoryLocal(category: String) {
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
             _filteredIngredients.postValue(ingredientsByCategory)
         }

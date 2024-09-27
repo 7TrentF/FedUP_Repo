@@ -1,16 +1,21 @@
 package com.example.fedup_foodwasteapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
+import java.io.IOException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -78,10 +83,56 @@ class InventoryFragment : Fragment() {
         return view
     }
 
-    // Filters the ingredients by the selected category.
+
     private fun filterByCategory(category: String) {
-        ingredientViewModel.filterIngredientsByCategory(category)
+        lifecycleScope.launch {
+            try {
+                Log.d("FilterCategory", "Filtering ingredients by category: $category")
+
+                // Call the API to get ingredients by category
+                val response = RetrofitClient.apiService.getIngredientsByCategory(category)
+
+                if (response.isSuccessful) {
+                    val filteredIngredients = response.body() ?: emptyList()
+                    Log.d("FilterCategory", "Successfully fetched ${filteredIngredients.size} ingredients")
+
+                    // Update the adapter with the filtered ingredients
+                    ingredientAdapter.setIngredients(filteredIngredients)
+                } else {
+                    // Handle different HTTP error codes
+                    when (response.code()) {
+                        400 -> {
+                            Log.e("FilterCategory", "Bad Request: Invalid category")
+                            Toast.makeText(context, "Bad Request: Invalid category", Toast.LENGTH_SHORT).show()
+                        }
+                        404 -> {
+                            Log.e("FilterCategory", "Not Found: No ingredients found for this category")
+                            Toast.makeText(context, "Not Found: No ingredients found for this category", Toast.LENGTH_SHORT).show()
+                        }
+                        500 -> {
+                            Log.e("FilterCategory", "Server Error: Please try again later")
+                            Toast.makeText(context, "Server Error: Please try again later", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            Log.e("FilterCategory", "Failed to load ingredients: ${response.message()}")
+                            Toast.makeText(context, "Failed to load ingredients: ${response.message()}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: IOException) {
+                // Handle network errors
+                Log.e("FilterCategory", "Network Error: ${e.message}", e)
+                Toast.makeText(context, "Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                // Handle any other errors
+                Log.e("FilterCategory", "Error: ${e.message}", e)
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+
+
 
     // Displays a dialog for category selection.
     private fun showCategorySelectionDialog() {
@@ -89,13 +140,20 @@ class InventoryFragment : Fragment() {
         val categories = Category.values().map { it.displayName }.toTypedArray()
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Select Category")
+
         // Set up the dialog with the category names and handle the selection.
         builder.setItems(categories) { dialog, which ->
             val selectedCategory = Category.values()[which].name
+
+            // Log the selected category
+            Log.d("CategorySelection", "Selected Category: $selectedCategory")
+
+            // Call the filter method with the selected category
             filterByCategory(selectedCategory)
         }
         builder.show()
     }
+
 
     // Called after the view hierarchy associated with the fragment has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

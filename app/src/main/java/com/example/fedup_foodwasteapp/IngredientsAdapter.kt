@@ -50,10 +50,16 @@ class IngredientAdapter(
 
     override fun getItemCount(): Int = ingredients.size
 
+
+
     fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
         notifyDataSetChanged()
     }
+
+
+
+
 
     private fun showPopupMenu(view: View, ingredient: Ingredient) {
         val popupMenu = androidx.appcompat.widget.PopupMenu(context, view)

@@ -24,5 +24,10 @@ interface ApiService {
     suspend fun deleteIngredient(
         @Path("firebaseId") firebaseId: String
     ): Response<Void>
+
+    @GET("api/Ingredients/category/{category}")
+    suspend fun getIngredientsByCategory(
+        @Path("category") category: String
+    ): Response<List<Ingredient>>
 }
 

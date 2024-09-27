@@ -49,12 +49,25 @@ dependencies {
     // Coroutines
     implementation (libs.kotlinx.coroutines.play.services)
 
+
+    testImplementation (libs.kotlin.mockito.kotlin)
+
+
     //Firebase Auth
     implementation (libs.firebase.auth)
 
     //Realtime database
     implementation (libs.firebase.database)
     implementation (libs.androidx.lifecycle.viewmodel.ktx.v261)
+
+    // Unit testing dependencies
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+// AndroidX Test - JVM based tests
+    androidTestImplementation(libs.androidx.junit.v113)
+    androidTestImplementation(libs.androidx.espresso.core.v340)
 
     // Room components
     implementation(libs.androidx.room.runtime.v261)
