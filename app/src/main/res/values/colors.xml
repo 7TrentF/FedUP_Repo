@@ -26,4 +26,8 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
+    <color name="snackbar_background">#FF0000</color> <!-- Red background -->
+    <color name="snackbar_text_color">#FFFFFF</color> <!-- White text -->
+    <color name="snackbar_action_color">#00FF00</color> <!-- Green action text -->
+
 </resources>

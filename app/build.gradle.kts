@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     kapt("androidx.room:room-compiler:2.6.1")
 
     // Lifecycle components
@@ -77,6 +78,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.room.common)
+    implementation (libs.androidx.core.splashscreen)
 
 
     // Testing

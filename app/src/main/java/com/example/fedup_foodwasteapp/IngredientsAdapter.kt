@@ -1,4 +1,5 @@
 package com.example.fedup_foodwasteapp
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
@@ -9,8 +10,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -124,13 +127,13 @@ class IngredientAdapter(
                         deleteIngredientFromFirebase(ingredientId)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Ingredient deleted.", Toast.LENGTH_SHORT).show()
+                            showCustomSnackbar("Ingredient deleted.", ingredientId)
                         }
                     } catch (e: Exception) {
                         Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Failed to delete ingredient: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Snackbar.make((context as Activity).findViewById(android.R.id.content), "Failed to delete ingredient: ${e.message}", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -149,24 +152,65 @@ class IngredientAdapter(
                 val response = RetrofitClient.apiService.deleteIngredient(firebaseId)
 
                 if (response.isSuccessful) {
-                    Log.d("DeleteIngredient", "Ingredient successfully deleted from Firebase with ID: $firebaseId")
+
+
+                    withContext(Dispatchers.Main) {
+                        showCustomSnackbar("Ingredient deleted.", firebaseId)
+                    }
+
                 } else {
                     val errorMessage = response.errorBody()?.string() ?: "Unknown error"
                     Log.e("DeleteIngredientError", "Error deleting ingredient: $firebaseId")
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Failed to delete ingredient: $errorMessage", Toast.LENGTH_SHORT).show()
+                        Snackbar.make((context as Activity).findViewById(android.R.id.content), "Error deleting ingredient", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
+
+                withContext(Dispatchers.Main) {
+                    Snackbar.make((context as Activity).findViewById(android.R.id.content), "Failed to delete ingredient: ${e.message}", Snackbar.LENGTH_SHORT).show()
+                }
+
             }
         } else {
             Log.e("DeleteIngredientError", "User not authenticated.")
+
+            withContext(Dispatchers.Main) {
+                Snackbar.make((context as Activity).findViewById(android.R.id.content), "User not authenticated", Snackbar.LENGTH_SHORT).show()
+            }
+
         }
     }
 
+    private fun showCustomSnackbar(message: String, ingredientId: String) {
+        // Create Snackbar
+        val snackbar = Snackbar.make(
+            (context as Activity).findViewById(android.R.id.content),
+            message,
+            Snackbar.LENGTH_SHORT
+        ).setAction("UNDO") {
+            // Add undo action if needed
+            undoDelete(ingredientId)
+        }
 
+        // Customize Snackbar
+        snackbar.setBackgroundTint(ContextCompat.getColor(context, R.color.darkgrey))
+        snackbar.setActionTextColor(ContextCompat.getColor(context, R.color.white))
+
+        // Get the TextView from the Snackbar and change the text color
+        val snackbarView = snackbar.view
+        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(ContextCompat.getColor(context, R.color.red))
+
+        // Show the Snackbar
+        snackbar.show()
+    }
+
+    private fun undoDelete(ingredientId: String) {
+        // Logic to undo delete (you can implement this as needed)
+    }
 
 
 

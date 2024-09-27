@@ -1,5 +1,6 @@
 package com.example.fedup_foodwasteapp
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import com.google.android.material.snackbar.Snackbar
 
 class AddIngredientFragment : DialogFragment() {
 
@@ -104,6 +107,8 @@ class AddIngredientFragment : DialogFragment() {
         return view
     }
 
+
+
     private fun insertIngredient(
         name: String,
         quantity: String,
@@ -113,7 +118,8 @@ class AddIngredientFragment : DialogFragment() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             if (name.isBlank() || quantity.isBlank() || category.isBlank() || expirationDate.isBlank()) {
-                Toast.makeText(requireContext(), "All fields are required.", Toast.LENGTH_SHORT).show()
+                // Show Snackbar for empty fields
+                Snackbar.make(requireView(), "All fields are required.", Snackbar.LENGTH_LONG).show()
                 return
             }
 
@@ -150,7 +156,8 @@ class AddIngredientFragment : DialogFragment() {
                                         // ingredientDao.insertIngredient(ingredient.copy(isSynced = true))
 
                                         withContext(Dispatchers.Main) {
-                                            Toast.makeText(requireContext(), "Ingredient added successfully with ID: ${ingredient.firebaseId}", Toast.LENGTH_SHORT).show()
+                                            // Show success message with Snackbar
+                                            Snackbar.make(requireView(), "Ingredient added successfully!", Snackbar.LENGTH_LONG).show()
                                         }
                                     }
                                 }
@@ -159,26 +166,49 @@ class AddIngredientFragment : DialogFragment() {
                                 val errorMessage = response.errorBody()?.string()
                                 Log.e("API Error", "Error adding ingredient: $errorMessage")
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(requireContext(), "Error adding ingredient: $errorMessage", Toast.LENGTH_SHORT).show()
+                                    // Show error message with Snackbar
+                                    Snackbar.make(requireView(), "Error adding ingredient: $errorMessage", Snackbar.LENGTH_LONG).show()
                                 }
                             }
-
-
                         } catch (e: Exception) {
                             // Handle exception
                             Log.e("Exception", "Exception: ${e.message}", e)
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(requireContext(), "Exception: ${e.message}", Toast.LENGTH_SHORT).show()
+                                // Show exception message with Snackbar
+                                Snackbar.make(requireView(), "Exception: ${e.message}", Snackbar.LENGTH_LONG).show()
                             }
                         }
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Error retrieving token: $error", Toast.LENGTH_SHORT).show()
+                    // Show token retrieval error with Snackbar
+                    Snackbar.make(requireView(), "Error retrieving token: $error", Snackbar.LENGTH_LONG).show()
                 }
             }
         } else {
-            Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
+            // Show user authentication error with Snackbar
+            Snackbar.make(requireView(), "User not authenticated.", Snackbar.LENGTH_LONG).show()
         }
+    }
+
+    private fun showCustomSnackbar(message: String, ingredientId: String) {
+        // Create Snackbar
+        val snackbar = Snackbar.make(
+            (context as Activity).findViewById(android.R.id.content),
+            message,
+            Snackbar.LENGTH_SHORT
+        )
+
+        // Customize Snackbar
+        snackbar.setBackgroundTint(ContextCompat.getColor(context as Activity, R.color.darkgrey))
+        snackbar.setActionTextColor(ContextCompat.getColor(context as Activity, R.color.white))
+
+        // Get the TextView from the Snackbar and change the text color
+        val snackbarView = snackbar.view
+        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(ContextCompat.getColor(context as Activity, R.color.red))
+
+        // Show the Snackbar
+        snackbar.show()
     }
 
 }
