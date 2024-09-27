@@ -2,6 +2,7 @@ package com.example.fedup_foodwasteapp
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -111,13 +112,21 @@ class AddIngredientFragment : DialogFragment() {
     ) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
+            if (name.isBlank() || quantity.isBlank() || category.isBlank() || expirationDate.isBlank()) {
+                Toast.makeText(requireContext(), "All fields are required.", Toast.LENGTH_SHORT).show()
+                return
+            }
+
             val ingredient = Ingredient(
                 productName = name,
                 quantity = quantity,
                 expirationDate = expirationDate,
                 category = category,
-                userId = user.uid
+                userId = user.uid // User ID to associate the ingredient with
             )
+
+            // Log the ingredient details
+            Log.d("Ingredient Data", "Adding Ingredient: $ingredient")
 
             // Insert ingredient via REST API
             AuthManager.getInstance().getIdToken { token, error ->
@@ -126,51 +135,51 @@ class AddIngredientFragment : DialogFragment() {
                         try {
                             val response = RetrofitClient.apiService.addIngredient(ingredient)
                             if (response.isSuccessful) {
-// Fetch updated ingredients from Firebase immediately
-                                ingredientViewModel.fetchIngredientsFromFirebase()
-                                // Run on UI thread to show success message
-                                withContext(Dispatchers.Main) {
+                                val createdIngredient = response.body()
+                                if (createdIngredient != null) {
+                                    // Capture the generated Firebase ID
+                                    Log.d("Insert", "Ingredient successfully added to Firebase with ID: ${createdIngredient.firebaseId}")
 
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Ingredient added to Firebase.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    dismiss()
+                                    // Check if `createdIngredient.firebaseId` is null or empty
+                                    if (createdIngredient.firebaseId.isNullOrEmpty()) {
+                                        Log.e("InsertError", "Received ingredient does not have a Firebase ID.")
+                                    } else {
+                                        ingredient.firebaseId = createdIngredient.firebaseId
+
+                                        // Insert into RoomDB with the new Firebase ID
+                                        // ingredientDao.insertIngredient(ingredient.copy(isSynced = true))
+
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(requireContext(), "Ingredient added successfully with ID: ${ingredient.firebaseId}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 }
                             } else {
                                 // Handle API error
+                                val errorMessage = response.errorBody()?.string()
+                                Log.e("API Error", "Error adding ingredient: $errorMessage")
                                 withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Error adding ingredient: ${
-                                            response.errorBody()?.string()
-                                        }",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(requireContext(), "Error adding ingredient: $errorMessage", Toast.LENGTH_SHORT).show()
                                 }
                             }
+
+
                         } catch (e: Exception) {
                             // Handle exception
+                            Log.e("Exception", "Exception: ${e.message}", e)
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Exception: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(requireContext(), "Exception: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error retrieving token: $error",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(requireContext(), "Error retrieving token: $error", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
             Toast.makeText(requireContext(), "User not authenticated.", Toast.LENGTH_SHORT).show()
         }
     }
+
 }
+

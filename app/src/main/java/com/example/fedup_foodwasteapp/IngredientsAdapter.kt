@@ -66,7 +66,7 @@ class IngredientAdapter(
                 }
                 R.id.delete -> {
                     // Show confirmation dialog before deleting
-                    showDeleteConfirmationDialog(ingredient)
+                    showDeleteConfirmationDialog(ingredient.firebaseId) // Use the Firebase ID from the ingredient
                     true
                 }
                 else -> false
@@ -113,42 +113,24 @@ class IngredientAdapter(
         }
     }
 
-    private fun showDeleteConfirmationDialog(ingredient: Ingredient) {
+    private fun showDeleteConfirmationDialog(ingredientId: String) {
         AlertDialog.Builder(context)
             .setTitle("Delete Ingredient")
-            .setMessage("Are you sure you want to delete ${ingredient.productName}?")
+            .setMessage("Are you sure you want to delete this ingredient?")
             .setPositiveButton("Yes") { _, _ ->
-                // Perform the delete operation on a background thread
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // Delete the ingredient from RoomDB
-                        ingredientDao.delete(ingredient)
-
-                        // Delete the ingredient from the REST API
-                        val response = RetrofitClient.apiService.deleteIngredient(ingredient.id.toString()) // Use ID as string
-
-                        if (response.isSuccessful) {
-                            // Switch to the main thread to update the UI
-                            withContext(Dispatchers.Main) {
-                                // Update the list to reflect the deletion
-                                setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
-                                Toast.makeText(context, "${ingredient.productName} deleted.", Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
-                            // Handle API failure case
-                            val errorMessage = response.errorBody()?.string() ?: "Unknown error"
-                            Log.e("DeleteIngredientError", "Error deleting ${ingredient.id}: $errorMessage")
-
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Failed to delete ${ingredient.productName} from server: $errorMessage", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // Log the exception details for further debugging
-                        Log.e("DeleteIngredientException", "Exception while deleting ${ingredient.productName}: ${e.message}", e)
+                        // Call the method to delete the ingredient via the API using its Firebase ID
+                        deleteIngredientFromFirebase(ingredientId)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Failed to delete ${ingredient.productName}: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Ingredient deleted.", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Failed to delete ingredient: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -157,20 +139,35 @@ class IngredientAdapter(
             .show()
     }
 
-
-
-    private suspend fun deleteIngredientFromFirebase(ingredient: Ingredient) {
+    private suspend fun deleteIngredientFromFirebase(firebaseId: String) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            val database = FirebaseDatabase.getInstance()
-                .getReference("ingredients")
-                .child(user.uid)
+            try {
+                Log.d("DeleteIngredientDebug", "Attempting to delete ingredient with Firebase ID: $firebaseId")
 
-            // To find the exact child in Firebase, you need to have the unique key of the ingredient
-            // stored in Firebase. Assuming you have stored the ingredient with a key as part of its data.
-            database.child(ingredient.id.toString()).removeValue().await() // Using Coroutines
+                // Call the API to delete the ingredient by its Firebase ID
+                val response = RetrofitClient.apiService.deleteIngredient(firebaseId)
+
+                if (response.isSuccessful) {
+                    Log.d("DeleteIngredient", "Ingredient successfully deleted from Firebase with ID: $firebaseId")
+                } else {
+                    val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                    Log.e("DeleteIngredientError", "Error deleting ingredient: $firebaseId")
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Failed to delete ingredient: $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
+            }
+        } else {
+            Log.e("DeleteIngredientError", "User not authenticated.")
         }
     }
+
+
+
 
 
     private fun updateIngredient(updatedIngredient: Ingredient) {

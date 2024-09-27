@@ -6,23 +6,23 @@ interface ApiService {
     @GET("api/Ingredients")
     suspend fun getIngredients(): Response<List<Ingredient>>
 
+    @GET("api/Ingredients/{ingredientId}")
+    suspend fun getIngredientById(@Path("ingredientId") ingredientId: String): Response<Ingredient>
+
     @POST("api/Ingredients")
     suspend fun addIngredient(
-
         @Body ingredient: Ingredient
     ): Response<Ingredient>
 
-    @PUT("api/Ingredients/{id}")
+    @PUT("api/Ingredients/{firebaseId}")
     suspend fun updateIngredient(
-
-        @Path("id") id: Int,
+        @Path("firebaseId") firebaseId: String,
         @Body ingredient: Ingredient
     ): Response<Void>
 
-    @DELETE("api/Ingredients/{id}")
+    @DELETE("api/Ingredients/{firebaseId}")
     suspend fun deleteIngredient(
-
-        @Path("id") id: String
+        @Path("firebaseId") firebaseId: String
     ): Response<Void>
 }
 

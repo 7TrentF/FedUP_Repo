@@ -141,13 +141,13 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         _insertResult.postValue(true)
     }
 
-    fun updateIngredient(id: Int, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
+    fun updateIngredient(firebaseId: String, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
         try {
             repository.update(ingredient)
             authManager.getIdToken { token, error ->
                 if (token != null) {
                     viewModelScope.launch {
-                        repository.updateIngredientInApi(id, ingredient)
+                        repository.updateIngredientInApi(firebaseId, ingredient)
                     }
 
                 }

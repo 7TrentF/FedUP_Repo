@@ -162,9 +162,9 @@ class IngredientRepository(
         }
     }
 
-    suspend fun updateIngredientInApi(id: Int, ingredient: Ingredient) {
+    suspend fun updateIngredientInApi(firebaseId: String, ingredient: Ingredient) {
         try {
-            val response = apiService.updateIngredient( id, ingredient)
+            val response = apiService.updateIngredient( firebaseId, ingredient)
             if (response.isSuccessful) {
                 Log.d("Repository", "Ingredient updated in API.")
             } else {
