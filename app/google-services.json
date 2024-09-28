@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "160835827466",
+    "firebase_url": "https://fed-up-9ac4f-default-rtdb.firebaseio.com",
     "project_id": "fed-up-9ac4f",
     "storage_bucket": "fed-up-9ac4f.appspot.com"
   },
@@ -12,7 +13,21 @@
           "package_name": "com.example.fedup_foodwasteapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "160835827466-786crvh3po86vt6ic0no5gn72dk1vvrv.apps.googleusercontent.com",
+
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fedup_foodwasteapp",
+            "certificate_hash": "84cd6754a23405423162bb2699e9f26601acc51f"
+          }
+        },
+        {
+          "client_id": "160835827466-av691ujd9v27dd98hhhdqnad7d58o3f1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAlMcyaQYtuFJZesJFVw2U5fVGEad-7KmY"
@@ -20,7 +35,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "160835827466-av691ujd9v27dd98hhhdqnad7d58o3f1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

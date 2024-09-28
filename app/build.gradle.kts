@@ -51,10 +51,13 @@ dependencies {
 
 
     testImplementation (libs.kotlin.mockito.kotlin)
-
+    testImplementation (libs.mockito.kotlin.v410)
 
     //Firebase Auth
     implementation (libs.firebase.auth)
+    implementation (platform(libs.firebase.bom))
+    implementation (libs.play.services.auth)
+
 
     //Realtime database
     implementation (libs.firebase.database)

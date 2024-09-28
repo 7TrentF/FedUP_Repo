@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/darkgrey"
+    android:background="@drawable/green_border"
     android:padding="16dp">
 
     <TextView
@@ -11,13 +11,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/red"
-        android:text="Sample Text" />
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        android:text="Ingredient successfully added" />
 
-    <Button
-        android:id="@+id/snackbar_action"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/snackbar_action_color"
-        android:text="Action" />
+
+
 </LinearLayout>

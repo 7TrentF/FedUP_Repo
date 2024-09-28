@@ -12,6 +12,9 @@ import com.google.firebase.auth.FirebaseAuth
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
+
+    private val authManager = AuthManager.getInstance()
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
@@ -19,7 +22,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val logoutPreference = findPreference<Preference>("logout")
         logoutPreference?.setOnPreferenceClickListener {
             // Call the logout method when clicked
-            logoutUser()
+            authManager.logoutUser()
             true
         }
 
@@ -36,15 +39,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
 
-    // Function to log out the user
-    private fun logoutUser() {
-        FirebaseAuth.getInstance().signOut()
 
-        // Navigate the user back to the login screen
-        val intent = Intent(activity, Login::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        activity?.finish()
-    }
 
 }

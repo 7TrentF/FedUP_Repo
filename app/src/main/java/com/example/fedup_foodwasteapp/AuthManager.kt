@@ -1,6 +1,8 @@
 package com.example.fedup_foodwasteapp
 
+import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class AuthManager private constructor() {
@@ -40,6 +42,16 @@ class AuthManager private constructor() {
                     onTokenReceived(null, task.exception?.message)
                 }
             }
+    }
+
+
+
+    // Function to log out the user
+    fun logoutUser() {
+        cachedToken = null
+        FirebaseAuth.getInstance().signOut()
+
+
     }
 }
 
