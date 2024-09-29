@@ -22,7 +22,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val logoutPreference = findPreference<Preference>("logout")
         logoutPreference?.setOnPreferenceClickListener {
             // Call the logout method when clicked
-            authManager.logoutUser()
+            authManager.logoutUser(requireContext())
+
             true
         }
 

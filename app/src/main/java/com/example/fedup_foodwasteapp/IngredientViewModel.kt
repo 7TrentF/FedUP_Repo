@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.snackbar.Snackbar
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -19,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 // The IngredientViewModel class extends AndroidViewModel, providing the application context.
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
@@ -233,6 +236,9 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             Log.e("ViewModel", "Failed to update ingredient.")
         }
     }
+
+
+
 
 
 

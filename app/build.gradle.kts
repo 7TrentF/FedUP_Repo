@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.logging.interceptor)
     // Coroutines
     implementation (libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.core.i18n)
+    implementation(libs.protolite.well.known.types)
 
 
     testImplementation (libs.kotlin.mockito.kotlin)

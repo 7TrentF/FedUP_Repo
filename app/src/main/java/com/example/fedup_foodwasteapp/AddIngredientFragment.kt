@@ -94,7 +94,10 @@ class AddIngredientFragment : DialogFragment() {
                 categories[currentCategoryIndex].displayName,
                 expirationDate
             )
+
         }
+
+
 
         ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
             if (success) {
@@ -158,6 +161,7 @@ class AddIngredientFragment : DialogFragment() {
                                         withContext(Dispatchers.Main) {
                                             // Show success message with Snackbar
                                             Snackbar.make(requireView(), "Ingredient added successfully!", Snackbar.LENGTH_LONG).show()
+                                            dismiss()  // Close the dialog after insertion
                                         }
                                     }
                                 }
@@ -212,4 +216,3 @@ class AddIngredientFragment : DialogFragment() {
     }
 
 }
-

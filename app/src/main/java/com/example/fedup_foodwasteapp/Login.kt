@@ -4,6 +4,7 @@ package com.example.fedup_foodwasteapp
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -20,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.GoogleAuthProvider
 
 class Login : AppCompatActivity() {
@@ -65,6 +67,10 @@ class Login : AppCompatActivity() {
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
                 Log.w("LoginActivity", "Google sign in failed", e)
+                // Use Snackbar to show the error message
+                val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                Snackbar.make(rootView, "Google Sign-In Failed", Snackbar.LENGTH_LONG).show()
+
                 Toast.makeText(this, "Google Sign-In Failed", Toast.LENGTH_SHORT).show()
             }
         }
@@ -111,7 +117,10 @@ class Login : AppCompatActivity() {
                     getFirebaseToken { token ->
                         Log.d("Login", "User authenticated, token: $token")
                         // Now you have the token, make the network request to your API
-                        Toast.makeText(baseContext,"Login Successful", Toast.LENGTH_LONG).show()
+
+                        val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                        Snackbar.make(rootView, "Login Successful", Snackbar.LENGTH_LONG).show()
+
                         val intent = Intent(this@Login, MainActivity::class.java)
                         // Pass token to MainActivity if needed
                         intent.putExtra("jwt_token", token)
@@ -120,7 +129,9 @@ class Login : AppCompatActivity() {
                     }
                 } else {
                     // If sign-in fails, display a message to the user
-                    Toast.makeText(baseContext, "Login failed.", Toast.LENGTH_SHORT).show()
+                    val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                    Snackbar.make(rootView, "Login failed :(", Snackbar.LENGTH_LONG).show()
+
                 }
             }
     }
@@ -135,12 +146,16 @@ class Login : AppCompatActivity() {
                     val idToken = task.result?.token
                     if (idToken != null) {
                          Log.d("JWT Token", "Token received: $idToken") // Print to Logcat
-                        Toast.makeText(baseContext, "Token: $idToken", Toast.LENGTH_LONG).show() // Display in Toast
+                        val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                        Snackbar.make(rootView, "Token: $idToken", Snackbar.LENGTH_LONG).show()
+
                         onTokenReceived(idToken)
                     }
                 } else {
                     // Handle error
-                    Toast.makeText(baseContext, "Failed to get token", Toast.LENGTH_SHORT).show()
+
+                    val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                    Snackbar.make(rootView, "Failed to get token", Snackbar.LENGTH_LONG).show()
                 }
             }
     }
@@ -160,7 +175,10 @@ class Login : AppCompatActivity() {
                         navigateToMain(token)
                     }
                 } else {
-                    Toast.makeText(this, "Authentication Failed", Toast.LENGTH_SHORT).show()
+
+                    val rootView = findViewById<View>(android.R.id.content) // Get the root view
+                    Snackbar.make(rootView, "Authentication Failed", Snackbar.LENGTH_LONG).show()
+
                 }
             }
     }
@@ -171,11 +189,18 @@ class Login : AppCompatActivity() {
 
     // Navigate to the MainActivity
     private fun navigateToMain(token: String) {
-        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+
+        val rootView = findViewById<View>(android.R.id.content) // Get the root view
+        Snackbar.make(rootView, "Login Successful", Snackbar.LENGTH_LONG).show()
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("jwt_token", token)
         startActivity(intent)
         finish()
     }
+
+
+
+
+
 
 }

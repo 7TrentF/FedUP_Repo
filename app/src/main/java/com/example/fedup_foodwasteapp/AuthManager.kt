@@ -1,5 +1,7 @@
 package com.example.fedup_foodwasteapp
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
@@ -47,12 +49,25 @@ class AuthManager private constructor() {
 
 
     // Function to log out the user
-    fun logoutUser() {
+    fun logoutUser(context: Context) {
         cachedToken = null
         FirebaseAuth.getInstance().signOut()
 
+        // Navigate to LoginActivity
+        val intent = Intent(context, Login::class.java)
 
+        // Clear the back stack to prevent the user from returning to the previous screen
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        // Start the LoginActivity
+        context.startActivity(intent)
+
+        // Optionally, if you call this from an Activity, finish it:
+        if (context is Activity) {
+            (context as Activity).finish()
+        }
     }
+
 }
 
 

@@ -98,9 +98,15 @@ class MainActivity : AppCompatActivity() {
 
         // Set up the click listeners for the navigation items.
         navInventory.setOnClickListener {
-            loadFragment(InventoryFragment())
+            val inventoryFragment = InventoryFragment()
+            loadFragment(inventoryFragment)
+
+            // Show the FAB when navigating to the InventoryFragment
+            updateFabVisibility(inventoryFragment)
+
             updateSelectedNavItem(R.id.nav_inventory)
         }
+
 
         navRecipe.setOnClickListener {
             loadRecipeFragment(RecipeFragment())
@@ -108,9 +114,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         navSettings.setOnClickListener {
-            loadFragment(SettingsFragment())
+            val settingsFragment = SettingsFragment()
+            loadFragment(settingsFragment)
+
+            // Hide the FAB when loading the SettingsFragment
+            updateFabVisibility(settingsFragment)
+
             updateSelectedNavItem(R.id.nav_settings)
         }
+
     }
 
 
@@ -152,6 +164,25 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+
+            val transaction = supportFragmentManager.beginTransaction()
+
+            // Set custom animations for fragment transitions
+            transaction.setCustomAnimations(
+                android.R.anim.slide_in_left,  // Enter animation
+                android.R.anim.slide_out_right, // Exit animation
+                android.R.anim.slide_in_left,  // Pop enter animation (when coming back)
+                android.R.anim.slide_out_right // Pop exit animation (when navigating back)
+            )
+
+            // Replace the fragment and commit the transaction
+            transaction.replace(R.id.fragment_container, fragment)
+            transaction.addToBackStack(null)  // Add this transaction to the back stack if needed
+            transaction.commit()
+
+
+        // Update the FAB visibility based on the currently loaded fragment
+        updateFabVisibility(fragment)
     }
 
     // Loads a given fragment into the recipeContainer.
@@ -179,14 +210,16 @@ class MainActivity : AppCompatActivity() {
         container.layoutParams = params
     }
 
-    // Updates the visibility of the FABs based on the currently loaded fragment.
     private fun updateFabVisibility(fragment: Fragment) {
         when (fragment) {
-            is InventoryFragment -> addFabItem.visibility = View.VISIBLE
-            is AddIngredientFragment -> addFabItem.visibility = View.GONE
-            else -> addFabItem.visibility = View.GONE
+            is InventoryFragment -> addFabItem.visibility = View.VISIBLE  // Show FAB in InventoryFragment
+            is AddIngredientFragment -> addFabItem.visibility = View.GONE  // Hide FAB in AddIngredientFragment
+            is SettingsFragment -> addFabItem.visibility = View.GONE  // Hide FAB in SettingsFragment
+            else -> addFabItem.visibility = View.GONE  // Default to hide in other fragments
         }
     }
+
+
 
     // Updates the UI to highlight the selected navigation item.
     private fun updateSelectedNavItem(selectedItemId: Int) {

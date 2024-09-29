@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.fedup_foodwasteapp.databinding.FragmentEditIngredientBinding
+import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
 
 class EditIngredientDialogFragment : DialogFragment() {
@@ -98,6 +99,7 @@ class EditIngredientDialogFragment : DialogFragment() {
             // Trigger the callback
             listener?.invoke(updatedIngredient)
 
+
             // Dismiss the dialog after saving
             dismiss()
         }
@@ -136,12 +138,7 @@ class EditIngredientDialogFragment : DialogFragment() {
         datePickerDialog.show()
     }
     companion object {
-        /**
-         * Factory method to create a new instance of this fragment using the provided parameters.
-         *
-         * @param ingredient The ingredient to be edited.
-         * @return A new instance of EditIngredientDialogFragment.
-         */
+
         fun newInstance(ingredient: Ingredient): EditIngredientDialogFragment {
             val fragment = EditIngredientDialogFragment()
             val args = Bundle()

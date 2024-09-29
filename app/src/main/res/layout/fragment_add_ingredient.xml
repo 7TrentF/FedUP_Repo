@@ -44,7 +44,7 @@
         android:gravity="center"
         android:hint="Ingredient Name"
         android:textColor="@color/white"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/lightgrey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -58,7 +58,7 @@
         android:gravity="center"
         android:hint="grams"
         android:textColor="@color/white"
-        android:textColorHint="@color/white"
+        android:textColorHint="@color/lightgrey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_expiration_date" />
 
@@ -142,18 +142,18 @@
 
     <EditText
         android:id="@+id/et_expiration_date"
-        android:layout_width="139dp"
-        android:layout_height="30dp"
+        android:layout_width="157dp"
+        android:layout_height="39dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="4dp"
         android:background="@drawable/custom_text_box"
+        android:clickable="true"
+        android:focusable="false"
         android:gravity="center"
         android:hint="(YYYY-MM-DD)"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
         android:inputType="none"
-        android:focusable="false"
-        android:clickable="true"
+        android:textColor="@color/white"
+        android:textColorHint="@color/lightgrey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_ingredient_name" />
 

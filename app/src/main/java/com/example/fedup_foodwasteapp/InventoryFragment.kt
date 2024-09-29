@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.LocalDate
@@ -114,30 +116,35 @@ class InventoryFragment : Fragment() {
                     when (response.code()) {
                         400 -> {
                             Log.e("FilterCategory", "Bad Request: Invalid category")
-                            Toast.makeText(context, "Bad Request: Invalid category", Toast.LENGTH_SHORT).show()
+
+                            Snackbar.make(requireView(), "Bad Request: Invalid category", Snackbar.LENGTH_LONG).show()
                         }
                         404 -> {
                             Log.e("FilterCategory", "Not Found: No ingredients found for this category")
-                            Toast.makeText(context, "Not Found: No ingredients found for this category", Toast.LENGTH_SHORT).show()
+                            Snackbar.make(requireView(), "Not Found: No ingredients found for this category", Snackbar.LENGTH_LONG).show()
                         }
                         500 -> {
                             Log.e("FilterCategory", "Server Error: Please try again later")
-                            Toast.makeText(context, "Server Error: Please try again later", Toast.LENGTH_SHORT).show()
+                            Snackbar.make(requireView(), "Server Error: Please try again later", Snackbar.LENGTH_LONG).show()
+
                         }
                         else -> {
                             Log.e("FilterCategory", "Failed to load ingredients: ${response.message()}")
-                            Toast.makeText(context, "Failed to load ingredients: ${response.message()}", Toast.LENGTH_SHORT).show()
+                            Snackbar.make(requireView(), "Failed to load ingredients: ${response.message()}", Snackbar.LENGTH_LONG).show()
+
                         }
                     }
                 }
             } catch (e: IOException) {
                 // Handle network errors
                 Log.e("FilterCategory", "Network Error: ${e.message}", e)
-                Toast.makeText(context, "Network Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Network Error: ${e.message}", Snackbar.LENGTH_LONG).show()
+
             } catch (e: Exception) {
                 // Handle any other errors
                 Log.e("FilterCategory", "Error: ${e.message}", e)
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Error: ${e.message}", Snackbar.LENGTH_LONG).show()
+
             }
         }
     }
@@ -210,6 +217,7 @@ class InventoryFragment : Fragment() {
     }
 
 
+
     private fun sortIngredientsAlphabetically() {
         lifecycleScope.launch {
             try {
@@ -238,17 +246,38 @@ class InventoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         // Re-initialize the RecyclerView and its adapter.
         val recyclerView = view.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = ingredientAdapter
 
+        // Find the "No inventory found" TextView.
+        val noInventoryTextView = view.findViewById<TextView>(R.id.no_inventory_text)
+
         // Re-initialize the ViewModel.
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
 
+        // Observe the ingredients LiveData
+        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner) { ingredients ->
+            if (ingredients.isNullOrEmpty()) {
+                // No ingredients found, show the "No inventory found" message
+                noInventoryTextView.visibility = View.VISIBLE
+
+            } else {
+                // Ingredients found, hide the "No inventory found" message
+                noInventoryTextView.visibility = View.GONE
+                // Fetch ingredients from Firebase and observe the LiveData
+                ingredientViewModel.fetchIngredientsFromFirebase()
+
+            }
+        }
+
+
+
         // Fetch ingredients from Firebase and observe the LiveData
-       ingredientViewModel.fetchIngredientsFromFirebase()
+        ingredientViewModel.fetchIngredientsFromFirebase()
 
         // Start observing for real-time changes
         ingredientViewModel.observeIngredientChanges()
