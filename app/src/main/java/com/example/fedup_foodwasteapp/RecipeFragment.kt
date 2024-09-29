@@ -14,12 +14,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fedup_foodwasteapp.databinding.FragmentRecipeBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -56,87 +58,94 @@ class RecipeFragment : Fragment() {
         // Get the Firebase ID token using AuthManager
         authManager.getIdToken { token, error ->
             if (token != null) {
+                Log.d("LoadRecipes", "Firebase token retrieved successfully: $token")
+
                 // Set up Retrofit for API calls
-                val retrofit = Retrofit.Builder()
+                val RecipeRetrofit = Retrofit.Builder()
                     .baseUrl("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
 
-                val apiService = retrofit.create(RecipeApiService::class.java)
+                val RecipeApiService = RecipeRetrofit.create(RecipeApiService::class.java)
 
-                // Firebase reference to ingredients
-                val db = FirebaseDatabase.getInstance().getReference("ingredients")
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        Log.d("LoadRecipes", "Fetching ingredients from custom API")
 
-                // Add logging to check the Firebase reference
-                Log.d("LoadRecipes", "Fetching ingredients from Firebase...")
+                        // Fetch ingredients from custom API
+                        val ingredientsResponse = RetrofitClient.apiService.getIngredients()
 
-                // Listen for Firebase ingredients data
-                db.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        val ingredientNames = mutableListOf<String>()
+                        if (ingredientsResponse.isSuccessful) {
+                            val ingredients = ingredientsResponse.body() ?: emptyList()
 
-                        Log.d("LoadRecipes", "Firebase onDataChange called. DataSnapshot size: ${dataSnapshot.childrenCount}")
+                            Log.d("LoadRecipes", "Ingredients fetched: ${ingredients.size} items")
 
-                        // Loop through the Firebase data to extract ingredient names
-                        for (snapshot in dataSnapshot.children) {
-                            val ingredient = snapshot.getValue(FirebaseIngredient::class.java)
-                            Log.d("LoadRecipes", "Ingredient fetched from Firebase: ${ingredient?.ingredient_name}")
+                            if (ingredients.isNotEmpty()) {
+                                val ingredientsQuery = ingredients.joinToString(",") { it.productName }
 
-                            ingredient?.let {
-                                ingredientNames.add(it.ingredient_name)
-                            }
-                        }
+                                Log.d("LoadRecipes", "Ingredient query: $ingredientsQuery")
 
-                        // If ingredient names are retrieved, log the query and make API call
-                        if (ingredientNames.isNotEmpty()) {
-                            val ingredientsQuery = ingredientNames.joinToString(",") // Join ingredients as comma-separated string
-                            Log.d("LoadRecipes", "Ingredients Query: $ingredientsQuery")
-
-                            lifecycleScope.launch(Dispatchers.IO) {
+                                // API call to Spoonacular
                                 try {
-                                    // Call the API with the ingredients query and token
-                                    Log.d("LoadRecipes", "Making API call to Spoonacular with query: $ingredientsQuery")
-                                    val response = apiService.getRecipes("Bearer $token", ingredientsQuery)
+                                    Log.d("LoadRecipes", "Fetching recipes using Spoonacular API")
+                                    val response = RecipeApiService.getRecipes(
+                                        "Bearer $token",
+                                        ingredientsQuery
+                                    )
 
-                                    // Log response status
-                                    Log.d("LoadRecipes", "API call successful. Response: ${response.results.size} recipes found.")
-
-                                    if (response.results.isNotEmpty()) {
-                                        // Update the RecyclerView with the recipes
-                                        recipeAdapter.updateData(response.results)
-                                    } else {
-                                        Log.w("LoadRecipes", "No recipes found for the provided ingredients.")
-                                        showError("No recipes found.")
+                                    withContext(Dispatchers.Main) {
+                                        if (response.results.isNotEmpty()) {
+                                            Log.d("LoadRecipes", "Recipes found: ${response.results.size}")
+                                            recipeAdapter.updateData(response.results) // Update RecyclerView
+                                        } else {
+                                            Log.d("LoadRecipes", "No recipes found")
+                                            showError("No recipes found.")
+                                        }
                                     }
                                 } catch (e: Exception) {
-                                    // Log API call failure
-                                    Log.e("LoadRecipes", "Error occurred during API call", e)
-                                    showError("Failed to load recipes. Please check your internet connection.")
-                                } finally {
-                                    progressBar.visibility = View.GONE
+                                    Log.e("LoadRecipes", "Error during API call to Spoonacular", e)
+                                    withContext(Dispatchers.Main) {
+                                        showError("Failed to load recipes. Please check your connection.")
+                                    }
+                                }
+                            } else {
+                                Log.d("LoadRecipes", "No ingredients found")
+                                withContext(Dispatchers.Main) {
+                                    showError("No ingredients found.")
                                 }
                             }
                         } else {
-                            Log.w("LoadRecipes", "No ingredients found in Firebase.")
-                            showError("No ingredients found in Firebase.")
+                            Log.e("LoadRecipes", "Failed to fetch ingredients: ${ingredientsResponse.errorBody()}")
+                            withContext(Dispatchers.Main) {
+                                showError("Failed to fetch ingredients.")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("LoadRecipes", "Error fetching ingredients", e)
+                        withContext(Dispatchers.Main) {
+                            showError("Error occurred while fetching ingredients.")
+                        }
+                    } finally {
+                        withContext(Dispatchers.Main) {
                             progressBar.visibility = View.GONE
                         }
+                        Log.d("LoadRecipes", "LoadRecipes process completed")
                     }
-
-                    override fun onCancelled(databaseError: DatabaseError) {
-                        // Log the error with Firebase
-                        Log.e("LoadRecipes", "Firebase error occurred: ${databaseError.message}", databaseError.toException())
-                        showError("Failed to load ingredients from Firebase.")
-                        progressBar.visibility = View.GONE
-                    }
-                })
+                }
             } else {
-                Log.e("RecipeFragment", "Failed to get token: $error")
-                showError("Authentication failed: $error")
-                progressBar.visibility = View.GONE
+                Log.e("LoadRecipes", "Failed to retrieve Firebase token: $error")
+                showError("Authentication error. Please try again.")
             }
         }
     }
+
+
+
+    private fun showError(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
+    }
+
+
 
     private fun openRecipeDetailActivity(recipe: Recipe) {
         // Create an intent to navigate to RecipeDetailsActivity
@@ -149,7 +158,5 @@ class RecipeFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun showError(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
+
 }
