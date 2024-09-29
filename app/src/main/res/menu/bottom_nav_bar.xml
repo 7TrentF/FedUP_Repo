@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_inventory"
+        android:title="Inventory"
+        android:icon="@drawable/ic_inventory"
+        android:iconTint="@color/green" />
+
+    <item
+        android:id="@+id/nav_Recipe"
+        android:title="Recipe"
+        android:icon="@drawable/ic_recipe"
+        android:iconTint="@color/green" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings"
+        android:iconTint="@color/green" />
+</menu>
