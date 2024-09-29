@@ -15,23 +15,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-// InventoryFragment class represents the fragment that displays the inventory of ingredients.
 class InventoryFragment : Fragment() {
-
-    // Nullable parameters that can be passed to the fragment as arguments.
-    private var param1: String? = null
-    private var param2: String? = null
 
     // ViewModel for managing UI-related data in a lifecycle-conscious way.
     private lateinit var ingredientViewModel: IngredientViewModel
@@ -50,11 +42,7 @@ class InventoryFragment : Fragment() {
     // Called when the fragment is being created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Retrieve the arguments passed to the fragment (if any).
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     // Called to create the view hierarchy associated with the fragment.
@@ -261,6 +249,8 @@ class InventoryFragment : Fragment() {
         // Re-initialize the ViewModel.
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
+      //  WorkManager.getInstance(applicationContext).enqueue(OneTimeWorkRequest.from(ExpirationCheckWorker::class.java))
+
 
 
         // Fetch ingredients from Firebase and observe the LiveData
@@ -296,13 +286,7 @@ class InventoryFragment : Fragment() {
 
     // Companion object to create a new instance of InventoryFragment with arguments.
     companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            InventoryFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+
+
     }
 }

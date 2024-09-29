@@ -48,6 +48,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
+
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()

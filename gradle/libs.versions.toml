@@ -16,6 +16,7 @@ firebaseAuthVersion = "21.0.1"
 firebaseBom = "33.3.0"
 firebaseDatabase = "21.0.0"
 firebaseDatabaseVersion = "20.2.2"
+hiltAndroid = "2.44"
 kotlin = "1.9.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -83,6 +84,8 @@ firebase-auth-v2101 = { module = "com.google.firebase:firebase-auth", version.re
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 firebase-database-v2022 = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabaseVersion" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

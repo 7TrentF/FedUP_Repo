@@ -29,6 +29,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.navigation.fragment.NavHostFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.firebase.auth.FirebaseAuth
 
 // MainActivity class represents the main activity of the application.
@@ -71,6 +73,9 @@ class MainActivity : AppCompatActivity() {
         FrameContainer = findViewById(R.id.fragment_container)
         addFabItem = findViewById(R.id.add_fab_item)
         categoryFab = findViewById(R.id.category_fab)
+
+        WorkManager.getInstance(applicationContext).enqueue(OneTimeWorkRequest.from(ExpirationCheckWorker::class.java))
+
 
         // Load the InventoryFragment if there is no saved state.
         if (savedInstanceState == null) {

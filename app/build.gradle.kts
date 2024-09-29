@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.androidx.core.i18n)
     implementation(libs.protolite.well.known.types)
 
+    implementation (libs.hilt.android)
+    kapt (libs.hilt.compiler)
+
 
     testImplementation (libs.kotlin.mockito.kotlin)
     testImplementation (libs.mockito.kotlin.v410)
