@@ -33,6 +33,17 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="recipe_image">recipe_image</string>
+    <string name="recipe_title_placeholder">recipe_title_placeholder</string>
+    <string name="recipe_summary_placeholder">recipe_summary_placeholder</string>
+    <string name="no_ingredients_available">No ingredients available</string>
+    <string name="no_instructions_available">No instructions available</string>
+
+
+
+
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

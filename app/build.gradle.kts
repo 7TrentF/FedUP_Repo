@@ -103,6 +103,13 @@ dependencies {
     implementation (libs.androidx.core.splashscreen)
 
 
+    //Recipe
+    implementation (libs.picasso)
+
+
+    //implementation(libs.picasso)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v121)

@@ -15,8 +15,8 @@
 
         <ImageButton
             android:id="@+id/img_category"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="24dp"
             android:layout_marginTop="20dp"
             android:background="@color/grey"
@@ -54,8 +54,8 @@
 
         <ImageButton
             android:id="@+id/img_sort"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="28dp"
             android:background="@color/grey"

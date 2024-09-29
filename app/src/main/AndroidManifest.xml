@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-
-
     <application
         android:name=".FedUpFoodWaste"
         android:allowBackup="true"
@@ -19,26 +17,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         tools:targetApi="31">
-
-        <activity android:name=".SplashActivity"
+        <activity
+            android:name=".RecipeDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity
-
             android:name=".Register"
             android:exported="false" /> <!-- Login Activity -->
         <activity
             android:name=".Login"
-            android:exported="false">
-
-        </activity> <!-- Main Activity -->
+            android:exported="false"></activity> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />

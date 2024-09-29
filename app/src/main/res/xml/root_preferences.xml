@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <!-- Account Management -->
+    <PreferenceCategory
+    android:title="App Management">
 
 
 
@@ -18,6 +20,9 @@
         android:key="share_data"
         android:title="Share Data"
         android:summary="Allow sharing data with third parties" />
+
+    </PreferenceCategory>
+
 
     <!-- Account Management -->
     <PreferenceCategory
