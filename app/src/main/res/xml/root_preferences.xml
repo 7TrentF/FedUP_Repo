@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Feature Toggle -->
-    <SwitchPreferenceCompat
-        android:key="enable_feature"
-        android:title="Enable Feature"
-        android:summary="Toggle this to enable or disable the feature" />
 
-    <!-- User Information -->
-    <EditTextPreference
-        android:key="user_name"
-        android:title="User Name"
-        android:summary="Enter your user name here"
-        android:dialogTitle="User Name" />
+
 
     <!-- Appearance Settings -->
     <ListPreference
@@ -32,6 +22,15 @@
     <!-- Account Management -->
     <PreferenceCategory
         android:title="Account Management">
+
+        <!-- User Information -->
+        <EditTextPreference
+            android:key="user_name"
+            android:title="Change Email address"
+            android:summary="Change your account email "
+            android:dialogTitle="User Name" />
+
+
         <Preference
             android:key="change_password"
             android:title="Change Password"

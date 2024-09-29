@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+//import androidx.core.i18n.DateTimeFormatter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -18,26 +19,25 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 class InventoryFragment : Fragment() {
 
-    // ViewModel for managing UI-related data in a lifecycle-conscious way.
     private lateinit var ingredientViewModel: IngredientViewModel
-
-    // Adapter for the RecyclerView that displays the list of ingredients.
     private lateinit var ingredientAdapter: IngredientAdapter
-
-    // ImageButton for selecting a category.
     private lateinit var categoryButton: ImageButton
-
-    // ImageButton for selecting a category (likely the same as above).
     private lateinit var imgCategory: ImageButton
-
     private lateinit var imgSort: ImageButton
+    private lateinit var freshTextView: TextView
+    private lateinit var expiringSoonTextView: TextView
+    private lateinit var expiredTextView: TextView
 
     // Called when the fragment is being created.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +64,14 @@ class InventoryFragment : Fragment() {
         imgSort.setOnClickListener {
             showSortSelectionDialog()
         }
+
+        // Initialize TextViews
+        freshTextView = view.findViewById(R.id.fresh_txt)
+        expiringSoonTextView = view.findViewById(R.id.tv_warning)
+        expiredTextView = view.findViewById(R.id.tv_expired)
+
+        // Fetch ingredients from API and update TextViews
+        fetchAndDisplayIngredientCounts()
 
 
         // Initialize the RecyclerView and its layout manager.
@@ -229,6 +237,45 @@ class InventoryFragment : Fragment() {
         }
     }
 
+    private fun fetchAndDisplayIngredientCounts() {
+        // Launch a coroutine in the IO dispatcher for making network requests.
+        CoroutineScope(Dispatchers.IO).launch {
+            // Fetch ingredients from the API.
+            val response = RetrofitClient.apiService.getIngredients()
+
+            if (response.isSuccessful) {
+                // Get the list of ingredients from the response body.
+                val ingredients = response.body()
+                ingredients?.let { ingredientList ->
+                    // Calculate ingredient counts based on their expiration dates.
+                    val today = LocalDate.now()
+                    var freshCount = 0
+                    var expiringSoonCount = 0
+                    var expiredCount = 0
+
+                    for (ingredient in ingredientList) {
+                        val expirationDate =
+                            LocalDate.parse(ingredient.expirationDate, DateTimeFormatter.ISO_DATE)
+                        when {
+                            expirationDate.isAfter(today.plusDays(3)) -> freshCount++
+                            expirationDate.isBefore(today) -> expiredCount++
+                            else -> expiringSoonCount++
+                        }
+                    }
+
+                    // Update UI on the main thread.
+                    withContext(Dispatchers.Main) {
+                        freshTextView.text = freshCount.toString()
+                        expiringSoonTextView.text = expiringSoonCount.toString()
+                        expiredTextView.text = expiredCount.toString()
+                    }
+                }
+            } else {
+                // Log the error or handle the unsuccessful response case.
+                Log.e("InventoryFragment", "Failed to fetch ingredients: ${response.errorBody()?.string()}")
+            }
+        }
+    }
 
 
 

@@ -71,7 +71,7 @@ class Login : AppCompatActivity() {
                 val rootView = findViewById<View>(android.R.id.content) // Get the root view
                 Snackbar.make(rootView, "Google Sign-In Failed", Snackbar.LENGTH_LONG).show()
 
-                Toast.makeText(this, "Google Sign-In Failed", Toast.LENGTH_SHORT).show()
+
             }
         }
 
@@ -100,13 +100,19 @@ class Login : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val currentUser = mAuth.currentUser
-        if (currentUser != null) {
-            // User is signed in, navigate to main app
+        val googleAccount = GoogleSignIn.getLastSignedInAccount(this)
+
+        if (currentUser != null && googleAccount != null) {
+            // User is signed in with Google, trigger the Google sign-in launcher
+            signInWithGoogle()
+        } else if (currentUser != null) {
+            // User is signed in with email/password, navigate to main app
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
     }
+
 
 
     private fun userLogin(loginEmail: String, loginPassword: String) {
@@ -162,9 +168,13 @@ class Login : AppCompatActivity() {
 
 
     private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
+        // Sign out of the existing Google account to force account selection each time
+        googleSignInClient.signOut().addOnCompleteListener {
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
+        }
     }
+
 
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(account?.idToken, null)

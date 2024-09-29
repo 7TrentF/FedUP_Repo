@@ -42,15 +42,13 @@
             app:layout_constraintStart_toEndOf="@+id/img_category"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="337dp"
-            android:layout_height="62dp"
+        <include
+            layout="@layout/expiry_overview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="84dp"
-            android:backgroundTint="#3C3E42"
-            app:cardCornerRadius="8dp"
             android:layout_marginBottom="5dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.452"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
