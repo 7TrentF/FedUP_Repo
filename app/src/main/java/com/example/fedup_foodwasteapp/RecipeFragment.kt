@@ -55,12 +55,10 @@ class RecipeFragment : Fragment() {
     private fun loadRecipes() {
         progressBar.visibility = View.VISIBLE
 
-        // Get the Firebase ID token using AuthManager
         authManager.getIdToken { token, error ->
             if (token != null) {
                 Log.d("LoadRecipes", "Firebase token retrieved successfully: $token")
 
-                // Set up Retrofit for API calls
                 val RecipeRetrofit = Retrofit.Builder()
                     .baseUrl("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/")
                     .addConverterFactory(GsonConverterFactory.create())
@@ -72,7 +70,6 @@ class RecipeFragment : Fragment() {
                     try {
                         Log.d("LoadRecipes", "Fetching ingredients from custom API")
 
-                        // Fetch ingredients from custom API
                         val ingredientsResponse = RetrofitClient.apiService.getIngredients()
 
                         if (ingredientsResponse.isSuccessful) {
@@ -82,21 +79,15 @@ class RecipeFragment : Fragment() {
 
                             if (ingredients.isNotEmpty()) {
                                 val ingredientsQuery = ingredients.joinToString(",") { it.productName }
-
                                 Log.d("LoadRecipes", "Ingredient query: $ingredientsQuery")
 
-                                // API call to Spoonacular
                                 try {
                                     Log.d("LoadRecipes", "Fetching recipes using Spoonacular API")
-                                    val response = RecipeApiService.getRecipes(
-                                        "Bearer $token",
-                                        ingredientsQuery
-                                    )
+                                    val response = RecipeApiService.getRecipes(ingredientsQuery)
 
                                     withContext(Dispatchers.Main) {
                                         if (response.results.isNotEmpty()) {
-                                            Log.d("LoadRecipes", "Recipes found: ${response.results.size}")
-                                            recipeAdapter.updateData(response.results) // Update RecyclerView
+                                            recipeAdapter.updateData(response.results)
                                         } else {
                                             Log.d("LoadRecipes", "No recipes found")
                                             showError("No recipes found.")
@@ -115,7 +106,8 @@ class RecipeFragment : Fragment() {
                                 }
                             }
                         } else {
-                            Log.e("LoadRecipes", "Failed to fetch ingredients: ${ingredientsResponse.errorBody()}")
+                            val errorBody = ingredientsResponse.errorBody()?.string()
+                            Log.e("LoadRecipes", "Failed to fetch ingredients: $errorBody")
                             withContext(Dispatchers.Main) {
                                 showError("Failed to fetch ingredients.")
                             }
@@ -138,6 +130,7 @@ class RecipeFragment : Fragment() {
             }
         }
     }
+
 
 
 
