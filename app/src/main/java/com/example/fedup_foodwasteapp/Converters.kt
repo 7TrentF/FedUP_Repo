@@ -17,7 +17,4 @@ class Converters {
     fun toLocalDate(dateString: String): LocalDate {
         return LocalDate.parse(dateString, formatter)
     }
-
-
-
 }

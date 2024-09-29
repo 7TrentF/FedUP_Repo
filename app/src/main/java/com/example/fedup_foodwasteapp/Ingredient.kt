@@ -3,6 +3,7 @@ package com.example.fedup_foodwasteapp
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.type.DateTime
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -18,4 +19,21 @@ data class Ingredient(
     var isSynced: Boolean = false // Add a new column to track sync status
 ) : Serializable
 
+
+
+/*
+
+
+
+
+
+data class Ingredient(
+    var productName: String = "",
+    var quantity: String = "",
+    var expirationDate: DateTime, // Use DateTime or any appropriate type
+    var category: String = "",
+    var firebaseId: String = "",
+    var userId: String = ""
+)
+ */
 

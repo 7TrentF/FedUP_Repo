@@ -88,5 +88,6 @@ class AddIngredientFragmentTest {
         assertNotNull(result)
         assertEquals(false, result.isSuccessful)
     }
+
     }
 

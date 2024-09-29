@@ -78,7 +78,6 @@ class InventoryFragment : Fragment() {
         }
 
 
-
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -108,6 +107,10 @@ class InventoryFragment : Fragment() {
                 if (response.isSuccessful) {
                     val filteredIngredients = response.body() ?: emptyList()
                     Log.d("FilterCategory", "Successfully fetched ${filteredIngredients.size} ingredients")
+
+
+
+
 
                     // Update the adapter with the filtered ingredients
                     ingredientAdapter.setIngredients(filteredIngredients)
@@ -259,22 +262,6 @@ class InventoryFragment : Fragment() {
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
 
-        // Observe the ingredients LiveData
-        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner) { ingredients ->
-            if (ingredients.isNullOrEmpty()) {
-                // No ingredients found, show the "No inventory found" message
-                noInventoryTextView.visibility = View.VISIBLE
-
-            } else {
-                // Ingredients found, hide the "No inventory found" message
-                noInventoryTextView.visibility = View.GONE
-                // Fetch ingredients from Firebase and observe the LiveData
-                ingredientViewModel.fetchIngredientsFromFirebase()
-
-            }
-        }
-
-
 
         // Fetch ingredients from Firebase and observe the LiveData
         ingredientViewModel.fetchIngredientsFromFirebase()
@@ -284,7 +271,20 @@ class InventoryFragment : Fragment() {
 
         // Observe the LiveData to update the RecyclerView when data changes
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
-            ingredientAdapter.setIngredients(ingredients ?: emptyList())
+
+            if (ingredients.isNullOrEmpty()) {
+                // No ingredients found, show the "No inventory found" message
+                noInventoryTextView.visibility = View.VISIBLE
+
+            } else {
+                // Ingredients found, hide the "No inventory found" message
+                noInventoryTextView.visibility = View.GONE
+                // Fetch ingredients from Firebase and observe the LiveData
+               // ingredientViewModel.fetchIngredientsFromFirebase()
+                ingredientAdapter.setIngredients(ingredients ?: emptyList())
+
+            }
+
         })
 
         /* Observe the LiveData and update the adapter when data changes
@@ -292,8 +292,6 @@ class InventoryFragment : Fragment() {
             ingredientAdapter.setIngredients(ingredients)
 
         }) */
-
-
     }
 
     // Companion object to create a new instance of InventoryFragment with arguments.

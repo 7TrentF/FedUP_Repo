@@ -109,9 +109,9 @@ class IngredientAdapter(
 
 
 
-                                    Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
-                                        "Ingredient updated successfully",
-                                        Snackbar.LENGTH_SHORT).show()
+                                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
+                                    "Ingredient updated successfully",
+                                    Snackbar.LENGTH_SHORT).show()
 
                             } else {
                                 // Handle the failure case (e.g., logging)

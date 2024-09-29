@@ -2,6 +2,7 @@ package com.example.fedup_foodwasteapp
 import retrofit2.Response
 import retrofit2.http.*
 
+
 interface ApiService {
     @GET("api/Ingredients")
     suspend fun getIngredients(): Response<List<Ingredient>>
@@ -30,4 +31,3 @@ interface ApiService {
         @Path("category") category: String
     ): Response<List<Ingredient>>
 }
-

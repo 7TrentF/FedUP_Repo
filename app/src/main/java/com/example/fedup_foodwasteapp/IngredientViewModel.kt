@@ -42,7 +42,9 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val _syncStatus = MutableLiveData<String>()
     val syncStatus: LiveData<String> get() = _syncStatus
 
-
+    fun updateFilteredIngredients(newList: List<Ingredient>) {
+        _filteredIngredients.value = newList
+    }
 
     init {
         val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()

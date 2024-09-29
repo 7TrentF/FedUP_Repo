@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import kotlin.concurrent.Volatile
 
 @Database(entities = [Ingredient::class], version = 7, exportSchema = false)
-@TypeConverters(Converters::class)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun ingredientDao(): IngredientDao
 
