@@ -26,7 +26,8 @@
         android:id="@+id/textView2"
         android:layout_width="240dp"
         android:layout_height="40dp"
-        android:text="                        Sign Up"
+        android:text=" Sign Up"
+        android:textAlignment="center"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,7 +82,7 @@
 
     <EditText
         android:id="@+id/edtPassword"
-        android:layout_width="240dp"
+        android:layout_width="200dp"
         android:layout_height="50dp"
         android:background="@drawable/round_tv"
         android:backgroundTint="@color/lightgrey"
@@ -95,6 +96,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.544" />
 
+    <!-- Password Visibility Toggle Image -->
+
+
+    <ImageView
+        android:id="@+id/togglePasswordVisibility"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/edtPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.193"
+        app:layout_constraintStart_toEndOf="@id/edtPassword"
+        app:layout_constraintTop_toTopOf="@id/edtPassword"
+        app:srcCompat="@drawable/ic_visibility_off" />
 
     <ImageView
         android:id="@+id/imageView2"

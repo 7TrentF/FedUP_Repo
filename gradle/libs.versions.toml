@@ -8,8 +8,10 @@ androidxLifecycleViewmodelKtx = "2.8.6"
 appcompatVersion = "1.7.0"
 cardview = "1.0.0"
 converterGson = "2.9.0"
+core = "1.6.1"
 coreKtxVersion = "1.12.0"
 coreSplashscreen = "1.0.1"
+coreTesting = "2.2.0"
 espressoCoreVersion = "3.6.1"
 firebaseAuth = "23.0.0"
 firebaseAuthVersion = "21.0.1"
@@ -25,6 +27,7 @@ espressoCore = "3.5.1"
 appcompat = "1.6.1"
 kotlinxCoroutinesPlayServices = "1.7.3"
 kotlinxCoroutinesPlayServicesVersion = "1.6.4"
+kotlinxCoroutinesTest = "1.5.1"
 lifecycleViewmodelKtx = "2.4.1"
 lifecycleViewmodelKtxVersion = "2.6.1"
 loggingInterceptor = "4.9.3"
@@ -33,6 +36,8 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 materialVersion = "1.9.0"
 mockitoCore = "4.5.1"
+mockitoCoreVersion = "3.9.0"
+mockitoInline = "3.9.0"
 mockitoKotlinVersion = "<version>"
 mockitoMockitoKotlin = "4.1.0"
 picasso = "2.71828"
@@ -61,9 +66,11 @@ protoliteWellKnownTypes = "18.0.0"
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-appcompat-v170 = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-core = { module = "androidx.test:core", version.ref = "core" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-espresso-core-v340 = { module = "androidx.test.espresso:espresso-core", version.ref = "androidxEspressoCore" }
 androidx-espresso-core-v361 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
 androidx-junit-v113 = { module = "androidx.test.ext:junit", version.ref = "androidxJunitVersion" }
@@ -95,6 +102,7 @@ kotlin-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 kotlinx-coroutines-play-services-v164 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServicesVersion" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesPlayServicesVersion" }
+kotlinx-coroutines-test-v151 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
@@ -109,6 +117,8 @@ androidx-preference-ktx = { group = "androidx.preference", name = "preference-kt
 
 material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-core-v390 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 mockito-kotlin-v410 = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoMockitoKotlin" }
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }

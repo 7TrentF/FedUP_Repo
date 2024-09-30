@@ -59,6 +59,11 @@ dependencies {
     testImplementation (libs.kotlin.mockito.kotlin)
     testImplementation (libs.mockito.kotlin.v410)
 
+
+    // Mockito for mocking
+    testImplementation (libs.mockito.core.v390)
+    testImplementation (libs.mockito.inline)
+
     //Firebase Auth
     implementation (libs.firebase.auth)
     implementation (platform(libs.firebase.bom))
@@ -107,11 +112,20 @@ dependencies {
     implementation (libs.picasso)
 
 
+    // AndroidX Test - Core testing libraries
+    testImplementation (libs.androidx.core.testing)
+    testImplementation (libs.androidx.core)
+
+
     //implementation(libs.picasso)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit.v121)
     androidTestImplementation(libs.androidx.espresso.core.v361)
+
+    // Coroutines Testing
+    testImplementation (libs.kotlinx.coroutines.test.v151)
 }

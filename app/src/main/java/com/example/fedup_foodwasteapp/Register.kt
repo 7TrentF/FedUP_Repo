@@ -2,11 +2,15 @@ package com.example.fedup_foodwasteapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -19,6 +23,8 @@ class Register : AppCompatActivity() {
     private lateinit var btGoogle: Button
     private lateinit var btSignUp:Button
     private lateinit var auth: FirebaseAuth
+    private lateinit var togglePasswordVisibility: ImageView
+    private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +36,26 @@ class Register : AppCompatActivity() {
         editTextPassword = findViewById(R.id.edtPassword);
         btGoogle=findViewById(R.id.GoogleBtn)
         btSignUp=findViewById(R.id.BtnSignUp)
-       auth= Firebase.auth
+        auth= Firebase.auth
+        togglePasswordVisibility = findViewById(R.id.togglePasswordVisibility) // Add this
 
-        btSignUp.setOnClickListener() {
+        btSignUp.setOnClickListener {
             val userEmail = editTextEmail.text.toString()
             val userPassword = editTextPassword.text.toString()
-            registerFirebase(userEmail,userPassword)
+            if (isValidEmail(userEmail) && isValidPassword(userPassword)) {
+                registerFirebase(userEmail, userPassword)
+            } else {
+                val rootView = findViewById<View>(android.R.id.content)
+                when {
+                    !isValidEmail(userEmail) -> Snackbar.make(rootView, "Please enter a valid email address.", Snackbar.LENGTH_LONG).show()
+                    !isValidPassword(userPassword) -> Snackbar.make(rootView, "Password must be at least 6 characters long.", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        // Set up password visibility toggle
+        togglePasswordVisibility.setOnClickListener {
+            togglePasswordVisibility()
         }
 
     }
@@ -64,4 +84,25 @@ class Register : AppCompatActivity() {
             }
 
     }
+
+
+private fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
+
+private fun isValidPassword(password: String): Boolean {
+    return password.length >= 6
+}
+
+private fun togglePasswordVisibility() {
+    if (isPasswordVisible) {
+        editTextPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off)
+    } else {
+        editTextPassword.inputType = InputType.TYPE_CLASS_TEXT
+        togglePasswordVisibility.setImageResource(R.drawable.ic_visibility)
+    }
+    editTextPassword.setSelection(editTextPassword.text.length)
+    isPasswordVisible = !isPasswordVisible
+}
 }

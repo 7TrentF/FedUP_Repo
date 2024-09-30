@@ -27,7 +27,7 @@ import com.google.android.material.snackbar.Snackbar
 
 class AddIngredientFragment : DialogFragment() {
 
-    private lateinit var ingredientViewModel: IngredientViewModel
+    lateinit var ingredientViewModel: IngredientViewModel
     private lateinit var tvCategory: TextView
     private lateinit var btnPlus: ImageButton
     private lateinit var btnMinus: ImageButton
@@ -112,7 +112,7 @@ class AddIngredientFragment : DialogFragment() {
 
 
 
-    private fun insertIngredient(
+    fun insertIngredient(
         name: String,
         quantity: String,
         category: String,

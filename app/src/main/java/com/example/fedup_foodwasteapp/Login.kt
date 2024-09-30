@@ -3,10 +3,14 @@ package com.example.fedup_foodwasteapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
+import android.util.Patterns
 import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -16,7 +20,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -30,10 +33,10 @@ class Login : AppCompatActivity() {
     private lateinit var signIn: Button
     private lateinit var signUp: Button
     private lateinit var mAuth: FirebaseAuth
-
+    private lateinit var togglePasswordVisibility: ImageView
+    private var isPasswordVisible = false // Track visibility state
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
-
     private lateinit var googleSignInButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +48,9 @@ class Login : AppCompatActivity() {
         passwordEdit = findViewById(R.id.editTextPassword)
         signIn = findViewById(R.id.btnSignIn)
         signUp = findViewById(R.id.SignUpButton)
+
         mAuth = Firebase.auth
+        togglePasswordVisibility = findViewById(R.id.TogglePassword) // Toggle checkbox
 
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -83,18 +88,39 @@ class Login : AppCompatActivity() {
 
 
 
-        signIn.setOnClickListener (){
+
+        signIn.setOnClickListener {
             val loginEmail = emailEdit.text.toString()
             val loginPassword = passwordEdit.text.toString()
-            userLogin(loginEmail,loginPassword)
+
+            if (!Patterns.EMAIL_ADDRESS.matcher(loginEmail).matches()) {
+                // Show error for incorrect email format
+                showSnackbar("Invalid Email Format", android.R.color.holo_red_dark)
+                return@setOnClickListener
+            }
+
+            if (loginPassword.length < 6) {
+                // Show error for short password
+                showSnackbar("Password must be at least 6 characters long", android.R.color.holo_red_dark)
+                return@setOnClickListener
+            }
+
+            // Proceed with login if validations pass
+            userLogin(loginEmail, loginPassword)
         }
 
 
-
-        signUp.setOnClickListener (){
-            val intent = Intent(this@Login,Register::class.java)
+        // Set click listener for sign-up button
+        signUp.setOnClickListener {
+            val intent = Intent(this@Login, Register::class.java)
             startActivity(intent)
         }
+
+        // Set password visibility toggle
+        togglePasswordVisibility.setOnClickListener {
+            togglePasswordVisibility()
+        }
+
     }
 
     override fun onStart() {
@@ -113,7 +139,12 @@ class Login : AppCompatActivity() {
         }
     }
 
-
+    private fun showSnackbar(message: String, color: Int) {
+        val rootView = findViewById<View>(android.R.id.content) // Get the root view
+        Snackbar.make(rootView, message, Snackbar.LENGTH_LONG)
+            .setBackgroundTint(resources.getColor(color, theme))
+            .show()
+    }
 
     private fun userLogin(loginEmail: String, loginPassword: String) {
         mAuth.signInWithEmailAndPassword(loginEmail, loginPassword)
@@ -125,8 +156,8 @@ class Login : AppCompatActivity() {
                         // Now you have the token, make the network request to your API
 
                         val rootView = findViewById<View>(android.R.id.content) // Get the root view
-                        Snackbar.make(rootView, "Login Successful", Snackbar.LENGTH_LONG).show()
 
+                        showSnackbar("Login Successful", android.R.color.holo_green_dark)
                         val intent = Intent(this@Login, MainActivity::class.java)
                         // Pass token to MainActivity if needed
                         intent.putExtra("jwt_token", token)
@@ -136,12 +167,25 @@ class Login : AppCompatActivity() {
                 } else {
                     // If sign-in fails, display a message to the user
                     val rootView = findViewById<View>(android.R.id.content) // Get the root view
-                    Snackbar.make(rootView, "Login failed :(", Snackbar.LENGTH_LONG).show()
+                    showSnackbar("Login Failed", android.R.color.holo_red_dark)
 
                 }
             }
     }
 
+
+
+    private fun togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            passwordEdit.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            togglePasswordVisibility.setImageResource(R.drawable.ic_visibility_off)
+        } else {
+            passwordEdit.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            togglePasswordVisibility.setImageResource(R.drawable.ic_visibility)
+        }
+        passwordEdit.setSelection(passwordEdit.text.length)
+        isPasswordVisible = !isPasswordVisible
+    }
 
     // Get Firebase JWT token
     private fun getFirebaseToken(onTokenReceived: (String) -> Unit) {
