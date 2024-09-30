@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#378fe6"/>  <!-- Background color -->
+
+    <corners android:radius="30dp"/>  <!-- Adjust radius for rounded corners -->
+
+    <padding
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp"/>  <!-- Padding inside the card -->
+
+    <elevation android:elevation="4dp"/> <!-- For material elevation effect (optional) -->
+
+</shape>

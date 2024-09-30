@@ -2,28 +2,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/grey"
+    android:padding="5dp">
 
-    <!-- Heading TextView -->
+    <!--
     <TextView
         android:id="@+id/headingTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="16dp"
+        android:padding="5dp"
         android:text="Recipes based on your ingredients!"
-        android:textColor="@color/Goldenrod"
+        android:textColor="@color/white"
         android:textSize="24sp"
-        android:textStyle="bold" />  <!-- You can change the color as needed -->
+        android:textStyle="bold" />
+-->
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_gravity="center" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recipeRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content" />
 </LinearLayout>

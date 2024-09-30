@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 
@@ -29,23 +30,48 @@ class RecipeAdapter(
             .error(R.drawable.error_image)
             .into(holder.recipeImageView)
 
+        // Set the text for the number of used and missing ingredients (if applicable)
+        holder.usedIngredients.text = "Ingredients Used: ${recipe.usedIngredientCount}"
+        holder.missedIngredients.text = "Ingredients Missing: ${recipe.missedIngredientCount}"
+
         // Handle click events
         holder.itemView.setOnClickListener {
-            onRecipeClick(recipe) // Invoke the lambda when a recipe is clicked
+            onRecipeClick(recipe)
         }
     }
+
 
     override fun getItemCount(): Int {
         return recipeList.size
     }
 
+
+    /*
     fun updateData(newRecipes: List<Recipe>) {
+        val oldSize = recipeList.size
         recipeList = newRecipes
-        notifyDataSetChanged()
+        if (newRecipes.size > oldSize) {
+            notifyItemRangeInserted(oldSize, newRecipes.size - oldSize)
+        } else {
+            notifyDataSetChanged() // Fall back to a full refresh if the list shrinks
+        }
     }
+
+     */
+
+    fun updateData(newRecipes: List<Recipe>) {
+        val diffResult = DiffUtil.calculateDiff(RecipeDiffCallback(recipeList, newRecipes))
+        recipeList = newRecipes
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+
 
     class RecipeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val recipeImageView: ImageView = itemView.findViewById(R.id.recipeImageView)
         val recipeTitle: TextView = itemView.findViewById(R.id.recipeTitle)
+        val usedIngredients: TextView = itemView.findViewById(R.id.usedIngredients) // New TextView
+        val missedIngredients: TextView = itemView.findViewById(R.id.missedIngredients) // New TextView
+
     }
 }
