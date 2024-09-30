@@ -1,3 +1,4 @@
+import com.example.fedup_foodwasteapp.Recipe
 import com.example.fedup_foodwasteapp.RecipeDetails
 import com.example.fedup_foodwasteapp.RecipeResponse
 import retrofit2.http.GET
@@ -19,6 +20,13 @@ interface RecipeApiService {
     ): RecipeResponse
 
 
+    @GET("recipes/findByIngredients")
+    suspend fun getRecipesByIngredients(
+        @Query("ingredients") ingredients: String,
+        @Query("number") number: Int = 10,
+        @Query("ranking") ranking: Int = 1,
+        @Query("ignorePantry") ignorePantry: Boolean = true
+    ): List<Recipe>
 
 
     @GET("recipes/{id}/information")
@@ -28,3 +36,4 @@ interface RecipeApiService {
         @Header("X-RapidAPI-Host") apiHost: String
     ): RecipeDetails
 }
+

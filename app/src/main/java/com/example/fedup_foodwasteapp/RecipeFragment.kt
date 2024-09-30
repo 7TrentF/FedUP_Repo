@@ -22,6 +22,8 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -59,12 +61,25 @@ class RecipeFragment : Fragment() {
             if (token != null) {
                 Log.d("LoadRecipes", "Firebase token retrieved successfully: $token")
 
-                val RecipeRetrofit = Retrofit.Builder()
+                // Build a standardized Retrofit instance once
+                val recipeRetrofit = Retrofit.Builder()
                     .baseUrl("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/")
                     .addConverterFactory(GsonConverterFactory.create())
+                    .client(
+                        OkHttpClient.Builder().apply {
+                            addInterceptor { chain ->
+                                val request = chain.request()
+                                    .newBuilder()
+                                    .addHeader("X-RapidAPI-Key", "649a3d770bmsh6d6d3423d8e5a25p139e64jsne6fc42e17ee2")
+                                    .addHeader("X-RapidAPI-Host", "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com")
+                                    .build()
+                                chain.proceed(request)
+                            }
+                        }.build()
+                    )
                     .build()
 
-                val RecipeApiService = RecipeRetrofit.create(RecipeApiService::class.java)
+                val recipeApiService = recipeRetrofit.create(RecipeApiService::class.java)
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     try {
@@ -74,7 +89,6 @@ class RecipeFragment : Fragment() {
 
                         if (ingredientsResponse.isSuccessful) {
                             val ingredients = ingredientsResponse.body() ?: emptyList()
-
                             Log.d("LoadRecipes", "Ingredients fetched: ${ingredients.size} items")
 
                             if (ingredients.isNotEmpty()) {
@@ -82,19 +96,20 @@ class RecipeFragment : Fragment() {
                                 Log.d("LoadRecipes", "Ingredient query: $ingredientsQuery")
 
                                 try {
-                                    Log.d("LoadRecipes", "Fetching recipes using Spoonacular API")
-                                    val response = RecipeApiService.getRecipes(ingredientsQuery)
+                                    Log.d("LoadRecipes", "Fetching recipes using Spoonacular API with ingredients: $ingredientsQuery")
+                                    val response = recipeApiService.getRecipesByIngredients(ingredientsQuery)
 
                                     withContext(Dispatchers.Main) {
-                                        if (response.results.isNotEmpty()) {
-                                            recipeAdapter.updateData(response.results)
+                                        if (response.isNotEmpty()) {
+                                            recipeAdapter.updateData(response)
                                         } else {
                                             Log.d("LoadRecipes", "No recipes found")
                                             showError("No recipes found.")
                                         }
                                     }
-                                } catch (e: Exception) {
-                                    Log.e("LoadRecipes", "Error during API call to Spoonacular", e)
+                                } catch (e: HttpException) {
+                                    val errorBody = e.response()?.errorBody()?.string()
+                                    Log.e("LoadRecipes", "Error during API call to Spoonacular: HTTP ${e.code()}, Error Body: $errorBody", e)
                                     withContext(Dispatchers.Main) {
                                         showError("Failed to load recipes. Please check your connection.")
                                     }
@@ -130,6 +145,8 @@ class RecipeFragment : Fragment() {
             }
         }
     }
+
+
 
 
 

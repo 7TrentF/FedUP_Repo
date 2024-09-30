@@ -77,7 +77,7 @@ class RecipeDetailActivity : AppCompatActivity() {
                 Log.d("RecipeDetailActivity", "Fetching recipe details...")
                 val recipeDetails = apiService.getRecipeDetails(
                     recipeId,
-                    "649a3d770bmsh6d6d3423d8e5a25p139e64jsne6fc42e17ee2", // Replace with your API key
+                    "649a3d770bmsh6d6d3423d8e5a25p139e64jsne6fc42e17ee2",
                     "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
                 )
 
