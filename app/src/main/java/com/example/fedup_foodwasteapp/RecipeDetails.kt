@@ -6,7 +6,7 @@ data class RecipeDetails(
     val image: String,
     val summary: String,
     val instructions: String?,  // Make instructions nullable
-    val extendedIngredients: List<RecipeIngredient> = emptyList() // If you need ingredients
+    val extendedIngredients: List<RecipeIngredient> = emptyList()
 )
 
 data class RecipeIngredient(

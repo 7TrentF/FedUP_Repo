@@ -14,6 +14,11 @@ object RetrofitClient {
         val logging = HttpLoggingInterceptor()
         logging.setLevel(HttpLoggingInterceptor.Level.BODY) // Use BASIC or NONE in production
 
+        // Reference: https://square.github.io/okhttp/features/interceptors/
+        // The official OkHttp documentation explains the use of interceptors for logging and modifying requests.
+
+
+
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor { chain ->
@@ -21,6 +26,7 @@ object RetrofitClient {
                 val token = AuthManager.getInstance().getCachedToken() // Get cached token if available
 
                 val requestBuilder = originalRequest.newBuilder()
+                //check if token is null
                 if (token != null) {
                     Log.d("Interceptor", "Token added to header: $token")
                     requestBuilder.addHeader("Authorization", "Bearer $token")
@@ -29,6 +35,9 @@ object RetrofitClient {
                 chain.proceed(request)
             }
             .build()
+        // Reference: https://square.github.io/retrofit/
+        // Retrofit is a type-safe HTTP client for Android and Java, as stated in its official documentation.
+
 
         Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -36,8 +45,13 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+    // Reference: https://square.github.io/retrofit/2.x/retrofit/retrofit2/Converter.Factory.html
+    // GsonConverterFactory is used to convert JSON responses into Java objects.
+
 
     val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
+        // Reference: https://square.github.io/retrofit/2.x/retrofit/retrofit2/Retrofit.html#create-java.lang.Class-
+        // The create() method dynamically implements the ApiService interface, allowing us to use it for network requests.
     }
 }

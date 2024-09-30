@@ -97,8 +97,6 @@ class AddIngredientFragment : DialogFragment() {
 
         }
 
-
-
         ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
             if (success) {
                 Toast.makeText(requireContext(), "Ingredient was added", Toast.LENGTH_SHORT).show()
