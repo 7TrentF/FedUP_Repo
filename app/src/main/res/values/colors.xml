@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="yellow">#FDB813</color>
+    <color name="red">#FF0000</color>
+    <color name="blue">#00C2FF</color>
+    <color name="grey">#35373a</color>
+    <color name="purple_200">#CC00FF</color>
+    <color name="lightyellow">#FFEB3B</color>
+    <color name="lightred">#F44336</color>
+    <color name="darkgrey">#35373a</color>
+    <color name="lightgrey">#e0e0e0</color>
+    <color name="maire">#1F1F1E</color>
+    <color name="veryLightYellow">#FFF18D</color>
+    <color name="Green">#14ffbc</color>
+    <color name="menu_item_background">#FF000000</color>
+    <color name="menu_item_text">#FFFFFF</color>
+    <color name="Goldenrod">#D3A121</color>
+    <color name="OpaqueGreen">#abf7b1</color>
+    <color name="orange">#f4c430</color>
+    <color name="lightRed">#FF2C2C</color>
+    <color name="green">#14ffbc</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="snackbar_background">#FF0000</color> <!-- Red background -->
+    <color name="snackbar_text_color">#FFFFFF</color> <!-- White text -->
+    <color name="snackbar_action_color">#00FF00</color> <!-- Green action text -->
+
+</resources>
