@@ -7,7 +7,7 @@ import android.util.Log
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://fedupmanagementapi20240925105410.azurewebsites.net/"
+    private const val BASE_URL = "https://fedupapi20240922180228.azurewebsites.net/"
 
 
     private val retrofit by lazy {
