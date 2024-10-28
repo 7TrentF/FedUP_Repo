@@ -189,7 +189,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         savedInstanceState: Bundle?
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+        view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
         return view
     }
 }

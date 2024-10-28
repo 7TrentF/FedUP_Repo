@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.fedup_foodwasteapp.databinding.FragmentEditIngredientBinding
 import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
@@ -19,6 +20,7 @@ class EditIngredientDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
     private val categories = Category.values()
     private var currentCategoryIndex = 0
+    lateinit var ingredientViewModel: IngredientViewModel
 
     private lateinit var ingredient: Ingredient
 
@@ -50,6 +52,8 @@ class EditIngredientDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditIngredientBinding.inflate(inflater, container, false)
+        ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
+
         return binding.root
     }
 
@@ -59,6 +63,11 @@ class EditIngredientDialogFragment : DialogFragment() {
         // Ensure that ingredient is properly initialized
         if (::ingredient.isInitialized) {
             // Populate the fields with the current ingredient details
+
+            // Log the initial ingredient ID
+            Log.d("EditIngredientDialog", "Initial ingredient ID: ${ingredient.id}")
+
+
             binding.etIngredientName.setText(ingredient.productName)
             binding.etQuantity.setText(ingredient.quantity)
 
@@ -68,7 +77,6 @@ class EditIngredientDialogFragment : DialogFragment() {
                 binding.etExpirationDate.setText("YYYY-MM-DD")  // Placeholder text if no date is set
             } else {
                 binding.etExpirationDate.setText(expirationDate)  // Set the actual date if available
-
             }
 
             binding.tvCategory.text = ingredient.category
@@ -87,14 +95,22 @@ class EditIngredientDialogFragment : DialogFragment() {
         // Handle save button click
         binding.btnSaveIngredient.setOnClickListener {
             // Capture the updated ingredient data
-            val updatedIngredient = ingredient.copy(
+            val updatedIngredient = Ingredient(
+                id = 0, // We'll get the correct ID in the repository
                 productName = binding.etIngredientName.text.toString(),
                 quantity = binding.etQuantity.text.toString(),
                 expirationDate = binding.etExpirationDate.text.toString(),
-                category = binding.tvCategory.text.toString()
+                category = binding.tvCategory.text.toString(),
+                firebaseId = ingredient.firebaseId, // Make sure to keep the firebase_id
+                userId = ingredient.userId,
+                isSynced = false
+            )
                 // If you have a 'notes' field, update it similarly
                 // notes = binding.editText.text.toString()
-            )
+
+
+            Log.d("EditIngredientDialog", "Original ingredient ID: ${ingredient.id}")
+            Log.d("EditIngredientDialog", "Updated ingredient ID: ${updatedIngredient.id}")
 
             // Trigger the callback
             listener?.invoke(updatedIngredient)

@@ -26,8 +26,8 @@ interface IngredientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ingredients: List<Ingredient>): List<Long>
 
-    @Update
-    suspend fun update(ingredient: Ingredient): Int
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(ingredient: Ingredient):Int
 
     @Delete
     suspend fun delete(ingredient: Ingredient): Int
@@ -52,8 +52,7 @@ interface IngredientDao {
     suspend fun updateIngredients(ingredients: List<Ingredient>)
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
-    suspend fun getIngredientByIdSuspend(id: Int): Ingredient?
-
+    suspend fun getIngredientByIdSuspend(id: Long): Ingredient?
 
     @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId LIMIT 1")
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?

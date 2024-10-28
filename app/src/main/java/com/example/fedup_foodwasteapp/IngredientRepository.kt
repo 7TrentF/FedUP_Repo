@@ -22,8 +22,30 @@ class IngredientRepository(
         ingredientDao.insert(ingredient)
     }
 
-    suspend fun update(ingredient: Ingredient) {
-        ingredientDao.update(ingredient)
+    suspend fun updateIngredient(updatedIngredient: Ingredient): Boolean {
+        // First fetch the existing ingredient to get its Room ID
+        val existingIngredient = ingredientDao.getIngredientByFirebaseId(updatedIngredient.firebaseId)
+
+        return if (existingIngredient != null) {
+            // Create new ingredient with the correct Room ID and updated fields
+            val ingredientToUpdate = updatedIngredient.copy(
+                id = existingIngredient.id, // Use the ID from database
+                // Keep the updated fields from updatedIngredient
+                productName = updatedIngredient.productName,
+                quantity = updatedIngredient.quantity,
+                expirationDate = updatedIngredient.expirationDate,
+                category = updatedIngredient.category,
+                // Keep other important fields
+                firebaseId = existingIngredient.firebaseId,
+                userId = existingIngredient.userId,
+                isSynced = false
+            )
+
+            // Perform the update
+            ingredientDao.update(ingredientToUpdate) > 0
+        } else {
+            false // Ingredient not found in database
+        }
     }
 
     suspend fun delete(ingredient: Ingredient) {
@@ -36,7 +58,6 @@ class IngredientRepository(
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient? {
         return ingredientDao.getIngredientByFirebaseId(firebaseId)
     }
-
 
     // Listen for Firebase Changes
     fun listenToFirebaseChanges(scope: CoroutineScope, callback: (List<Ingredient>) -> Unit) {

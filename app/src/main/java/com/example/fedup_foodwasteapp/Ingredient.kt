@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 @Entity(tableName = "ingredients")
 data class Ingredient(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long,
     @ColumnInfo(name = "ingredient_name") val productName: String = "",
     @ColumnInfo(name = "quantity") val quantity: String = "",
     @ColumnInfo(name = "expiration_date") val expirationDate: String = "",

@@ -89,69 +89,48 @@ class IngredientAdapter(
 
     private fun showEditIngredientDialog(ingredient: Ingredient) {
         val fragmentActivity = context as? FragmentActivity
-        if (fragmentActivity != null) {
-            try {
-                val editDialogFragment = EditIngredientDialogFragment.newInstance(ingredient)
+        fragmentActivity?.let {
+            val editDialogFragment = EditIngredientDialogFragment.newInstance(ingredient)
 
-                // Set the listener to handle the update
-                editDialogFragment.setOnSaveListener { updatedIngredient ->
-                    // Perform the update operation in a coroutine
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            // Update the ingredient in the API first
-                            val response = RetrofitClient.apiService.updateIngredient(updatedIngredient.firebaseId!!, updatedIngredient)
-
-                            if (response.isSuccessful) {
-                                // Only update the local RoomDB if the API update is successful
-                                ingredientDao.update(updatedIngredient)
+            // Set the listener to handle the update
+            editDialogFragment.setOnSaveListener { updatedIngredient ->
+                Log.d("EditIngredientDialog", "Received ingredient for update - ID: ${updatedIngredient.id}")
 
 
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
 
-                                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
-                                    "Ingredient updated successfully",
-                                    Snackbar.LENGTH_SHORT).show()
 
-                            } else {
-                                // Handle the failure case (e.g., logging)
-                                withContext(Dispatchers.Main) {
-                                    Log.e("EditIngredient", "API update failed: ${response.message()}")
-                                    Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
-                                        "Failed to update ingredient",
-                                        Snackbar.LENGTH_SHORT).show()
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Log or handle the exception
-                            Log.e("EditIngredient", "Update failed", e)
+                        ingredientViewModel.updateIngredient(updatedIngredient)
+
+
+                        val response = RetrofitClient.apiService.updateIngredient(
+                            updatedIngredient.firebaseId!!, updatedIngredient
+                        )
+                        if (response.isSuccessful) {
                             withContext(Dispatchers.Main) {
-                                // Show error Snackbar
+                                Log.d("EditIngredientDialog", "API update successful for ingredient: ${updatedIngredient.id}")
                                 Snackbar.make(
                                     fragmentActivity.findViewById(android.R.id.content),
-                                    "An error occurred while updating",
+                                    "Ingredient updated successfully",
                                     Snackbar.LENGTH_SHORT
                                 ).show()
                             }
+                        } else {
+                            Log.e("EditIngredientDialog", "API update failed: ${response.message()}")
                         }
+                    } catch (e: Exception) {
+                        Log.e("EditIngredientDialog", "Update failed due to exception", e)
                     }
                 }
+            }
 
-                // Show the dialog fragment
-                editDialogFragment.show(fragmentActivity.supportFragmentManager, "EditIngredientDialogFragment")
-            } catch (e: Exception) {
-                // Log or handle the exception
-                Log.e("EditIngredient", "Dialog creation failed", e)
-                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
-                    "Unable to edit ingredient.",
-                    Snackbar.LENGTH_SHORT).show()
-            }
-        } else {
-            if (fragmentActivity != null) {
-                Snackbar.make(fragmentActivity.findViewById(android.R.id.content),
-                    "Unable to edit ingredient.",
-                    Snackbar.LENGTH_SHORT).show()
-            }
+            editDialogFragment.show(fragmentActivity.supportFragmentManager, "EditIngredientDialogFragment")
+        } ?: run {
+            Log.e("EditIngredientDialog", "FragmentActivity is null")
         }
     }
+
 
     private fun showDeleteConfirmationDialog(ingredientId: String) {
         AlertDialog.Builder(context)

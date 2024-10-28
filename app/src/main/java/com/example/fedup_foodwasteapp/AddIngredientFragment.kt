@@ -96,7 +96,6 @@ class AddIngredientFragment : DialogFragment() {
                 categories[currentCategoryIndex].displayName,
                 expirationDate,
                 requireContext() // Pass context for network check
-
             )
         }
 
@@ -127,6 +126,7 @@ class AddIngredientFragment : DialogFragment() {
             }
 
             val ingredient = Ingredient(
+                id = 0,
                 productName = name,
                 quantity = quantity,
                 expirationDate = expirationDate,

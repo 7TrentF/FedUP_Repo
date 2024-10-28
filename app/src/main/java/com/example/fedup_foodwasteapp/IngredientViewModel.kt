@@ -234,22 +234,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         _insertResult.postValue(true)
     }
 
-    fun updateIngredient(firebaseId: String, ingredient: Ingredient) =
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                repository.update(ingredient)
-                authManager.getIdToken { token, error ->
-                    if (token != null) {
-                        viewModelScope.launch {
-                            repository.updateIngredientInApi(firebaseId, ingredient)
-                        }
 
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Failed to update ingredient.")
-            }
-        }
 
 
     /////////////////////////////////////////////      ROOM DB     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,9 +269,21 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
-
+    // Function to update an ingredient
+    fun updateIngredient(ingredient: Ingredient) {
+        viewModelScope.launch {
+            try {
+                val success = repository.updateIngredient(ingredient)
+                if (success) {
+                    Log.d("ViewModel", "Ingredient updated successfully")
+                } else {
+                    Log.e("ViewModel", "Failed to update ingredient - not found in database")
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error updating ingredient", e)
+            }
+        }
+    }
 }
 
 
