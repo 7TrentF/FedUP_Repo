@@ -28,6 +28,7 @@ class IngredientAdapter(
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
     private var ingredients = emptyList<Ingredient>()
+    lateinit var ingredientViewModel: IngredientViewModel
 
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
@@ -52,7 +53,6 @@ class IngredientAdapter(
     override fun getItemCount(): Int = ingredients.size
 
 
-
     fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
         notifyDataSetChanged()
@@ -62,8 +62,6 @@ class IngredientAdapter(
         ingredients = newList
         notifyDataSetChanged()
     }
-
-
 
 
     private fun showPopupMenu(view: View, ingredient: Ingredient) {
@@ -155,7 +153,6 @@ class IngredientAdapter(
         }
     }
 
-
     private fun showDeleteConfirmationDialog(ingredientId: String) {
         AlertDialog.Builder(context)
             .setTitle("Delete Ingredient")
@@ -187,6 +184,10 @@ class IngredientAdapter(
         if (user != null) {
             try {
                 Log.d("DeleteIngredientDebug", "Attempting to delete ingredient with Firebase ID: $firebaseId")
+
+                //ingredientViewModel.insertIngredient(ingredient)
+
+              //  ingredientViewModel.deleteIngredient()
 
                 // Call the API to delete the ingredient by its Firebase ID
                 val response = RetrofitClient.apiService.deleteIngredient(firebaseId)
@@ -250,6 +251,11 @@ class IngredientAdapter(
 
     private fun undoDelete(ingredientId: String) {
         // Logic to undo delete (you can implement this as needed)
+    }
+
+    private fun deleteIngredient(updatedIngredient: Ingredient) {
+
+
     }
 
 

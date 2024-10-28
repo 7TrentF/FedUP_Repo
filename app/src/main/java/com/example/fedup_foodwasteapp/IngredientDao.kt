@@ -50,7 +50,5 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     suspend fun getIngredientByIdSuspend(id: Int): Ingredient?
-
-
 }
 

@@ -96,7 +96,6 @@ class IngredientRepository(
     }
 
 
-
     // Inside IngredientRepository class
     suspend fun getUnsyncedIngredients(): List<Ingredient> {
         return ingredientDao.getUnsyncedIngredients() // You need to implement this in your DAO as well
@@ -147,7 +146,6 @@ class IngredientRepository(
     fun getIngredientsByCategory(category: String): LiveData<List<Ingredient>> {
         return ingredientDao.getIngredientByCategory(category)
     }
-
     // Add Ingredient to REST API
     suspend fun addIngredientToApi(ingredient: Ingredient) {
         try {
@@ -174,8 +172,6 @@ class IngredientRepository(
             Log.e("Repository", "Exception in updating ingredient in API.", e)
         }
     }
-
-
 
     // Fetch ingredients from REST API
     fun fetchIngredients(coroutineScope: CoroutineScope,onResult: (List<Ingredient>?, String?) -> Unit) {

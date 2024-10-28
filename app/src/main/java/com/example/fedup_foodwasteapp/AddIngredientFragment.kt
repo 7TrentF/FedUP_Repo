@@ -2,6 +2,7 @@ package com.example.fedup_foodwasteapp
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import com.google.android.material.snackbar.Snackbar
+import retrofit2.Response
 
 class AddIngredientFragment : DialogFragment() {
 
@@ -40,6 +42,8 @@ class AddIngredientFragment : DialogFragment() {
         val view = inflater.inflate(R.layout.fragment_add_ingredient, container, false)
         dialog?.window?.setBackgroundDrawableResource(R.color.grey)
 
+
+
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
         tvCategory = view.findViewById(R.id.tv_category)
         btnPlus = view.findViewById(R.id.btn_plus)
@@ -47,6 +51,8 @@ class AddIngredientFragment : DialogFragment() {
         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)
         val categories = Category.entries.toTypedArray()
         tvCategory.text = categories[currentCategoryIndex].displayName
+
+
 
         // Plus button click
         btnPlus.setOnClickListener {
@@ -92,7 +98,9 @@ class AddIngredientFragment : DialogFragment() {
                 name,
                 quantity,
                 categories[currentCategoryIndex].displayName,
-                expirationDate
+                expirationDate,
+                requireContext() // Pass context for network check
+
             )
 
         }
@@ -108,13 +116,12 @@ class AddIngredientFragment : DialogFragment() {
         return view
     }
 
-
-
     fun insertIngredient(
         name: String,
         quantity: String,
         category: String,
-        expirationDate: String
+        expirationDate: String,
+        context: Context // Pass context for network check
     ) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -129,8 +136,11 @@ class AddIngredientFragment : DialogFragment() {
                 quantity = quantity,
                 expirationDate = expirationDate,
                 category = category,
-                userId = user.uid // User ID to associate the ingredient with
+                userId = user.uid, // User ID to associate the ingredient with
+                isSynced = false // Default to unsynced for offline-first
             )
+
+           // ingredientViewModel.insertIngredient(ingredient)
 
             // Log the ingredient details
             Log.d("Ingredient Data", "Adding Ingredient: $ingredient")
@@ -152,6 +162,12 @@ class AddIngredientFragment : DialogFragment() {
                                         Log.e("InsertError", "Received ingredient does not have a Firebase ID.")
                                     } else {
                                         ingredient.firebaseId = createdIngredient.firebaseId
+
+                                        // ingredient.isSynced = true // Mark as synced after Firebase insertion
+
+                                        // Insert into RoomDB with the new Firebase ID
+                                        ingredientViewModel.insertIngredient(ingredient)
+
 
                                         // Insert into RoomDB with the new Firebase ID
                                         // ingredientDao.insertIngredient(ingredient.copy(isSynced = true))
@@ -191,6 +207,26 @@ class AddIngredientFragment : DialogFragment() {
             Snackbar.make(requireView(), "User not authenticated.", Snackbar.LENGTH_LONG).show()
         }
     }
+
+    // Helper function for error handling
+    private suspend fun handleApiError(response: Response<Ingredient>) {
+        val errorMessage = response.errorBody()?.string()
+        Log.e("API Error", "Error adding ingredient: $errorMessage")
+        withContext(Dispatchers.Main) {
+            Snackbar.make(requireView(), "Error adding ingredient: $errorMessage", Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    // Helper function for exception handling
+    private suspend fun handleException(e: Exception) {
+        Log.e("Exception", "Exception: ${e.message}", e)
+        withContext(Dispatchers.Main) {
+            Snackbar.make(requireView(), "Exception: ${e.message}", Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+
+
 
     private fun showCustomSnackbar(message: String, ingredientId: String) {
         // Create Snackbar

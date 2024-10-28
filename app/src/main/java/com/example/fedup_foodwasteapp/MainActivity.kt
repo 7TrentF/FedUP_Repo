@@ -76,7 +76,6 @@ class MainActivity : AppCompatActivity() {
 
         WorkManager.getInstance(applicationContext).enqueue(OneTimeWorkRequest.from(ExpirationCheckWorker::class.java))
 
-
         // Load the InventoryFragment if there is no saved state.
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

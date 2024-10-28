@@ -170,8 +170,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
     // Method to fetch ingredients in real-time from Firebase
     fun fetchIngredientsFromFirebaseRealTime() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -202,9 +200,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-
-
     // Sync Data Between Firebase and RoomDB
     private fun syncData() {
         // Listen to Firebase and sync to Room
@@ -212,7 +207,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             repository.syncIngredients(viewModelScope, ingredients)  // Sync Firebase -> Room
         }
     }
-
 
     fun filterIngredientsByCategoryLocal(category: String) {
         repository.getIngredientsByCategory(category).observeForever { ingredientsByCategory ->
@@ -241,8 +235,19 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
+/////////////////////////////////////////////      ROOM DB     /////////////////////////////////////////////////////////////////////////////////////////////
+// Function to insert an ingredient using viewModelScope
+fun insertIngredient(ingredient: Ingredient) {
+    viewModelScope.launch {
+        repository.insert(ingredient)
+    }
+}
 
-
+    fun deleteIngredient(ingredient: Ingredient) {
+        viewModelScope.launch {
+            repository.delete(ingredient)
+        }
+    }
 
 
 

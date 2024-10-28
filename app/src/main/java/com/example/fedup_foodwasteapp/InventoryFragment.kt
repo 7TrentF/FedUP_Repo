@@ -216,7 +216,6 @@ class InventoryFragment : Fragment() {
     }
 
 
-
     private fun sortIngredientsAlphabetically() {
         lifecycleScope.launch {
             try {
@@ -278,8 +277,6 @@ class InventoryFragment : Fragment() {
     }
 
 
-
-
     // Called after the view hierarchy associated with the fragment has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -297,8 +294,6 @@ class InventoryFragment : Fragment() {
         ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
 
       //  WorkManager.getInstance(applicationContext).enqueue(OneTimeWorkRequest.from(ExpirationCheckWorker::class.java))
-
-
 
         // Fetch ingredients from Firebase and observe the LiveData
         ingredientViewModel.fetchIngredientsFromFirebase()
