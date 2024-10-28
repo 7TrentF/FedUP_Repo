@@ -12,23 +12,26 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class IngredientAdapter(
     private val context: Context,
-    private val ingredientDao: IngredientDao
+    private val ingredientDao: IngredientDao,
+    private val ingredientViewModel: IngredientViewModel
+
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
     private var ingredients = emptyList<Ingredient>()
-    lateinit var ingredientViewModel: IngredientViewModel
 
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
@@ -42,8 +45,6 @@ class IngredientAdapter(
         holder.quantityTextView.text = current.quantity
         holder.expirationDateTextView.text = current.expirationDate
         holder.categoryTextView.text = current.category
-
-
         // Handle the options button click to show popup menu
         holder.optionsButton.setOnClickListener {
             showPopupMenu(it, current)
@@ -62,7 +63,6 @@ class IngredientAdapter(
         ingredients = newList
         notifyDataSetChanged()
     }
-
 
     private fun showPopupMenu(view: View, ingredient: Ingredient) {
         val popupMenu = androidx.appcompat.widget.PopupMenu(context, view)
@@ -178,7 +178,6 @@ class IngredientAdapter(
             .setNegativeButton("No", null)
             .show()
     }
-
     private suspend fun deleteIngredientFromFirebase(firebaseId: String) {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -187,7 +186,8 @@ class IngredientAdapter(
 
                 //ingredientViewModel.insertIngredient(ingredient)
 
-              //  ingredientViewModel.deleteIngredient()
+                //  ingredientViewModel.deleteIngredient()
+                deleteIngredientFromRoom(firebaseId)
 
                 // Call the API to delete the ingredient by its Firebase ID
                 val response = RetrofitClient.apiService.deleteIngredient(firebaseId)
@@ -225,6 +225,51 @@ class IngredientAdapter(
         }
     }
 
+    private suspend fun deleteIngredientFromRoom(firebaseId: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                Log.d(
+                    "DeleteIngredientDebug",
+                    "Attempting to delete ingredient with Firebase ID: $firebaseId"
+                )
+
+                val ingredientToDelete = ingredientViewModel.getIngredientByFirebaseId(firebaseId)
+
+                if (ingredientToDelete != null) {
+                    ingredientViewModel.deleteIngredientByFirebaseId(firebaseId)
+                    withContext(Dispatchers.Main) {
+                        showCustomSnackbar("Ingredient deleted.", firebaseId)
+                    }
+                } else {
+                    Log.e(
+                        "DeleteIngredientError",
+                        "Ingredient with Firebase ID $firebaseId not found in local database"
+                    )
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(
+                            (context as Activity).findViewById(android.R.id.content),
+                            "Ingredient not found in local database",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(
+                    "DeleteIngredientException",
+                    "Exception while deleting ingredient: ${e.message}",
+                    e
+                )
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(
+                        (context as Activity).findViewById(android.R.id.content),
+                        "Failed to delete ingredient: ${e.message}",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     private fun showCustomSnackbar(message: String, ingredientId: String) {
         // Create Snackbar
         val snackbar = Snackbar.make(
@@ -255,10 +300,7 @@ class IngredientAdapter(
 
     private fun deleteIngredient(updatedIngredient: Ingredient) {
 
-
     }
-
-
 
     private fun updateIngredient(updatedIngredient: Ingredient) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -273,6 +315,10 @@ class IngredientAdapter(
             }
         }
     }
+
+
+
+
 
     class IngredientViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.tv_ingredient_name)

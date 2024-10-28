@@ -74,6 +74,9 @@ class InventoryFragment : Fragment() {
         fetchAndDisplayIngredientCounts()
 
 
+        ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
+
+
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -82,7 +85,7 @@ class InventoryFragment : Fragment() {
         val ingredientDao = (requireActivity().application as FedUpFoodWaste).database.ingredientDao()
 
         // Set up the adapter for the RecyclerView.
-        ingredientAdapter = IngredientAdapter(requireContext(), ingredientDao)
+        ingredientAdapter = IngredientAdapter(requireContext(), ingredientDao,ingredientViewModel )
         recyclerView.adapter = ingredientAdapter
 
         // Initialize the ViewModel associated with this fragment.
@@ -103,9 +106,6 @@ class InventoryFragment : Fragment() {
                 if (response.isSuccessful) {
                     val filteredIngredients = response.body() ?: emptyList()
                     Log.d("FilterCategory", "Successfully fetched ${filteredIngredients.size} ingredients")
-
-
-
 
 
                     // Update the adapter with the filtered ingredients

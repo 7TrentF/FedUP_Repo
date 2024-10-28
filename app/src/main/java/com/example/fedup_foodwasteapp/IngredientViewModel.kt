@@ -42,6 +42,9 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val _syncStatus = MutableLiveData<String>()
     val syncStatus: LiveData<String> get() = _syncStatus
 
+    val data = MutableLiveData<Ingredient?>()
+
+
     fun updateFilteredIngredients(newList: List<Ingredient>) {
         _filteredIngredients.value = newList
     }
@@ -61,7 +64,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     fun syncRoomWithApi() {
         if (NetworkUtils.isNetworkAvailable(getApplication())) {
             viewModelScope.launch(Dispatchers.IO) {
-                val unsyncedIngredients = repository.getUnsyncedIngredients() // Fetch unsynced ingredients
+                val unsyncedIngredients =
+                    repository.getUnsyncedIngredients() // Fetch unsynced ingredients
 
                 if (unsyncedIngredients.isNotEmpty()) {
                     authManager.getIdToken { token, error ->
@@ -105,7 +109,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                         val ingredient = response.body()
                         // Handle the ingredient object (e.g., update LiveData, etc.)
                     } else {
-                        Log.e("IngredientViewModel", "Failed to fetch ingredient: ${response.code()}")
+                        Log.e(
+                            "IngredientViewModel",
+                            "Failed to fetch ingredient: ${response.code()}"
+                        )
                     }
                 }
             } else {
@@ -148,7 +155,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("IngredientViewModel", "Failed to listen for real-time updates: ${error.message}")
+                    Log.e(
+                        "IngredientViewModel",
+                        "Failed to listen for real-time updates: ${error.message}"
+                    )
                 }
             })
         }
@@ -162,7 +172,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                 if (response.isSuccessful) {
                     _filteredIngredients.value = response.body() ?: emptyList()
                 } else {
-                    Log.e("IngredientViewModel", "Error filtering ingredients by category: ${response.message()}")
+                    Log.e(
+                        "IngredientViewModel",
+                        "Error filtering ingredients by category: ${response.message()}"
+                    )
                 }
             } catch (e: Exception) {
                 Log.e("IngredientViewModel", "Exception: ${e.message}")
@@ -192,7 +205,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("IngredientViewModel", "Failed to fetch real-time updates: ${error.message}")
+                    Log.e(
+                        "IngredientViewModel",
+                        "Failed to fetch real-time updates: ${error.message}"
+                    )
                 }
             })
         } else {
@@ -218,30 +234,31 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         _insertResult.postValue(true)
     }
 
-    fun updateIngredient(firebaseId: String, ingredient: Ingredient) = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            repository.update(ingredient)
-            authManager.getIdToken { token, error ->
-                if (token != null) {
-                    viewModelScope.launch {
-                        repository.updateIngredientInApi(firebaseId, ingredient)
-                    }
+    fun updateIngredient(firebaseId: String, ingredient: Ingredient) =
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.update(ingredient)
+                authManager.getIdToken { token, error ->
+                    if (token != null) {
+                        viewModelScope.launch {
+                            repository.updateIngredientInApi(firebaseId, ingredient)
+                        }
 
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to update ingredient.")
             }
-        } catch (e: Exception) {
-            Log.e("ViewModel", "Failed to update ingredient.")
+        }
+
+
+    /////////////////////////////////////////////      ROOM DB     /////////////////////////////////////////////////////////////////////////////////////////////
+// Function to insert an ingredient using viewModelScope
+    fun insertIngredient(ingredient: Ingredient) {
+        viewModelScope.launch {
+            repository.insert(ingredient)
         }
     }
-
-
-/////////////////////////////////////////////      ROOM DB     /////////////////////////////////////////////////////////////////////////////////////////////
-// Function to insert an ingredient using viewModelScope
-fun insertIngredient(ingredient: Ingredient) {
-    viewModelScope.launch {
-        repository.insert(ingredient)
-    }
-}
 
     fun deleteIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
@@ -249,6 +266,31 @@ fun insertIngredient(ingredient: Ingredient) {
         }
     }
 
+    // Retrieve ingredient by firebase_id
+    suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient? {
+        return repository.getIngredientByFirebaseId(firebaseId)
+    }
+
+
+    // Delete ingredient by firebase_id
+    fun deleteIngredientByFirebaseId(firebaseId: String) {
+        viewModelScope.launch {
+            val ingredient = repository.getIngredientByFirebaseId(firebaseId)
+            if (ingredient != null) {
+                repository.deleteIngredientByFirebaseId(firebaseId)
+            } else {
+                Log.e("DeleteIngredientError", "Ingredient with Firebase ID $firebaseId not found in local database")
+            }
+        }
+    }
+
+
 
 
 }
+
+
+
+
+
+

@@ -42,8 +42,6 @@ class AddIngredientFragment : DialogFragment() {
         val view = inflater.inflate(R.layout.fragment_add_ingredient, container, false)
         dialog?.window?.setBackgroundDrawableResource(R.color.grey)
 
-
-
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
         tvCategory = view.findViewById(R.id.tv_category)
         btnPlus = view.findViewById(R.id.btn_plus)
@@ -51,8 +49,6 @@ class AddIngredientFragment : DialogFragment() {
         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)
         val categories = Category.entries.toTypedArray()
         tvCategory.text = categories[currentCategoryIndex].displayName
-
-
 
         // Plus button click
         btnPlus.setOnClickListener {
@@ -102,7 +98,6 @@ class AddIngredientFragment : DialogFragment() {
                 requireContext() // Pass context for network check
 
             )
-
         }
 
         ingredientViewModel.insertResult.observe(viewLifecycleOwner, Observer { success ->
@@ -168,7 +163,6 @@ class AddIngredientFragment : DialogFragment() {
                                         // Insert into RoomDB with the new Firebase ID
                                         ingredientViewModel.insertIngredient(ingredient)
 
-
                                         // Insert into RoomDB with the new Firebase ID
                                         // ingredientDao.insertIngredient(ingredient.copy(isSynced = true))
 
@@ -224,9 +218,6 @@ class AddIngredientFragment : DialogFragment() {
             Snackbar.make(requireView(), "Exception: ${e.message}", Snackbar.LENGTH_LONG).show()
         }
     }
-
-
-
 
     private fun showCustomSnackbar(message: String, ingredientId: String) {
         // Create Snackbar

@@ -32,6 +32,9 @@ interface IngredientDao {
     @Delete
     suspend fun delete(ingredient: Ingredient): Int
 
+    @Query("DELETE FROM ingredients WHERE firebase_id = :firebaseId")
+    suspend fun deleteByFirebaseId(firebaseId: String): Int
+
     @Query("DELETE FROM ingredients")
     suspend fun deleteAll(): Int
 
@@ -50,5 +53,10 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     suspend fun getIngredientByIdSuspend(id: Int): Ingredient?
+
+
+    @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId LIMIT 1")
+    suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?
+
 }
 

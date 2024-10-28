@@ -1,9 +1,11 @@
 package com.example.fedup_foodwasteapp
 
+import android.app.Activity
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -16,6 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -31,10 +34,17 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
+    private val ingredientViewModel: IngredientViewModel by viewModels()
+    private lateinit var adapter: IngredientAdapter
 
     // FloatingActionButton for adding a new item.
     private lateinit var addFabItem: FloatingActionButton
@@ -49,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) }
 
     // ViewModel for managing UI-related data in a lifecycle-conscious way.
-    private lateinit var ingredientViewModel: IngredientViewModel
+    //private lateinit var ingredientViewModel: IngredientViewModel
 
     // FrameLayouts to contain fragments.
     private lateinit var FrameContainer: FrameLayout
@@ -68,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
         val navRecipe = findViewById<LinearLayout>(R.id.nav_Recipe)
         val navSettings = findViewById<LinearLayout>(R.id.nav_settings)
-        ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
+        //ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
         recipeContainer = findViewById(R.id.fragment_Recipe_container)
         FrameContainer = findViewById(R.id.fragment_container)
         addFabItem = findViewById(R.id.add_fab_item)
@@ -128,6 +138,13 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+
+
+
+
+
+
 
 
     // Handles the click action for the add button.

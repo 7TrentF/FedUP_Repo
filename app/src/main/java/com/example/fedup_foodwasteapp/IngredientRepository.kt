@@ -29,6 +29,14 @@ class IngredientRepository(
     suspend fun delete(ingredient: Ingredient) {
         ingredientDao.delete(ingredient)
     }
+    suspend fun deleteIngredientByFirebaseId(firebaseId: String) {
+        ingredientDao.deleteByFirebaseId(firebaseId)
+    }
+
+    suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient? {
+        return ingredientDao.getIngredientByFirebaseId(firebaseId)
+    }
+
 
     // Listen for Firebase Changes
     fun listenToFirebaseChanges(scope: CoroutineScope, callback: (List<Ingredient>) -> Unit) {
