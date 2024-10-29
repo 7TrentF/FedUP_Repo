@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
@@ -28,12 +29,16 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash2)
+        Log.d("flow", "this is the SplashActivity")
 
         // Initialize the ViewModel
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
         // Fetch ingredients from Firebase and observe the LiveData
-        ingredientViewModel.fetchIngredientsFromFirebase()
+       //ingredientViewModel.fetchIngredientsFromFirebase()
+
+       // ingredientViewModel.loadIngredients()
+
 
         mAuth = Firebase.auth
         loadingBar = findViewById(R.id.loading_bar)
@@ -58,18 +63,31 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkAuthentication() {
+        Log.d("SplashActivityLog", "checkAuthentication() called")
+
+        // Retrieve the current authenticated user from FirebaseAuth
         val currentUser = mAuth.currentUser
-        loadingBar.visibility = View.GONE // Hide loading bar before navigating
+        Log.d("SplashActivityLog", "Current user: ${currentUser?.uid ?: "No user signed in"}")
+
+        // Hide loading bar before navigating
+        loadingBar.visibility = View.GONE
+        Log.d("SplashActivityLog", "Loading bar visibility set to GONE")
+
         if (currentUser != null) {
-            // User is signed in, navigate to MainActivity
+            // If the user is signed in, navigate to MainActivity
+            Log.d("SplashActivityLog", "User is authenticated. Navigating to MainActivity.")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         } else {
-            // User is not signed in, navigate to Login Activity
+            // If no user is signed in, navigate to Login Activity
+            Log.d("SplashActivityLog", "No user is authenticated. Navigating to Login Activity.")
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
-        finish() // Close the SplashActivity
+
+        // Finish the SplashActivity to prevent the user from returning to it
+        finish()
+        Log.d("SplashActivityLog", "SplashActivity finished.")
     }
 
 

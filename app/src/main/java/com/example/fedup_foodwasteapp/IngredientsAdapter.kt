@@ -36,7 +36,10 @@ class IngredientAdapter(
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ingredient_item, parent, false)
+        Log.d("flow", "this is the IngredientAdapter")
+
         return IngredientViewHolder(view)
+
     }
 
     override fun onBindViewHolder(holder: IngredientViewHolder, position: Int) {
@@ -53,14 +56,33 @@ class IngredientAdapter(
 
     override fun getItemCount(): Int = ingredients.size
 
-
     fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
+        if (ingredients.isEmpty()) {
+            Log.w("IngredientAdapter", "No ingredients available to display in RecyclerView.")
+            Log.w("flow", "No ingredients available to display in RecyclerView.")
+
+
+        } else {
+            Log.d("IngredientAdapter", "Setting ${ingredients.size} ingredients in RecyclerView.")
+            Log.d("flow", "Setting ${ingredients.size} ingredients in RecyclerView.")
+
+        }
         notifyDataSetChanged()
     }
 
     fun updateIngredients(newList: List<Ingredient>) {
         ingredients = newList
+        if (ingredients.isEmpty()) {
+            Log.w("IngredientAdapter", "No updated ingredients available to display in RecyclerView.")
+            Log.w("flow", "No  updated ingredients available to display in RecyclerView.")
+
+
+        } else {
+            Log.d("IngredientAdapter", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
+            Log.d("flow", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
+
+        }
         notifyDataSetChanged()
     }
 
@@ -281,19 +303,6 @@ class IngredientAdapter(
 
     }
 
-    private fun updateIngredient(updatedIngredient: Ingredient) {
-        CoroutineScope(Dispatchers.IO).launch {
-            // Update the ingredient in the database
-            ingredientDao.update(updatedIngredient)
-
-            // Switch to the main thread to update the UI
-            withContext(Dispatchers.Main) {
-                // Update the list to reflect the updated ingredient
-                setIngredients(ingredientDao.getAllIngredients().value ?: emptyList())
-                Toast.makeText(context, "${updatedIngredient.productName} updated.", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
 
 

@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+        Log.d("flow", "this is the MainActivty")
 
         // Initialize navigation elements and other UI components.
         val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
@@ -138,13 +139,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-
-
-
-
-
-
 
 
     // Handles the click action for the add button.

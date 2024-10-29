@@ -23,6 +23,7 @@ interface IngredientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ingredient: Ingredient): Long
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ingredients: List<Ingredient>): List<Long>
 
@@ -56,6 +57,9 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId LIMIT 1")
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?
+
+
+
 
 }
 

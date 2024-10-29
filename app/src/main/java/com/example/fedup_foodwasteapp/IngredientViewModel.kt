@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -29,9 +30,12 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
 
+    private val ingredientDao: IngredientDao
+
     // Define the LiveData with the correct type
-    private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
-    val filteredIngredients: LiveData<List<Ingredient>> get() = _filteredIngredients
+    //private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
+    private val _filteredIngredients = MediatorLiveData<List<Ingredient>?>()
+    val filteredIngredients: MediatorLiveData<List<Ingredient>?> get() = _filteredIngredients
 
     private val _insertResult = MutableLiveData<Boolean>()
     val insertResult: LiveData<Boolean> get() = _insertResult
@@ -50,7 +54,9 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     init {
-        val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
+      //  val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
+        val database = (application as FedUpFoodWaste).database
+        ingredientDao = database.ingredientDao()
 
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
@@ -100,44 +106,34 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun fetchIngredientById(id: String) {
-        authManager.getIdToken { token, error ->
-            if (token != null) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    val response = repository.apiService.getIngredients()
-                    if (response.isSuccessful) {
-                        val ingredient = response.body()
-                        // Handle the ingredient object (e.g., update LiveData, etc.)
-                    } else {
-                        Log.e(
-                            "IngredientViewModel",
-                            "Failed to fetch ingredient: ${response.code()}"
-                        )
-                    }
-                }
-            } else {
-                Log.e("IngredientViewModel", "Failed to get token: $error")
-            }
-        }
-    }
 
     // Call this method in your fragment to set up real-time updates
     fun observeIngredientChanges() {
         observeIngredientChangesInFirebase() // Set up real-time listener
     }
 
-    // Fetch ingredients from the API and post to LiveData
     fun fetchIngredientsFromFirebase() {
+        Log.d("IngredientViewModel", "Attempting to fetch ingredients from Firebase.")
         authManager.getIdToken { token, error ->
             if (token != null) {
+                Log.d("IngredientViewModel", "Received Firebase token successfully.")
                 viewModelScope.launch(Dispatchers.IO) {
-                    val ingredients = repository.fetchIngredientsFromApi(token)
-                    if (ingredients != null) {
-                        _filteredIngredients.postValue(ingredients ?: emptyList())
+                    try {
+                        val ingredients = repository.fetchIngredientsFromApi(token)
+                        if (ingredients != null) {
+                            Log.d("IngredientViewModel", "Fetched ${ingredients.size} ingredients from API.")
+                            // Update LiveData with fetched ingredients
+                            _filteredIngredients.postValue(ingredients)
+                        } else {
+                            Log.w("IngredientViewModel", "No ingredients fetched from the API (null response).")
+                            _filteredIngredients.postValue(emptyList())
+                        }
+                    } catch (e: Exception) {
+                        Log.e("IngredientViewModel", "Error fetching ingredients from Firebase API", e)
                     }
                 }
             } else {
-                Log.e("IngredientViewModel", "Failed to get token: $error")
+                Log.e("IngredientViewModel", "Failed to retrieve Firebase token: $error")
             }
         }
     }
@@ -284,8 +280,39 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
-}
 
+    // Method to fetch ingredients from RoomDB for offline use
+    fun getIngredientsFromRoomDB(): LiveData<List<Ingredient>> {
+        return repository.allIngredientsFromRoomDB()  // Implement this in repository
+    }
+
+    fun loadIngredients() {
+        val context = getApplication<Application>()
+        if (NetworkUtils.isNetworkAvailable(context)) {
+            Log.d("IngredientViewModel", "Network is available. Fetching ingredients from Firebase.")
+            fetchIngredientsFromFirebase()
+            observeIngredientChanges()
+        } else {
+            Log.d("IngredientViewModel", "Network is unavailable. Loading ingredients from Room database.")
+            loadFromRoom()
+        }
+    }
+
+
+    private fun loadFromRoom() {
+        Log.d("IngredientViewModel", "Setting up observer to load ingredients from Room database.")
+        _filteredIngredients.addSource(ingredientDao.getAllIngredients()) { ingredients ->
+            _filteredIngredients.value = ingredients
+            if (ingredients.isNullOrEmpty()) {
+                Log.w("IngredientViewModel", "Room database returned an empty or null ingredient list.")
+            } else {
+                Log.d("IngredientViewModel", "Loaded ${ingredients.size} ingredients from Room database.")
+            }
+        }
+    }
+
+
+}
 
 
 

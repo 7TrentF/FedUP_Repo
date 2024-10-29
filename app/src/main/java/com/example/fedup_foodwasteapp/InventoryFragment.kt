@@ -42,6 +42,7 @@ class InventoryFragment : Fragment() {
     // Called when the fragment is being created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("flow", "this is the InventoryFragment")
 
     }
 
@@ -52,6 +53,10 @@ class InventoryFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.fragment_inventory, container, false)
+
+        Log.d("InventoryFragmentLog", "this is the InventoryFragment onCreateView")
+        Log.d("flow", "this is the InventoryFragment onCreateView")
+
 
         // Initialize the category selection ImageButton.
         imgCategory = view.findViewById(R.id.img_category)
@@ -70,12 +75,16 @@ class InventoryFragment : Fragment() {
         expiringSoonTextView = view.findViewById(R.id.tv_warning)
         expiredTextView = view.findViewById(R.id.tv_expired)
 
+
+        Log.e("flow", "fetchAndDisplayIngredientCounts called:")
+
         // Fetch ingredients from API and update TextViews
-        fetchAndDisplayIngredientCounts()
+       // fetchAndDisplayIngredientCounts()
+
+        Log.e("flow", "fetchAndDisplayIngredientCounts set:")
 
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
-
 
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
@@ -89,11 +98,20 @@ class InventoryFragment : Fragment() {
         recyclerView.adapter = ingredientAdapter
 
         // Initialize the ViewModel associated with this fragment.
-        ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
+      //  ingredientViewModel = ViewModelProvider(requireActivity()).get(IngredientViewModel::class.java)
+
+        // Offline: Load data from RoomDB and display
+       //loadIngredientsFromRoomDB()
 
         return view
     }
 
+    private fun loadIngredientsFromRoomDB() {
+        // Load data from RoomDB using a separate LiveData in ViewModel
+        ingredientViewModel.getIngredientsFromRoomDB().observe(viewLifecycleOwner) { ingredients ->
+           // ingredientAdapter.setIngredients(ingredients)
+        }
+    }
 
     private fun filterByCategory(category: String) {
         lifecycleScope.launch {
@@ -110,6 +128,8 @@ class InventoryFragment : Fragment() {
 
                     // Update the adapter with the filtered ingredients
                     ingredientAdapter.setIngredients(filteredIngredients)
+                    Log.d("flow", "filterByCategory in InventoryFragment")
+
                 } else {
                     // Handle different HTTP error codes
                     when (response.code()) {
@@ -147,10 +167,6 @@ class InventoryFragment : Fragment() {
             }
         }
     }
-
-
-
-
     // Displays a dialog for category selection.
     private fun showCategorySelectionDialog() {
         // Get the display names of the categories.
@@ -170,7 +186,6 @@ class InventoryFragment : Fragment() {
         }
         builder.show()
     }
-
 
     private fun  showSortSelectionDialog(){
         val options = arrayOf("About to Expire", "Alphabetical")
@@ -214,7 +229,6 @@ class InventoryFragment : Fragment() {
             }
         }
     }
-
 
     private fun sortIngredientsAlphabetically() {
         lifecycleScope.launch {
@@ -271,16 +285,20 @@ class InventoryFragment : Fragment() {
                 }
             } else {
                 // Log the error or handle the unsuccessful response case.
-                Log.e("InventoryFragment", "Failed to fetch ingredients: ${response.errorBody()?.string()}")
+                Log.e("InventoryFragmentLog", "Failed to fetch ingredients: ${response.errorBody()?.string()}")
+                Log.e("flow", "Failed to fetch ingredients: ${response.errorBody()?.string()}")
+
             }
         }
     }
-
 
     // Called after the view hierarchy associated with the fragment has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d("InventoryFragmentLog", "this is the InventoryFragment onViewCreated")
+
+        Log.d("flow", "this is the InventoryFragment onViewCreated")
 
         // Re-initialize the RecyclerView and its adapter.
         val recyclerView = view.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
@@ -295,11 +313,23 @@ class InventoryFragment : Fragment() {
 
       //  WorkManager.getInstance(applicationContext).enqueue(OneTimeWorkRequest.from(ExpirationCheckWorker::class.java))
 
+        Log.d("InventoryFragmentLog", "this is before the loadIngredients is called InventoryFragment")
+        Log.d("flow", "this is before the loadIngredients is called InventoryFragment")
+
+
+        // Load ingredients based on network availability
+       ingredientViewModel.loadIngredients()
+
+        Log.d("InventoryFragmentLog", "this is after the loadIngredients is called InventoryFragment")
+        Log.d("flow", "his is after the loadIngredients is called InventoryFragment")
+
+
         // Fetch ingredients from Firebase and observe the LiveData
-        ingredientViewModel.fetchIngredientsFromFirebase()
+        // ingredientViewModel.fetchIngredientsFromFirebase()
 
         // Start observing for real-time changes
-        ingredientViewModel.observeIngredientChanges()
+       // ingredientViewModel.observeIngredientChanges()
+
 
         // Observe the LiveData to update the RecyclerView when data changes
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
@@ -314,9 +344,11 @@ class InventoryFragment : Fragment() {
                 // Fetch ingredients from Firebase and observe the LiveData
                // ingredientViewModel.fetchIngredientsFromFirebase()
                 ingredientAdapter.setIngredients(ingredients ?: emptyList())
+               // ingredientViewModel.loadIngredients()
+                Log.d("InventoryFragmentLog", "Ingredients now set")
+                Log.d("flow", "Ingredients now set")
 
             }
-
         })
 
         /* Observe the LiveData and update the adapter when data changes
@@ -328,7 +360,6 @@ class InventoryFragment : Fragment() {
 
     // Companion object to create a new instance of InventoryFragment with arguments.
     companion object {
-
 
     }
 }

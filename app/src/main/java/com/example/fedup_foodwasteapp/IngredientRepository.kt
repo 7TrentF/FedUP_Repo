@@ -130,7 +130,6 @@ class IngredientRepository(
         return ingredientDao.getUnsyncedIngredients() // You need to implement this in your DAO as well
     }
 
-
     // Fetch from REST API
     suspend fun fetchIngredientsFromApi(token: String): List<Ingredient>? {
         try {
@@ -148,7 +147,6 @@ class IngredientRepository(
             return null
         }
     }
-
 
     // Add Ingredient to Firebase
     suspend fun addIngredientToFirebaseSync(ingredient: Ingredient) {
@@ -217,6 +215,11 @@ class IngredientRepository(
                 onResult(null, e.localizedMessage)
             }
         }
+    }
+
+    // Fetch all ingredients from RoomDB for offline usage
+    fun allIngredientsFromRoomDB(): LiveData<List<Ingredient>> {
+        return ingredientDao.getAllIngredients() // Uses LiveData to observe RoomDB changes
     }
 
 

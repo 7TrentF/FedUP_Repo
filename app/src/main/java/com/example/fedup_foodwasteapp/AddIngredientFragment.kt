@@ -126,81 +126,65 @@ class AddIngredientFragment : DialogFragment() {
             }
 
             val ingredient = Ingredient(
-                id = 0,
+                id =0,
                 productName = name,
                 quantity = quantity,
                 expirationDate = expirationDate,
                 category = category,
-                userId = user.uid, // User ID to associate the ingredient with
-                isSynced = false // Default to unsynced for offline-first
+                userId = user.uid, // Associate with user ID
+                isSynced = false, // Default to unsynced for offline-first
             )
 
-           // ingredientViewModel.insertIngredient(ingredient)
+            // Add to RoomDB first
+            GlobalScope.launch {
+                ingredientViewModel.insertIngredient(ingredient)
+            }
 
-            // Log the ingredient details
-            Log.d("Ingredient Data", "Adding Ingredient: $ingredient")
-
-            // Insert ingredient via REST API
-            AuthManager.getInstance().getIdToken { token, error ->
-                if (token != null) {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        try {
-                            val response = RetrofitClient.apiService.addIngredient(ingredient)
-                            if (response.isSuccessful) {
-                                val createdIngredient = response.body()
-                                if (createdIngredient != null) {
-                                    // Capture the generated Firebase ID
-                                    Log.d("Insert", "Ingredient successfully added to Firebase with ID: ${createdIngredient.firebaseId}")
-
-                                    // Check if `createdIngredient.firebaseId` is null or empty
-                                    if (createdIngredient.firebaseId.isNullOrEmpty()) {
-                                        Log.e("InsertError", "Received ingredient does not have a Firebase ID.")
-                                    } else {
+            if (NetworkUtils.isNetworkAvailable(context)) {
+                // Insert ingredient via REST API if online
+                AuthManager.getInstance().getIdToken { token, error ->
+                    if (token != null) {
+                        GlobalScope.launch(Dispatchers.IO) {
+                            try {
+                                val response = RetrofitClient.apiService.addIngredient(ingredient)
+                                if (response.isSuccessful) {
+                                    val createdIngredient = response.body()
+                                    if (createdIngredient != null) {
+                                        // Update the ingredient object with the Firebase ID
                                         ingredient.firebaseId = createdIngredient.firebaseId
+                                        ingredient.isSynced = true // Mark as synced
 
-                                        // ingredient.isSynced = true // Mark as synced after Firebase insertion
-
-                                        // Insert into RoomDB with the new Firebase ID
-                                        ingredientViewModel.insertIngredient(ingredient)
-
-                                        // Insert into RoomDB with the new Firebase ID
-                                        // ingredientDao.insertIngredient(ingredient.copy(isSynced = true))
+                                        // Update the RoomDB with the Firebase ID and sync status
+                                        ingredientViewModel.updateIngredient(ingredient)
 
                                         withContext(Dispatchers.Main) {
-                                            // Show success message with Snackbar
-                                            Snackbar.make(requireView(), "Ingredient added successfully!", Snackbar.LENGTH_LONG).show()
-                                            dismiss()  // Close the dialog after insertion
+                                            Snackbar.make(
+                                                requireView(),
+                                                "Ingredient added successfully!",
+                                                Snackbar.LENGTH_LONG
+                                            ).show()
+                                            dismiss() // Close dialog
                                         }
                                     }
+                                } else {
+                                    handleApiError(response)
                                 }
-                            } else {
-                                // Handle API error
-                                val errorMessage = response.errorBody()?.string()
-                                Log.e("API Error", "Error adding ingredient: $errorMessage")
-                                withContext(Dispatchers.Main) {
-                                    // Show error message with Snackbar
-                                    Snackbar.make(requireView(), "Error adding ingredient: $errorMessage", Snackbar.LENGTH_LONG).show()
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Handle exception
-                            Log.e("Exception", "Exception: ${e.message}", e)
-                            withContext(Dispatchers.Main) {
-                                // Show exception message with Snackbar
-                                Snackbar.make(requireView(), "Exception: ${e.message}", Snackbar.LENGTH_LONG).show()
+                            } catch (e: Exception) {
+                                handleException(e)
                             }
                         }
+                    } else {
+                        Snackbar.make(requireView(), "Error retrieving token: $error", Snackbar.LENGTH_LONG).show()
                     }
-                } else {
-                    // Show token retrieval error with Snackbar
-                    Snackbar.make(requireView(), "Error retrieving token: $error", Snackbar.LENGTH_LONG).show()
                 }
+            } else {
+                Snackbar.make(requireView(), "No network. Saved offline.", Snackbar.LENGTH_LONG).show()
             }
         } else {
-            // Show user authentication error with Snackbar
             Snackbar.make(requireView(), "User not authenticated.", Snackbar.LENGTH_LONG).show()
         }
     }
+
 
     // Helper function for error handling
     private suspend fun handleApiError(response: Response<Ingredient>) {
