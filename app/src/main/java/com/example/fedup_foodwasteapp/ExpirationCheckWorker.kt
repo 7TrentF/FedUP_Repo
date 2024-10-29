@@ -42,8 +42,11 @@ class ExpirationCheckWorker(
         // Initialize Room database and get DAO
         val ingredientDao = AppDatabase.getDatabase(context).ingredientDao() // Corrected method name
 
+        // Initialize SyncManager with context
+        val syncManager = SyncManager(context)
+
         // Initialize the repository with the required dependencies
-        repository = IngredientRepository(ingredientDao, apiService)
+        repository = IngredientRepository(ingredientDao, apiService, syncManager)
     }
 
     override suspend fun doWork(): Result {

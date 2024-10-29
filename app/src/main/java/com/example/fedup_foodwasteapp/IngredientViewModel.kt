@@ -40,6 +40,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private var syncJob: Job? = null
 
 
+
+    // Initialize SyncManager
+    private val syncManager = SyncManager(application)
+
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
 
@@ -72,7 +76,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         val database = (application as FedUpFoodWaste).database
         ingredientDao = database.ingredientDao()
 
-        repository = IngredientRepository(ingredientDao, apiService)
+        repository = IngredientRepository(ingredientDao, apiService, syncManager)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
 
@@ -371,7 +375,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     fun updateIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
             try {
-                val success = repository.updateIngredient(ingredient)
+                val success = repository.update(ingredient)
                 if (success) {
                     Log.d("ViewModel", "Ingredient updated successfully")
                 } else {

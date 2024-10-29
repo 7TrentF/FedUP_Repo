@@ -107,7 +107,7 @@ class IngredientSyncWorker(
                 }
                 localIngredient.version < serverIngredient.version -> {
                     // Server version is newer
-                    ingredientDao.update(serverIngredient.copy(
+                    ingredientDao.updateIng(serverIngredient.copy(
                         id = localIngredient.id,
                         isSynced = true
                     ))

@@ -8,21 +8,59 @@ import com.google.firebase.database.*
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class IngredientRepository(
     private val ingredientDao: IngredientDao,
-    val apiService: ApiService // Made apiService public for ViewModel access
+    val apiService: ApiService, // Made apiService public for ViewModel access
+
+    private val syncManager: SyncManager
+
 ) {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients()
+
+    suspend fun updateIngredient(ingredient: Ingredient) {
+        ingredient.apply {
+            version++
+            lastModified = System.currentTimeMillis()
+            isSynced = false
+        }
+
+        ingredientDao.updateIng(ingredient)
+        syncManager.requestImmediateSync()
+    }
+
+    suspend fun deleteIngredient(ingredient: Ingredient) {
+        ingredient.apply {
+            isDeleted = true
+            isSynced = false
+            version++
+            lastModified = System.currentTimeMillis()
+        }
+
+        ingredientDao.updateIng(ingredient)
+        syncManager.requestImmediateSync()
+    }
+
+
+    fun getIngredients(): Flow<List<Ingredient>> {
+        return ingredientDao.getActiveIngredients()
+    }
+
+
+
 
     suspend fun insert(ingredient: Ingredient) {
         ingredientDao.insert(ingredient)
     }
 
-    suspend fun updateIngredient(updatedIngredient: Ingredient): Boolean {
+    suspend fun update(updatedIngredient: Ingredient): Boolean {
         // First fetch the existing ingredient to get its Room ID
         val existingIngredient = ingredientDao.getIngredientByFirebaseId(updatedIngredient.firebaseId)
 

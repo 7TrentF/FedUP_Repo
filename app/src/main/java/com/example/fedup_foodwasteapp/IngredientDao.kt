@@ -11,6 +11,7 @@ import androidx.room.Update
 
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IngredientDao {
@@ -28,6 +29,11 @@ interface IngredientDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(ingredient: Ingredient):Int
+
+
+
+    @Update
+    suspend fun updateIng(ingredient: Ingredient)
 
     @Delete
     suspend fun delete(ingredient: Ingredient): Int
@@ -64,7 +70,7 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE is_deleted = 1")
     suspend fun getDeletedIngredients(): List<Ingredient>
 
-    @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId")
+    @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId AND is_deleted = 0 LIMIT 1")
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -76,6 +82,10 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients")
     suspend fun getIngredients(): List<Ingredient>
+
+    @Query("SELECT * FROM ingredients WHERE is_deleted = 0")
+    fun getActiveIngredients(): Flow<List<Ingredient>>
+
 
 }
 
