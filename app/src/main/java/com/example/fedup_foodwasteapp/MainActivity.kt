@@ -180,20 +180,20 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragment_container, fragment)
             .commit()
 
-            val transaction = supportFragmentManager.beginTransaction()
+        val transaction = supportFragmentManager.beginTransaction()
 
-            // Set custom animations for fragment transitions
-            transaction.setCustomAnimations(
-                android.R.anim.slide_in_left,  // Enter animation
-                android.R.anim.slide_out_right, // Exit animation
-                android.R.anim.slide_in_left,  // Pop enter animation (when coming back)
-                android.R.anim.slide_out_right // Pop exit animation (when navigating back)
-            )
+        // Set custom animations for fragment transitions
+        transaction.setCustomAnimations(
+            android.R.anim.slide_in_left,  // Enter animation
+            android.R.anim.slide_out_right, // Exit animation
+            android.R.anim.slide_in_left,  // Pop enter animation (when coming back)
+            android.R.anim.slide_out_right // Pop exit animation (when navigating back)
+        )
 
-            // Replace the fragment and commit the transaction
-            transaction.replace(R.id.fragment_container, fragment)
-            transaction.addToBackStack(null)  // Add this transaction to the back stack if needed
-            transaction.commit()
+        // Replace the fragment and commit the transaction
+        transaction.replace(R.id.fragment_container, fragment)
+        transaction.addToBackStack(null)  // Add this transaction to the back stack if needed
+        transaction.commit()
 
 
         // Update the FAB visibility based on the currently loaded fragment
@@ -286,4 +286,3 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 }
-

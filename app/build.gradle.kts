@@ -39,6 +39,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
 }
 
 dependencies {
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.protolite.well.known.types)
 
     implementation (libs.hilt.android)
+    implementation(libs.firebase.firestore.ktx)
     kapt (libs.hilt.compiler)
 
 

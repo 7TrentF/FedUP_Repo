@@ -67,7 +67,6 @@ class EditIngredientDialogFragment : DialogFragment() {
             // Log the initial ingredient ID
             Log.d("EditIngredientDialog", "Initial ingredient ID: ${ingredient.id}")
 
-
             binding.etIngredientName.setText(ingredient.productName)
             binding.etQuantity.setText(ingredient.quantity)
 

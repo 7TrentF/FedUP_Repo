@@ -35,9 +35,9 @@ class SplashActivity : AppCompatActivity() {
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
         // Fetch ingredients from Firebase and observe the LiveData
-       //ingredientViewModel.fetchIngredientsFromFirebase()
+        //ingredientViewModel.fetchIngredientsFromFirebase()
 
-       // ingredientViewModel.loadIngredients()
+        // ingredientViewModel.loadIngredients()
 
 
         mAuth = Firebase.auth

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -27,10 +28,23 @@ import kotlinx.coroutines.withContext
 // It serves as a bridge between the UI and the repository, holding the app's data in a lifecycle-aware way.
 class IngredientViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val _dataState = MutableLiveData<DataResult<List<Ingredient>>>()
+    val dataState: LiveData<DataResult<List<Ingredient>>> = _dataState
+
+
+    private val ingredientDao: IngredientDao
+    private val networkMonitor = NetworkMonitor(application)
+    private val coroutineScope = viewModelScope
+
+
+    private var syncJob: Job? = null
+
+
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
 
-    private val ingredientDao: IngredientDao
+
+
 
     // Define the LiveData with the correct type
     //private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
@@ -54,16 +68,104 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     init {
-      //  val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
+        //  val ingredientDao = AppDatabase.getDatabase(application).ingredientDao()
         val database = (application as FedUpFoodWaste).database
         ingredientDao = database.ingredientDao()
 
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
+
+
+        setupNetworkMonitoring()
+
         //fetchIngredientsFromFirebase()
         // syncApiToFirebase()  // Sync from API to Firebase
         // syncData()   // Sync from Firebase to RoomDB
+    }
+
+
+    ////////////////////////////////////////////////////////////NEW///////////////////////////////////////////////////////////////////
+    private fun setupNetworkMonitoring() {
+        networkMonitor.startMonitoring()
+
+        coroutineScope.launch {
+            networkMonitor.isNetworkAvailable.collect { isAvailable ->
+                if (isAvailable) {
+                    syncDataWithFirebase()
+                } else {
+                    loadFromRoom()
+                }
+            }
+        }
+    }
+
+    private suspend fun syncDataWithFirebase() {
+        syncJob?.cancel() // Cancel any existing sync
+        syncJob = coroutineScope.launch {
+            try {
+                _dataState.value = DataResult.Loading
+
+                // Get Firebase token and fetch ingredients
+                authManager.getIdToken { token, error ->
+                    if (token != null) {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            try {
+                                // Fetch ingredients from Firebase
+                                val ingredients = repository.fetchIngredientsFromApi(token)
+
+                                if (ingredients != null) {
+                                    // Save to Room and mark as synced
+                                    withContext(Dispatchers.IO) {
+                                        ingredients.forEach { ingredient ->
+                                            // Create a copy with sync status
+                                            val syncedIngredient = ingredient.copy(
+                                                id = 0, // Let Room auto-generate ID
+                                                isSynced = true
+                                            )
+                                            ingredientDao.insert(syncedIngredient)
+                                        }
+                                    }
+
+                                    // Update UI with room data
+                                    loadFromRoom()
+                                } else {
+                                    _dataState.postValue(DataResult.Error(Exception("No data received from Firebase")))
+                                    loadFromRoom() // Fallback to local data
+                                }
+                            } catch (e: Exception) {
+                                _dataState.postValue(DataResult.Error(e))
+                                loadFromRoom() // Fallback to local data
+                            }
+                        }
+                    } else {
+                        _dataState.postValue(DataResult.Error(Exception("Unknown error occurred")))
+                        loadFromRoom() // Fallback to local data
+                    }
+                }
+            } catch (e: Exception) {
+                _dataState.postValue(DataResult.Error(e))
+                loadFromRoom() // Fallback to local data
+            }
+        }
+    }
+
+    fun loadFromRoom() {
+        coroutineScope.launch {
+            try {
+                _dataState.value = DataResult.Loading
+                val roomIngredients = ingredientDao.getAllIngredients().value
+                _dataState.value = DataResult.Success(roomIngredients ?: emptyList())
+            } catch (e: Exception) {
+                _dataState.value = DataResult.Error(e)
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        networkMonitor.stopMonitoring()
+        syncJob?.cancel()
     }
 
     // Your new method to sync RoomDB with API
@@ -298,8 +400,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
-    private fun loadFromRoom() {
+/*
+    fun loadFromRoom() {
         Log.d("IngredientViewModel", "Setting up observer to load ingredients from Room database.")
         _filteredIngredients.addSource(ingredientDao.getAllIngredients()) { ingredients ->
             _filteredIngredients.value = ingredients
@@ -310,11 +412,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
+    */
 
 
 }
-
-
-
-
-

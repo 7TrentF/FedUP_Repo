@@ -16,7 +16,10 @@ data class Ingredient(
     @ColumnInfo(name = "category") val category: String = "",
     @ColumnInfo(name = "firebase_id") var firebaseId: String = "", // Use this to store Firebase ingredient ID
     @ColumnInfo(name = "user_id") val userId: String = "", // Added default value
-    var isSynced: Boolean = false // Add a new column to track sync status
+    @ColumnInfo(name = "version") var version: Long = 0,
+    @ColumnInfo(name = "last_modified") var lastModified: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "is_synced") var isSynced: Boolean = false,
+    @ColumnInfo(name = "is_deleted") var isDeleted: Boolean = false
 ) : Serializable
 
 

@@ -23,7 +23,6 @@ interface IngredientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ingredient: Ingredient): Long
 
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ingredients: List<Ingredient>): List<Long>
 
@@ -46,8 +45,6 @@ interface IngredientDao {
     fun getIngredientById(id: Int): LiveData<Ingredient?>
 
 
-    @Query("SELECT * FROM ingredients WHERE isSynced = 0")
-    suspend fun getUnsyncedIngredients(): List<Ingredient>
 
     @Update
     suspend fun updateIngredients(ingredients: List<Ingredient>)
@@ -55,11 +52,30 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     suspend fun getIngredientByIdSuspend(id: Long): Ingredient?
 
-    @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId LIMIT 1")
+
+
+
+    /////////////////////////////////sync//////////////////////////////////////
+
+    @Query("SELECT * FROM ingredients WHERE is_synced = 0 AND is_deleted = 0")
+    suspend fun getUnsyncedIngredients(): List<Ingredient>
+
+
+    @Query("SELECT * FROM ingredients WHERE is_deleted = 1")
+    suspend fun getDeletedIngredients(): List<Ingredient>
+
+    @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId")
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdate(ingredient: Ingredient)
 
 
+    @Query("SELECT * FROM ingredients WHERE is_synced = 0")
+    suspend fun getUnSyncedIngredients(): List<Ingredient>
+
+    @Query("SELECT * FROM ingredients")
+    suspend fun getIngredients(): List<Ingredient>
 
 }
 
