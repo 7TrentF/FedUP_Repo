@@ -343,7 +343,6 @@ class InventoryFragment : Fragment() {
             when (state) {
                 is DataResult.Loading -> {
                     progressBar?.visibility = View.VISIBLE
-                   // noInventoryTextView?.visibility = View.GONE
                     errorLayout?.visibility = View.GONE
                 }
 
@@ -416,3 +415,29 @@ class InventoryFragment : Fragment() {
 
     }
 }
+
+/*
+
+
+private fun observeData() {
+    val noInventoryTextView = view?.findViewById<TextView>(R.id.no_inventory_text)
+    val progressBar = view?.findViewById<ProgressBar>(R.id.progressBar)
+    val errorLayout = view?.findViewById<LinearLayout>(R.id.errorLayout)
+
+    // Observe allIngredients directly for RoomDB updates
+    ingredientViewModel.allIngredients.observe(viewLifecycleOwner) { ingredients ->
+        progressBar?.visibility = View.GONE
+        errorLayout?.visibility = View.GONE
+
+        if (ingredients.isNullOrEmpty()) {
+            noInventoryTextView?.visibility = View.VISIBLE
+        } else {
+            noInventoryTextView?.visibility = View.GONE
+            ingredientAdapter.setIngredients(ingredients)
+        }
+    }
+}
+
+
+
+ */

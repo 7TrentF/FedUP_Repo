@@ -33,6 +33,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     val dataState: LiveData<DataResult<List<Ingredient>>> = _dataState
 
 
+
     private val ingredientDao: IngredientDao
     private val networkMonitor = NetworkMonitor(application)
     private val coroutineScope = viewModelScope

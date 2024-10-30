@@ -74,6 +74,11 @@ class IngredientRepository(
         )
     }
 
+    fun getAllRoomIngredients(): LiveData<List<Ingredient>> {
+        return ingredientDao.getAllIngredients()
+    }
+
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     suspend fun deleteIngredient(ingredient: Ingredient) {
@@ -100,33 +105,30 @@ class IngredientRepository(
     }
 
     suspend fun update(updatedIngredient: Ingredient): Boolean {
-        val existingIngredient = ingredientDao.getIngredientByFirebaseId(updatedIngredient.firebaseId)
-        Log.e("Repository", "existing ingredient:  ${existingIngredient}")
+        // Look up the existing ingredient by Room `id` instead of `firebaseId`
+        val existingIngredient = ingredientDao.getIngredientById(updatedIngredient.id)
+        Log.d("ingredientUpdate", "Original ingredient ID: ${updatedIngredient.id}")
 
         return if (existingIngredient != null) {
-            // Create new ingredient with the correct Room ID and updated fields
-            val ingredientToUpdate = updatedIngredient.copy(
-                id = existingIngredient.id,
+            // Ensure we're updating the existing record and incrementing its version
+            val ingredientToUpdate = existingIngredient.copy(
                 productName = updatedIngredient.productName,
                 quantity = updatedIngredient.quantity,
                 expirationDate = updatedIngredient.expirationDate,
                 category = updatedIngredient.category,
-                firebaseId = existingIngredient.firebaseId,
-                userId = existingIngredient.userId,
-                version = existingIngredient.version + 1,  // Increment version
-                lastModified = System.currentTimeMillis(), // Update timestamp
+                firebaseId = existingIngredient.firebaseId.ifEmpty { updatedIngredient.firebaseId },
+                version = existingIngredient.version + 1,
+                lastModified = System.currentTimeMillis(),
                 isSynced = false
             )
-            // Update the ingredient in the database
-            val rowsAffected = ingredientDao.updateIng(ingredientToUpdate)
 
-            return rowsAffected > 0 // Return true if at least one row was updated
-            // Perform the update
-            //ingredientDao.update(ingredientToUpdate) > 0
+            // Update the ingredient in the Room database
+            ingredientDao.updateIng(ingredientToUpdate) > 0
         } else {
-            false // Ingredient not found in database
+            false // No ingredient found; nothing to update
         }
     }
+
 
     suspend fun delete(ingredient: Ingredient) {
         ingredientDao.delete(ingredient)

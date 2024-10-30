@@ -49,8 +49,6 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     fun getIngredientssById(id: Int): LiveData<Ingredient?>
 
-
-
     @Update
     suspend fun updateIngredients(ingredients: List<Ingredient>)
 
@@ -84,11 +82,8 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE is_deleted = 0")
     fun getActiveIngredients(): Flow<List<Ingredient>>
 
-
-    @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM ingredients WHERE id = :id")
     suspend fun getIngredientById(id: Long): Ingredient?
-
-
 
 
 }

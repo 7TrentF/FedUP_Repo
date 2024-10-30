@@ -165,11 +165,7 @@ class AddIngredientFragment : DialogFragment() {
         try {
             val token = suspendCancellableCoroutine<String?> { continuation ->
                 AuthManager.getInstance().getIdToken { token, error ->
-                    if (error != null) {
-                        continuation.resume(null) { }
-                    } else {
-                        continuation.resume(token) { }
-                    }
+                    if (error != null) continuation.resume(null) {} else continuation.resume(token) {}
                 }
             }
 
@@ -180,32 +176,27 @@ class AddIngredientFragment : DialogFragment() {
                 return
             }
 
-            // First, insert into RoomDB and get the Room ID
-            val roomId = ingredientViewModel.insertOffline(ingredient)
+            // Insert the ingredient into RoomDB first with `isSynced = false`
+            val roomId = ingredientViewModel.insertOffline(ingredient.copy(isSynced = false))
 
-            // Attempt to add the ingredient to Firebase
+            // Add the ingredient to Firebase
             val response = RetrofitClient.apiService.addIngredient(ingredient)
 
             if (response.isSuccessful) {
                 val createdIngredient = response.body()
                 if (createdIngredient != null) {
-                    // Update the ingredient with Firebase ID and sync status
+                    // Update the existing Room entry with `firebaseId` and `isSynced = true`
                     val updatedIngredient = ingredient.copy(
                         id = roomId,
                         firebaseId = createdIngredient.firebaseId,
                         isSynced = true,
-                        version = ingredient.version + 1 // Increment version after sync
+                        version = 1
                     )
 
-                    // Update in RoomDB to mark as synced
                     ingredientViewModel.updateIngredient(updatedIngredient)
 
                     withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            requireView(),
-                            "Ingredient added successfully!",
-                            Snackbar.LENGTH_LONG
-                        ).show()
+                        Snackbar.make(requireView(), "Ingredient added successfully!", Snackbar.LENGTH_LONG).show()
                         dismiss()
                     }
                 }
@@ -213,11 +204,10 @@ class AddIngredientFragment : DialogFragment() {
                 handleApiError(response)
             }
         } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                handleException(e)
-            }
+            withContext(Dispatchers.Main) { handleException(e) }
         }
     }
+
 
 
     private suspend fun handleOfflineInsertion(ingredient: Ingredient) {
