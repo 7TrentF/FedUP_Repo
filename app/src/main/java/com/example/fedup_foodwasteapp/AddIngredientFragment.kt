@@ -176,7 +176,7 @@ class AddIngredientFragment : DialogFragment() {
                 return
             }
 
-            // Insert the ingredient into RoomDB first with `isSynced = false`
+            // Insert the ingredient into RoomDB with `isSynced = false` and initial version
             val roomId = ingredientViewModel.insertOffline(ingredient.copy(isSynced = false))
 
             // Add the ingredient to Firebase
@@ -189,8 +189,8 @@ class AddIngredientFragment : DialogFragment() {
                     val updatedIngredient = ingredient.copy(
                         id = roomId,
                         firebaseId = createdIngredient.firebaseId,
-                        isSynced = true,
-                        version = 1
+                        isSynced = true
+                       // version = 1
                     )
 
                     ingredientViewModel.updateIngredient(updatedIngredient)

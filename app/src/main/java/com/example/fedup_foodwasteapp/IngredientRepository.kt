@@ -117,7 +117,7 @@ class IngredientRepository(
                 expirationDate = updatedIngredient.expirationDate,
                 category = updatedIngredient.category,
                 firebaseId = existingIngredient.firebaseId.ifEmpty { updatedIngredient.firebaseId },
-                version = existingIngredient.version + 1,
+                version = existingIngredient.version + 1, // Increment only on update
                 lastModified = System.currentTimeMillis(),
                 isSynced = false
             )
