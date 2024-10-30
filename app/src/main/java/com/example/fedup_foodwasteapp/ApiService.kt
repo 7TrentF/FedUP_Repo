@@ -36,4 +36,8 @@ interface ApiService {
     suspend fun getIngredientsByCategory(
         @Path("category") category: String // The category of ingredients to retrieve
     ): Response<List<Ingredient>> // Returns a Response containing a list of Ingredient objects in the specified category
+
+
+
+
 }

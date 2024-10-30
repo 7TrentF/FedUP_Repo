@@ -55,6 +55,7 @@ dependencies {
 
     implementation (libs.hilt.android)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.ui.desktop)
     kapt (libs.hilt.compiler)
 
 

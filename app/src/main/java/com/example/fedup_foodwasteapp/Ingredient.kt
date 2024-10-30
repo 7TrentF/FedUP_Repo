@@ -2,12 +2,15 @@ package com.example.fedup_foodwasteapp
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.type.DateTime
 import java.io.Serializable
 import java.time.LocalDate
 
-@Entity(tableName = "ingredients")
+@Entity(
+    tableName = "ingredients",
+)
 data class Ingredient(
     @PrimaryKey(autoGenerate = true) var id: Long,
     @ColumnInfo(name = "ingredient_name") val productName: String = "",

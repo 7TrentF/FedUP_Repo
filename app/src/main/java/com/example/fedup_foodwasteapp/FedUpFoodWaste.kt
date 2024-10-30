@@ -9,10 +9,7 @@ class FedUpFoodWaste : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        syncManager = SyncManager(this)
 
-        // Start periodic sync
-        syncManager.scheduleSyncWork()
         // Any other initializations can be done here
     }
 }

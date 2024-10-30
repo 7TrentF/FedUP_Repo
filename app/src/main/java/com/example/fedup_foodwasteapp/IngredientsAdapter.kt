@@ -113,19 +113,12 @@ class IngredientAdapter(
         val fragmentActivity = context as? FragmentActivity
         fragmentActivity?.let {
             val editDialogFragment = EditIngredientDialogFragment.newInstance(ingredient)
-
             // Set the listener to handle the update
             editDialogFragment.setOnSaveListener { updatedIngredient ->
                 Log.d("EditIngredientDialog", "Received ingredient for update - ID: ${updatedIngredient.id}")
-
-
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-
-
                         ingredientViewModel.updateIngredient(updatedIngredient)
-
-
                         val response = RetrofitClient.apiService.updateIngredient(
                             updatedIngredient.firebaseId!!, updatedIngredient
                         )
@@ -146,13 +139,11 @@ class IngredientAdapter(
                     }
                 }
             }
-
             editDialogFragment.show(fragmentActivity.supportFragmentManager, "EditIngredientDialogFragment")
         } ?: run {
             Log.e("EditIngredientDialog", "FragmentActivity is null")
         }
     }
-
 
     private fun showDeleteConfirmationDialog(ingredientId: String) {
         AlertDialog.Builder(context)
@@ -185,7 +176,6 @@ class IngredientAdapter(
             try {
                 Log.d("DeleteIngredientDebug", "Attempting to delete ingredient with Firebase ID: $firebaseId")
 
-                //ingredientViewModel.insertIngredient(ingredient)
 
                 //  ingredientViewModel.deleteIngredient()
                 deleteIngredientFromRoom(firebaseId)

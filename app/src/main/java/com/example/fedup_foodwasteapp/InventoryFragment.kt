@@ -81,6 +81,8 @@ class InventoryFragment : Fragment() {
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
+        syncIngredientsIfOnline()
+
 
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
@@ -297,43 +299,17 @@ class InventoryFragment : Fragment() {
         setupRecyclerView()
         setupViewModel()
         observeData()
+       // syncIngredientsIfOnline()
 
-        // Start observing for real-time changes
-        //ingredientViewModel.observeIngredientChanges()
-        ingredientViewModel.loadIngredients()
-
-
-        /*
-        // Observe the LiveData to update the RecyclerView when data changes
-        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
-
-            if (ingredients.isNullOrEmpty()) {
-                // No ingredients found, show the "No inventory found" message
-                noInventoryTextView.visibility = View.VISIBLE
-
-            } else {
-                // Ingredients found, hide the "No inventory found" message
-                noInventoryTextView.visibility = View.GONE
-                // Fetch ingredients from Firebase and observe the LiveData
-                // ingredientViewModel.fetchIngredientsFromFirebase()
-                ingredientAdapter.setIngredients(ingredients ?: emptyList())
-
-            }
-
-
-        })
-        */
-
-
-        /* Observe the LiveData and update the adapter when data changes
-        ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
-            ingredientAdapter.setIngredients(ingredients)
-
-        }) */
     }
 
-
-
+    private fun syncIngredientsIfOnline() {
+        if (NetworkUtils.isNetworkAvailable(requireContext())) {
+            ingredientViewModel.syncUnsyncedIngredients()
+        } else {
+            // Show a message or UI element indicating offline mode
+        }
+    }
 
     private fun setupRecyclerView() {
         val recyclerView = view?.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
@@ -343,7 +319,6 @@ class InventoryFragment : Fragment() {
         }
     }
 
-
     private fun setupViewModel() {
         ingredientViewModel = ViewModelProvider(requireActivity())[IngredientViewModel::class.java]
 
@@ -351,7 +326,7 @@ class InventoryFragment : Fragment() {
         if (NetworkUtils.isNetworkAvailable(requireContext())) {
             // Online: Fetch from Firebase and sync to Room
             ingredientViewModel.fetchIngredientsFromFirebase()
-            ingredientViewModel.observeIngredientChanges()
+           ingredientViewModel.observeIngredientChanges()
         } else {
             // Offline: Load from Room
             ingredientViewModel.loadFromRoom()
@@ -368,7 +343,7 @@ class InventoryFragment : Fragment() {
             when (state) {
                 is DataResult.Loading -> {
                     progressBar?.visibility = View.VISIBLE
-                    noInventoryTextView?.visibility = View.GONE
+                   // noInventoryTextView?.visibility = View.GONE
                     errorLayout?.visibility = View.GONE
                 }
 
@@ -377,9 +352,9 @@ class InventoryFragment : Fragment() {
                     errorLayout?.visibility = View.GONE
 
                     if (state.data.isEmpty()) {
-                        noInventoryTextView?.visibility = View.VISIBLE
+                       // noInventoryTextView?.visibility = View.VISIBLE
                     } else {
-                        noInventoryTextView?.visibility = View.GONE
+                      //  noInventoryTextView?.visibility = View.GONE
                         ingredientAdapter.setIngredients(state.data)
                     }
                 }
@@ -431,7 +406,6 @@ class InventoryFragment : Fragment() {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         // Clean up any observers or callbacks if needed
@@ -439,7 +413,6 @@ class InventoryFragment : Fragment() {
 
     // Companion object to create a new instance of InventoryFragment with arguments.
     companion object {
-
 
     }
 }

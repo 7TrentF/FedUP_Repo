@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.fedup_foodwasteapp.R.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Response
 
 class AddIngredientFragment : DialogFragment() {
@@ -115,75 +117,119 @@ class AddIngredientFragment : DialogFragment() {
         quantity: String,
         category: String,
         expirationDate: String,
-        context: Context // Pass context for network check
+        context: Context
     ) {
         val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            if (name.isBlank() || quantity.isBlank() || category.isBlank() || expirationDate.isBlank()) {
-                // Show Snackbar for empty fields
-                Snackbar.make(requireView(), "All fields are required.", Snackbar.LENGTH_LONG).show()
+        if (user == null) {
+            Snackbar.make(requireView(), "User not authenticated.", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        // Validate input fields
+        if (name.isBlank() || quantity.isBlank() || category.isBlank() || expirationDate.isBlank()) {
+            Snackbar.make(requireView(), "All fields are required.", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        // Create ingredient object
+        val ingredient = Ingredient(
+            id = 0,
+            productName = name,
+            quantity = quantity,
+            expirationDate = expirationDate,
+            category = category,
+            userId = user.uid,
+            isSynced = false,
+            version = 1,
+            lastModified = System.currentTimeMillis()
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                if (NetworkUtils.isNetworkAvailable(context)) {
+                    // Online flow
+                    handleOnlineInsertion(ingredient)
+                } else {
+                    // Offline flow
+                    handleOfflineInsertion(ingredient)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    handleException(e)
+                }
+            }
+        }
+    }
+
+    private suspend fun handleOnlineInsertion(ingredient: Ingredient) {
+        try {
+            val token = suspendCancellableCoroutine<String?> { continuation ->
+                AuthManager.getInstance().getIdToken { token, error ->
+                    if (error != null) {
+                        continuation.resume(null) { }
+                    } else {
+                        continuation.resume(token) { }
+                    }
+                }
+            }
+
+            if (token == null) {
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(requireView(), "Error retrieving token", Snackbar.LENGTH_LONG).show()
+                }
                 return
             }
 
-            val ingredient = Ingredient(
-                id =0,
-                productName = name,
-                quantity = quantity,
-                expirationDate = expirationDate,
-                category = category,
-                userId = user.uid, // Associate with user ID
-                isSynced = false, // Default to unsynced for offline-first
-            )
+            // First, insert into RoomDB and get the Room ID
+            val roomId = ingredientViewModel.insertOffline(ingredient)
 
-            // Add to RoomDB first
-            GlobalScope.launch {
-                ingredientViewModel.insertIngredient(ingredient)
-            }
+            // Attempt to add the ingredient to Firebase
+            val response = RetrofitClient.apiService.addIngredient(ingredient)
 
-            if (NetworkUtils.isNetworkAvailable(context)) {
-                // Insert ingredient via REST API if online
-                AuthManager.getInstance().getIdToken { token, error ->
-                    if (token != null) {
-                        GlobalScope.launch(Dispatchers.IO) {
-                            try {
-                                val response = RetrofitClient.apiService.addIngredient(ingredient)
-                                if (response.isSuccessful) {
-                                    val createdIngredient = response.body()
-                                    if (createdIngredient != null) {
-                                        // Update the ingredient object with the Firebase ID
-                                        ingredient.firebaseId = createdIngredient.firebaseId
-                                        ingredient.isSynced = true // Mark as synced
+            if (response.isSuccessful) {
+                val createdIngredient = response.body()
+                if (createdIngredient != null) {
+                    // Update the ingredient with Firebase ID and sync status
+                    val updatedIngredient = ingredient.copy(
+                        id = roomId,
+                        firebaseId = createdIngredient.firebaseId,
+                        isSynced = true,
+                        version = ingredient.version + 1 // Increment version after sync
+                    )
 
-                                        // Update the RoomDB with the Firebase ID and sync status
-                                        ingredientViewModel.updateIngredient(ingredient)
+                    // Update in RoomDB to mark as synced
+                    ingredientViewModel.updateIngredient(updatedIngredient)
 
-                                        withContext(Dispatchers.Main) {
-                                            Snackbar.make(
-                                                requireView(),
-                                                "Ingredient added successfully!",
-                                                Snackbar.LENGTH_LONG
-                                            ).show()
-                                            dismiss() // Close dialog
-                                        }
-                                    }
-                                } else {
-                                    handleApiError(response)
-                                }
-                            } catch (e: Exception) {
-                                handleException(e)
-                            }
-                        }
-                    } else {
-                        Snackbar.make(requireView(), "Error retrieving token: $error", Snackbar.LENGTH_LONG).show()
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(
+                            requireView(),
+                            "Ingredient added successfully!",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                        dismiss()
                     }
                 }
             } else {
-                Snackbar.make(requireView(), "No network. Saved offline.", Snackbar.LENGTH_LONG).show()
+                handleApiError(response)
             }
-        } else {
-            Snackbar.make(requireView(), "User not authenticated.", Snackbar.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                handleException(e)
+            }
         }
     }
+
+
+    private suspend fun handleOfflineInsertion(ingredient: Ingredient) {
+        // Insert into RoomDB only
+        ingredientViewModel.insertOffline(ingredient)
+
+        withContext(Dispatchers.Main) {
+            Snackbar.make(requireView(), "No network. Saved offline.", Snackbar.LENGTH_LONG).show()
+            dismiss()
+        }
+    }
+
 
 
     // Helper function for error handling

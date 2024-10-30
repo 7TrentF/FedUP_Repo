@@ -2,6 +2,9 @@ package com.example.fedup_foodwasteapp
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
+import androidx.compose.ui.window.application
+import androidx.room.Room
 import com.google.firebase.FirebaseApp
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -10,30 +13,41 @@ import java.util.concurrent.TimeUnit
 
 
 class MyApplication : Application() {
-    lateinit var networkMonitor: NetworkMonitor
+    //private lateinit var syncManager: SyncManager
+    private lateinit var repository: IngredientRepository
 
     override fun onCreate() {
         super.onCreate()
-        FirebaseApp.initializeApp(this)
 
-        // Initialize the NetworkMonitor
-        networkMonitor = NetworkMonitor(this)
-        networkMonitor.startMonitoring()
+        Log.e("flow", "My application ")
+
+
+        FirebaseApp.initializeApp(this)
+        val database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "my_database"
+        ).build()
+
+       val ingredientDao = database.ingredientDao()
+
+        val apiService = RetrofitClient.apiService
+
+
+        repository = IngredientRepository(ingredientDao, apiService)
+        // Initialize SyncManager
+        //syncManager = SyncManager.getInstance(this, repository)
+
+        // Start sync service
+        //syncManager.startSync()
+        Log.e("flow", "starting sync")
+
         scheduleExpirationCheck(applicationContext)
     }
 
-
-    fun startNetworkMonitoring() {
-        networkMonitor.startMonitoring()
-    }
-
-    fun stopNetworkMonitoring() {
-        networkMonitor.stopMonitoring()
-    }
     override fun onTerminate() {
         super.onTerminate()
-        // Stop network monitoring
-        networkMonitor.stopMonitoring()
+        //syncManager.stopSync()
     }
 
     private fun scheduleExpirationCheck(context: Context) {

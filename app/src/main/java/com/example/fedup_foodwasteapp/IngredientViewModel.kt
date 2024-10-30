@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 // The IngredientViewModel class extends AndroidViewModel, providing the application context.
@@ -39,15 +40,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
     private var syncJob: Job? = null
 
-
-
-    // Initialize SyncManager
-    private val syncManager = SyncManager(application)
-
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
-
-
 
 
     // Define the LiveData with the correct type
@@ -76,7 +70,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         val database = (application as FedUpFoodWaste).database
         ingredientDao = database.ingredientDao()
 
-        repository = IngredientRepository(ingredientDao, apiService, syncManager)
+        repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
 
@@ -155,6 +149,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun loadFromRoom() {
+
         coroutineScope.launch {
             try {
                 _dataState.value = DataResult.Loading
@@ -375,8 +370,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     fun updateIngredient(ingredient: Ingredient) {
         viewModelScope.launch {
             try {
-                val success = repository.update(ingredient)
-                if (success) {
+                    val success = repository.update(ingredient)
+                    if (success) {
                     Log.d("ViewModel", "Ingredient updated successfully")
                 } else {
                     Log.e("ViewModel", "Failed to update ingredient - not found in database")
@@ -404,8 +399,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-/*
-    fun loadFromRoom() {
+
+    fun loadFromRoomz() {
         Log.d("IngredientViewModel", "Setting up observer to load ingredients from Room database.")
         _filteredIngredients.addSource(ingredientDao.getAllIngredients()) { ingredients ->
             _filteredIngredients.value = ingredients
@@ -416,7 +411,88 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
-    */
+
+
+    suspend fun insertOffline(ingredient: Ingredient): Long {
+        return withContext(Dispatchers.IO) {
+            repository.insertIngredient(ingredient)
+        }
+    }
+
+
+    fun syncUnsyncedIngredients() {
+        viewModelScope.launch {
+            // Fetch all unsynced ingredients (new, updated, or marked for deletion)
+            val unsyncedIngredients = repository.getUnsyncedIngredients()
+
+            for (ingredient in unsyncedIngredients) {
+                try {
+                    if (ingredient.isDeleted) {
+                        // Handle deletions for ingredients marked as deleted
+                        val deleteResponse = repository.deleteIngredientFromFirebase(ingredient)
+                        if (deleteResponse.isSuccessful) {
+                            repository.removeIngredient(ingredient) // Remove from RoomDB after deletion
+                        }
+                    } else {
+                        if (ingredient.firebaseId.isEmpty()) {
+                            // Handle new ingredient addition
+                            val addResponse = repository.addIngredientToFirebase(ingredient)
+                            if (addResponse.isSuccessful) {
+                                val createdIngredient = addResponse.body()
+                                if (createdIngredient != null) {
+                                    ingredient.firebaseId = createdIngredient.firebaseId
+                                    ingredient.isSynced = true
+                                    ingredient.version += 1 // Update version as synced
+                                    ingredient.lastModified = System.currentTimeMillis()
+                                    repository.updateIngredient(ingredient)
+                                }
+                            }
+                        } else {
+                            // Check if local version is higher than Firebase version (requires a fetch from Firebase)
+                            val firebaseIngredient = repository.getIngredientByFirebaseId(ingredient.firebaseId)
+                            if (firebaseIngredient == null || ingredient.version > firebaseIngredient.version) {
+                                // Update Firebase since local version is higher or Firebase record not found
+                                val updateResponse = repository.updateIngredientOnFirebase(ingredient)
+                                if (updateResponse.isSuccessful) {
+                                    ingredient.isSynced = true
+                                    ingredient.lastModified = System.currentTimeMillis()
+                                    repository.updateIngredient(ingredient)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Handle exceptions (network error, etc.)
+                    Log.e("IngredientSync", "Failed to sync ingredient: ${e.message}")
+                }
+            }
+        }
+    }
+
+
+    private suspend fun getAuthToken(): String? = suspendCancellableCoroutine { continuation ->
+        AuthManager.getInstance().getIdToken { token, error ->
+            if (error != null) {
+                continuation.resume(null) { }
+            } else {
+                continuation.resume(token) { }
+            }
+        }
+    }
+
+    private suspend fun getIngredientFromFirebase(ingredient: Ingredient, token: String): Ingredient? {
+        return try {
+            val response = apiService.getIngredientById(ingredient.firebaseId)
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
 
 }

@@ -14,50 +14,34 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-class SyncManager(private val context: Context) {
-    private val workManager = WorkManager.getInstance(context)
+class SyncManager private constructor(
+    private val context: Context,
+    private val repository: IngredientRepository
+) {
+    private val syncService = SyncService(repository, context)
+    private val connectivityManager = ConnectivityManager(syncService, context)
 
-    fun scheduleSyncWork() {
-        // Create periodic sync request
-        val syncRequest = PeriodicWorkRequestBuilder<IngredientSyncWorker>(
-            SyncConstants.SYNC_INTERVAL_HOURS, TimeUnit.HOURS
-        )
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .setBackoffCriteria(
-                BackoffPolicy.LINEAR,
-                15, TimeUnit.MINUTES
-            )
-            .build()
-
-        // Enqueue unique periodic work
-        workManager.enqueueUniquePeriodicWork(
-            SyncConstants.SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            syncRequest
-        )
+    fun startSync() {
+        connectivityManager.startListening()
+        if (connectivityManager.isNetworkAvailable()) {
+            syncService.startSync()
+        }
     }
 
-    fun requestImmediateSync() {
-        val syncRequest = OneTimeWorkRequestBuilder<IngredientSyncWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
-
-        workManager.enqueueUniqueWork(
-            "${SyncConstants.SYNC_WORK_NAME}_immediate",
-            ExistingWorkPolicy.REPLACE,
-            syncRequest
-        )
+    fun stopSync() {
+        connectivityManager.stopListening()
     }
 
-    fun getSyncStatus(): LiveData<List<WorkInfo>> {
-        return workManager.getWorkInfosForUniqueWorkLiveData(SyncConstants.SYNC_WORK_NAME)
+    companion object {
+        @Volatile
+        private var instance: SyncManager? = null
+
+        fun getInstance(context: Context, repository: IngredientRepository): SyncManager {
+            return instance ?: synchronized(this) {
+                instance ?: SyncManager(context.applicationContext, repository).also {
+                    instance = it
+                }
+            }
+        }
     }
 }

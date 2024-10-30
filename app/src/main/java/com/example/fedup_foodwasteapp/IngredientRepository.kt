@@ -13,28 +13,68 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class IngredientRepository(
     private val ingredientDao: IngredientDao,
     val apiService: ApiService, // Made apiService public for ViewModel access
 
-    private val syncManager: SyncManager
 
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients()
 
+
+    suspend fun insertIngredient(ingredient: Ingredient): Long {
+        return ingredientDao.insert(ingredient)
+    }
+
+    suspend fun markAsSynced(ingredient: Ingredient) {
+        ingredientDao.update(ingredient.copy(isSynced = true))
+    }
+
+
+    suspend fun getIngredientById(id: Long): Ingredient? = withContext(Dispatchers.IO) {
+        ingredientDao.getIngredientById(id)
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    suspend fun getUnsyncedIngredients(): List<Ingredient> {
+        return ingredientDao.getUnsyncedIngredients()
+    }
+    suspend fun addIngredientToFirebase(ingredient: Ingredient): Response<Ingredient> {
+        return apiService.addIngredient(ingredient)
+    }
+    suspend fun updateIngredientInFirebase(ingredient: Ingredient): Response<Void> {
+        return apiService.updateIngredient(ingredient.firebaseId, ingredient)
+    }
+
+    suspend fun deleteIngredientFromFirebase(ingredient: Ingredient): Response<Void> {
+        return apiService.deleteIngredient(ingredient.firebaseId)
+    }
     suspend fun updateIngredient(ingredient: Ingredient) {
-        ingredient.apply {
-            version++
-            lastModified = System.currentTimeMillis()
-            isSynced = false
+        ingredientDao.update(ingredient) // Update ingredient in RoomDB
+    }
+    suspend fun removeIngredient(ingredient: Ingredient) {
+        ingredientDao.delete(ingredient) // Remove ingredient from RoomDB
+    }
+
+    // Function to update an existing ingredient on Firebase
+    suspend fun updateIngredientOnFirebase(ingredient: Ingredient): Response<Void> {
+        // Ensure that the ingredient has a Firebase ID before trying to update
+        if (ingredient.firebaseId.isEmpty()) {
+            throw IllegalArgumentException("Firebase ID is missing for this ingredient.")
         }
 
-        ingredientDao.updateIng(ingredient)
-        syncManager.requestImmediateSync()
+        // Make the API call to update the ingredient
+        return apiService.updateIngredient(
+            firebaseId = ingredient.firebaseId,
+            ingredient = ingredient
+        )
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     suspend fun deleteIngredient(ingredient: Ingredient) {
         ingredient.apply {
@@ -45,42 +85,44 @@ class IngredientRepository(
         }
 
         ingredientDao.updateIng(ingredient)
-        syncManager.requestImmediateSync()
     }
 
 
     fun getIngredients(): Flow<List<Ingredient>> {
         return ingredientDao.getActiveIngredients()
     }
-
-
-
-
     suspend fun insert(ingredient: Ingredient) {
         ingredientDao.insert(ingredient)
+        val newId = ingredientDao.insert(ingredient) // insert should return the generated ID
+
+        Log.d("Repository", "Ingredient added with ID: $newId")
+
     }
 
     suspend fun update(updatedIngredient: Ingredient): Boolean {
-        // First fetch the existing ingredient to get its Room ID
         val existingIngredient = ingredientDao.getIngredientByFirebaseId(updatedIngredient.firebaseId)
+        Log.e("Repository", "existing ingredient:  ${existingIngredient}")
 
         return if (existingIngredient != null) {
             // Create new ingredient with the correct Room ID and updated fields
             val ingredientToUpdate = updatedIngredient.copy(
-                id = existingIngredient.id, // Use the ID from database
-                // Keep the updated fields from updatedIngredient
+                id = existingIngredient.id,
                 productName = updatedIngredient.productName,
                 quantity = updatedIngredient.quantity,
                 expirationDate = updatedIngredient.expirationDate,
                 category = updatedIngredient.category,
-                // Keep other important fields
                 firebaseId = existingIngredient.firebaseId,
                 userId = existingIngredient.userId,
+                version = existingIngredient.version + 1,  // Increment version
+                lastModified = System.currentTimeMillis(), // Update timestamp
                 isSynced = false
             )
+            // Update the ingredient in the database
+            val rowsAffected = ingredientDao.updateIng(ingredientToUpdate)
 
+            return rowsAffected > 0 // Return true if at least one row was updated
             // Perform the update
-            ingredientDao.update(ingredientToUpdate) > 0
+            //ingredientDao.update(ingredientToUpdate) > 0
         } else {
             false // Ingredient not found in database
         }
@@ -164,9 +206,6 @@ class IngredientRepository(
 
 
     // Inside IngredientRepository class
-    suspend fun getUnsyncedIngredients(): List<Ingredient> {
-        return ingredientDao.getUnsyncedIngredients() // You need to implement this in your DAO as well
-    }
 
     // Fetch from REST API
     suspend fun fetchIngredientsFromApi(token: String): List<Ingredient>? {

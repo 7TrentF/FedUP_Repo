@@ -20,23 +20,22 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients")
     suspend fun getAllIngredientsNonLive(): List<Ingredient>
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ingredient: Ingredient): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(ingredients: List<Ingredient>): List<Long>
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(ingredient: Ingredient):Int
-
-
-
     @Update
-    suspend fun updateIng(ingredient: Ingredient)
+    suspend fun update(ingredient: Ingredient):Int
 
     @Delete
     suspend fun delete(ingredient: Ingredient): Int
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Update
+    suspend fun updateIng(ingredient: Ingredient):Int
 
     @Query("DELETE FROM ingredients WHERE firebase_id = :firebaseId")
     suspend fun deleteByFirebaseId(firebaseId: String): Int
@@ -48,7 +47,7 @@ interface IngredientDao {
     fun getIngredientByCategory(category: String): LiveData<List<Ingredient>>
 
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
-    fun getIngredientById(id: Int): LiveData<Ingredient?>
+    fun getIngredientssById(id: Int): LiveData<Ingredient?>
 
 
 
@@ -63,9 +62,8 @@ interface IngredientDao {
 
     /////////////////////////////////sync//////////////////////////////////////
 
-    @Query("SELECT * FROM ingredients WHERE is_synced = 0 AND is_deleted = 0")
+    @Query("SELECT * FROM ingredients WHERE is_synced = 0 OR is_deleted = 1")
     suspend fun getUnsyncedIngredients(): List<Ingredient>
-
 
     @Query("SELECT * FROM ingredients WHERE is_deleted = 1")
     suspend fun getDeletedIngredients(): List<Ingredient>
@@ -85,6 +83,12 @@ interface IngredientDao {
 
     @Query("SELECT * FROM ingredients WHERE is_deleted = 0")
     fun getActiveIngredients(): Flow<List<Ingredient>>
+
+
+    @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
+    suspend fun getIngredientById(id: Long): Ingredient?
+
+
 
 
 }
