@@ -198,7 +198,18 @@
         app:layout_constraintVertical_bias="0.027"
         app:srcCompat="@drawable/logo" />
 
-
+    <ImageView
+        android:id="@+id/Biometrics_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="29dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView3"
+        app:layout_constraintEnd_toStartOf="@+id/btnSignIn"
+        app:layout_constraintHorizontal_bias="0.58"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnGoogleSSO"
+        app:layout_constraintVertical_bias="0.041"
+        app:srcCompat="@drawable/biometrics_icon" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

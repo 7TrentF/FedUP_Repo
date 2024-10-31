@@ -55,6 +55,7 @@ dependencies {
     implementation (libs.hilt.android)
     kapt (libs.hilt.compiler)
 
+    implementation(libs.androidx.biometric)
 
     testImplementation (libs.kotlin.mockito.kotlin)
     testImplementation (libs.mockito.kotlin.v410)
