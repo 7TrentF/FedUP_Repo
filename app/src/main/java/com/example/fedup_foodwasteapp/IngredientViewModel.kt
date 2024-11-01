@@ -367,11 +367,20 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+
+
+    // Updates only the firebaseId in RoomDB without incrementing version
+    fun updateFirebaseIdOnly(id: Long, firebaseId: String) {
+        viewModelScope.launch {
+            repository.updateFirebaseIdOnly(id, firebaseId)
+        }
+    }
+
     // Function to update an ingredient
-    fun updateIngredient(ingredient: Ingredient) {
+    fun updateIngredientDetails(ingredient: Ingredient) {
         viewModelScope.launch {
             try {
-                    val success = repository.update(ingredient)
+                    val success = repository.updateIngredientDetails(ingredient)
                     if (success) {
                     Log.d("ViewModel", "Ingredient updated successfully")
                 } else {

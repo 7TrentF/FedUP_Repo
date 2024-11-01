@@ -104,7 +104,18 @@ class IngredientRepository(
 
     }
 
-    suspend fun update(updatedIngredient: Ingredient): Boolean {
+    // Update only Firebase ID in RoomDB without incrementing version
+    suspend fun updateFirebaseIdOnly(id: Long, firebaseId: String) {
+        val existingIngredient = ingredientDao.getIngredientById(id)
+        if (existingIngredient != null) {
+            val ingredientWithFirebaseId = existingIngredient.copy(firebaseId = firebaseId)
+            ingredientDao.updateIng(ingredientWithFirebaseId)
+        }
+    }
+
+    // Full update for ingredient details, including version increment
+
+    suspend fun updateIngredientDetails(updatedIngredient: Ingredient): Boolean {
         // Look up the existing ingredient by Room `id` instead of `firebaseId`
         val existingIngredient = ingredientDao.getIngredientById(updatedIngredient.id)
         Log.d("ingredientUpdate", "Original ingredient ID: ${updatedIngredient.id}")

@@ -118,7 +118,7 @@ class IngredientAdapter(
                 Log.d("EditIngredientDialog", "Received ingredient for update - ID: ${updatedIngredient.id}")
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        ingredientViewModel.updateIngredient(updatedIngredient)
+                        ingredientViewModel.updateIngredientDetails(updatedIngredient)
                         val response = RetrofitClient.apiService.updateIngredient(
                             updatedIngredient.firebaseId!!, updatedIngredient
                         )

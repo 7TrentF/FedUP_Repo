@@ -7,8 +7,10 @@ import android.util.Log
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://fedupapi20240922180228.azurewebsites.net/"
+   // private const val BASE_URL = "https://fedupapi20240922180228.azurewebsites.net/".
 
+  // private const val BASE_URL = "http://192.168.1.68:3000/" // Replace with your actual IP address
+   private const val BASE_URL = "https://fed-up-rejdnno42-trents-projects-8ca3ed96.vercel.app/"
 
     private val retrofit by lazy {
         val logging = HttpLoggingInterceptor()
@@ -16,8 +18,6 @@ object RetrofitClient {
 
         // Reference: https://square.github.io/okhttp/features/interceptors/
         // The official OkHttp documentation explains the use of interceptors for logging and modifying requests.
-
-
 
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
@@ -34,6 +34,8 @@ object RetrofitClient {
                 val request = requestBuilder.build()
                 chain.proceed(request)
             }
+
+
             .build()
         // Reference: https://square.github.io/retrofit/
         // Retrofit is a type-safe HTTP client for Android and Java, as stated in its official documentation.

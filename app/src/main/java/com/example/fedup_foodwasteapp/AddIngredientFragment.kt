@@ -163,9 +163,17 @@ class AddIngredientFragment : DialogFragment() {
 
     private suspend fun handleOnlineInsertion(ingredient: Ingredient) {
         try {
+            Log.d("OnlineInsertion", "Attempting to retrieve Firebase token for user authentication.")
+
             val token = suspendCancellableCoroutine<String?> { continuation ->
                 AuthManager.getInstance().getIdToken { token, error ->
-                    if (error != null) continuation.resume(null) {} else continuation.resume(token) {}
+                    if (error != null) {
+                        Log.e("OnlineInsertion", "Token retrieval error: $error")
+                        continuation.resume(null) {}
+                    } else {
+                        Log.d("OnlineInsertion", "Token successfully retrieved.")
+                        continuation.resume(token) {}
+                    }
                 }
             }
 
@@ -173,41 +181,53 @@ class AddIngredientFragment : DialogFragment() {
                 withContext(Dispatchers.Main) {
                     Snackbar.make(requireView(), "Error retrieving token", Snackbar.LENGTH_LONG).show()
                 }
+                Log.e("OnlineInsertion", "Token retrieval failed; exiting insertion.")
                 return
             }
 
-            // Insert the ingredient into RoomDB with `isSynced = false` and initial version
+            Log.d("OnlineInsertion", "Inserting ingredient into RoomDB with isSynced = false")
+
             val roomId = ingredientViewModel.insertOffline(ingredient.copy(isSynced = false))
+            Log.d("OnlineInsertion", "Ingredient inserted into RoomDB with Room ID: $roomId")
 
             // Add the ingredient to Firebase
-            val response = RetrofitClient.apiService.addIngredient(ingredient)
+            Log.d("OnlineInsertion", "Attempting to add ingredient to Firebase via API")
 
+            val response = RetrofitClient.apiService.addIngredient(ingredient)
             if (response.isSuccessful) {
                 val createdIngredient = response.body()
                 if (createdIngredient != null) {
-                    // Update the existing Room entry with `firebaseId` and `isSynced = true`
+                    Log.d("OnlineInsertion", "Ingredient successfully added to Firebase with Firebase ID: ${createdIngredient.firebaseId}")
+
                     val updatedIngredient = ingredient.copy(
                         id = roomId,
                         firebaseId = createdIngredient.firebaseId,
-                        isSynced = true
-                       // version = 1
+                        isSynced = true,
+                        version = 1
                     )
 
-                    ingredientViewModel.updateIngredient(updatedIngredient)
+                    val updatedFirebaseId = createdIngredient.firebaseId
+                    Log.d("OnlineInsertion", "Updating RoomDB with Firebase ID and sync status")
+
+                    ingredientViewModel.updateFirebaseIdOnly(roomId, updatedFirebaseId)
 
                     withContext(Dispatchers.Main) {
                         Snackbar.make(requireView(), "Ingredient added successfully!", Snackbar.LENGTH_LONG).show()
                         dismiss()
                     }
+                    Log.d("OnlineInsertion", "Ingredient sync and update completed successfully.")
+                } else {
+                    Log.e("OnlineInsertion", "Firebase API response body was null despite successful response.")
                 }
             } else {
+                Log.e("OnlineInsertion", "Firebase API call failed with response code: ${response.code()} and message: ${response.message()}")
                 handleApiError(response)
             }
         } catch (e: Exception) {
+            Log.e("OnlineInsertion", "Exception encountered during online insertion: ${e.localizedMessage}", e)
             withContext(Dispatchers.Main) { handleException(e) }
         }
     }
-
 
 
     private suspend fun handleOfflineInsertion(ingredient: Ingredient) {
@@ -219,8 +239,6 @@ class AddIngredientFragment : DialogFragment() {
             dismiss()
         }
     }
-
-
 
     // Helper function for error handling
     private suspend fun handleApiError(response: Response<Ingredient>) {

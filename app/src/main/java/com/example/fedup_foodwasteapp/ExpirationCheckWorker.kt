@@ -42,8 +42,6 @@ class ExpirationCheckWorker(
         // Initialize Room database and get DAO
         val ingredientDao = AppDatabase.getDatabase(context).ingredientDao() // Corrected method name
 
-
-
         // Initialize the repository with the required dependencies
         repository = IngredientRepository(ingredientDao, apiService)
     }

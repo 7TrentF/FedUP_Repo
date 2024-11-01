@@ -192,10 +192,10 @@ class InventoryFragment : Fragment() {
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> { // About to Expire
-                    sortIngredientsByExpirationDate()
+                   // sortIngredientsByExpirationDate()
                 }
                 1 -> { // Alphabetical
-                    sortIngredientsAlphabetically()
+                   // sortIngredientsAlphabetically()
                 }
             }
         }
