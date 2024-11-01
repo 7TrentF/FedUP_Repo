@@ -31,19 +31,11 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
     private val _dataState = MutableLiveData<DataResult<List<Ingredient>>>()
     val dataState: LiveData<DataResult<List<Ingredient>>> = _dataState
-
-
-
     private val ingredientDao: IngredientDao
     private val networkMonitor = NetworkMonitor(application)
     private val coroutineScope = viewModelScope
-
-
-    private var syncJob: Job? = null
-
     private val repository: IngredientRepository
     val allIngredients: LiveData<List<Ingredient>>
-
 
     // Define the LiveData with the correct type
     //private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
@@ -60,6 +52,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     val syncStatus: LiveData<String> get() = _syncStatus
 
     val data = MutableLiveData<Ingredient?>()
+    private var syncJob: Job? = null
 
 
     fun updateFilteredIngredients(newList: List<Ingredient>) {
@@ -77,7 +70,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
 
 
         setupNetworkMonitoring()
-
+        //loadFromRoomOffline()
         //fetchIngredientsFromFirebase()
         // syncApiToFirebase()  // Sync from API to Firebase
         // syncData()   // Sync from Firebase to RoomDB
@@ -91,9 +84,9 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         coroutineScope.launch {
             networkMonitor.isNetworkAvailable.collect { isAvailable ->
                 if (isAvailable) {
-                    syncDataWithFirebase()
+                    syncUnsyncedIngredients()
                 } else {
-                    loadFromRoom()
+                    loadFromRoomOffline()
                 }
             }
         }
@@ -127,7 +120,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                                     }
 
                                     // Update UI with room data
-                                    loadFromRoom()
+                                    //loadFromRoom()
                                 } else {
                                     _dataState.postValue(DataResult.Error(Exception("No data received from Firebase")))
                                     loadFromRoom() // Fallback to local data
@@ -410,7 +403,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun loadFromRoomz() {
+    fun loadFromRoomOffline() {
         Log.d("IngredientViewModel", "Setting up observer to load ingredients from Room database.")
         _filteredIngredients.addSource(ingredientDao.getAllIngredients()) { ingredients ->
             _filteredIngredients.value = ingredients
@@ -421,6 +414,14 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
+
+
+    fun observeRoomIngredients() {
+        _filteredIngredients.addSource(ingredientDao.getAllIngredients()) { ingredients ->
+            _filteredIngredients.value = ingredients
+        }
+    }
+
 
 
     suspend fun insertOffline(ingredient: Ingredient): Long {
@@ -452,7 +453,6 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                                 if (createdIngredient != null) {
                                     ingredient.firebaseId = createdIngredient.firebaseId
                                     ingredient.isSynced = true
-                                    ingredient.version += 1 // Update version as synced
                                     ingredient.lastModified = System.currentTimeMillis()
                                     repository.updateIngredient(ingredient)
                                 }

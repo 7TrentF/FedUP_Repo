@@ -25,21 +25,3 @@ data class Ingredient(
     @ColumnInfo(name = "is_deleted") var isDeleted: Boolean = false
 ) : Serializable
 
-
-
-/*
-
-
-
-
-
-data class Ingredient(
-    var productName: String = "",
-    var quantity: String = "",
-    var expirationDate: DateTime, // Use DateTime or any appropriate type
-    var category: String = "",
-    var firebaseId: String = "",
-    var userId: String = ""
-)
- */
-

@@ -81,7 +81,7 @@ class InventoryFragment : Fragment() {
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        syncIngredientsIfOnline()
+        //syncIngredientsIfOnline()
 
 
         // Initialize the RecyclerView and its layout manager.
@@ -299,7 +299,7 @@ class InventoryFragment : Fragment() {
         setupRecyclerView()
         setupViewModel()
         observeData()
-       // syncIngredientsIfOnline()
+        //syncIngredientsIfOnline()
 
     }
 
@@ -326,12 +326,13 @@ class InventoryFragment : Fragment() {
         if (NetworkUtils.isNetworkAvailable(requireContext())) {
             // Online: Fetch from Firebase and sync to Room
             ingredientViewModel.fetchIngredientsFromFirebase()
-           ingredientViewModel.observeIngredientChanges()
-        } else {
-            // Offline: Load from Room
-            ingredientViewModel.loadFromRoom()
+            ingredientViewModel.observeIngredientChanges()
+        } else if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            // Explicit Offline: Load from Room
+            ingredientViewModel.loadFromRoomOffline()
         }
     }
+
 
     private fun observeData() {
         val noInventoryTextView = view?.findViewById<TextView>(R.id.no_inventory_text)
@@ -370,9 +371,9 @@ class InventoryFragment : Fragment() {
                         view?.findViewById<Button>(R.id.retryButton)?.setOnClickListener {
                             setupViewModel() // Retry loading data
                         }
-                    } else {
-                        // If offline, try loading from Room
-                        ingredientViewModel.loadFromRoom()
+                    } else if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+                        // Explicit Offline: Load from Room
+                        ingredientViewModel.loadFromRoomOffline()
                     }
                 }
             }
@@ -387,7 +388,6 @@ class InventoryFragment : Fragment() {
                 ingredientAdapter.setIngredients(ingredients)
             }
         })
-
         // Observe network changes
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -396,11 +396,12 @@ class InventoryFragment : Fragment() {
                         // Online: Sync with Firebase
                         ingredientViewModel.fetchIngredientsFromFirebase()
                         ingredientViewModel.observeIngredientChanges()
-                    } else {
-                        // Offline: Load from Room
-                        ingredientViewModel.loadFromRoom()
+                    } else if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+                        // Explicit Offline: Load from Room
+                        ingredientViewModel.loadFromRoomOffline()
                     }
                 }
+
             }
         }
     }

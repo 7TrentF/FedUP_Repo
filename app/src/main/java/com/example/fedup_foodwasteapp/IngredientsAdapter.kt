@@ -32,6 +32,7 @@ class IngredientAdapter(
 ) : RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder>() {
 
     private var ingredients = emptyList<Ingredient>()
+    private var Ingredients = mutableListOf<Ingredient>()
 
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
@@ -56,6 +57,7 @@ class IngredientAdapter(
 
     override fun getItemCount(): Int = ingredients.size
 
+
     fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
         if (ingredients.isEmpty()) {
@@ -70,6 +72,13 @@ class IngredientAdapter(
         }
         notifyDataSetChanged()
     }
+
+
+
+
+
+
+
 
     fun updateIngredients(newList: List<Ingredient>) {
         ingredients = newList
@@ -292,11 +301,6 @@ class IngredientAdapter(
     private fun deleteIngredient(updatedIngredient: Ingredient) {
 
     }
-
-
-
-
-
 
     class IngredientViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.tv_ingredient_name)
