@@ -2,7 +2,9 @@ package com.example.fedup_foodwasteapp
 
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -32,6 +34,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.firebase.auth.FirebaseAuth
+import android.Manifest
+import android.app.NotificationManager
+import android.util.Log
+import com.google.firebase.messaging.FirebaseMessaging
 
 // MainActivity class represents the main activity of the application.
 class MainActivity : AppCompatActivity() {
@@ -83,6 +89,15 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.fragment_container, InventoryFragment())
                 .commit()
         }
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+                    Log.d("FCM_TOKEN", "Token: $token")
+                    // Copy this token from Logcat
+                }
+            }
 
         // Handle system window insets for proper padding.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -150,6 +165,21 @@ class MainActivity : AppCompatActivity() {
         } else {
             categoryFab.startAnimation(toBottom)
             addFabItem.startAnimation(rotateClose)
+        }
+    }
+
+    companion object {
+        private const val NOTIFICATION_PERMISSION_CODE = 100
+    }
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_CODE
+                )
+            }
         }
     }
 

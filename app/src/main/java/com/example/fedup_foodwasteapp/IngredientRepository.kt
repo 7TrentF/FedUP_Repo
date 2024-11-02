@@ -30,6 +30,18 @@ class IngredientRepository(
         ingredientDao.delete(ingredient)
     }
 
+    suspend fun sendExpirationData(
+        token: String,
+        fcmToken: String,
+        notificationData: Map<String, String>
+    ) {
+        try {
+            apiService.sendExpirationData(token, fcmToken, notificationData)
+        } catch (e: Exception) {
+            Log.e("IngredientRepository", "Error sending expiration data", e)
+            throw e
+        }
+    }
     // Listen for Firebase Changes
     fun listenToFirebaseChanges(scope: CoroutineScope, callback: (List<Ingredient>) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser

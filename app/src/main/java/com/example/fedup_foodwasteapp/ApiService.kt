@@ -25,6 +25,14 @@ interface ApiService {
         @Body ingredient: Ingredient // The updated Ingredient object
     ): Response<Void> // Returns a Response indicating the result of the update operation
 
+    @FormUrlEncoded
+    @POST("expiration-data") // Replace with your actual endpoint
+    suspend fun sendExpirationData(
+        @Header("Authorization") token: String,
+        @Field("fcmToken") fcmToken: String,
+        @Field("notificationData") notificationData: Map<String, String>
+    ): Response<Unit>
+
     // DELETE request to remove an ingredient by its Firebase ID.
     @DELETE("api/Ingredients/{firebaseId}")
     suspend fun deleteIngredient(

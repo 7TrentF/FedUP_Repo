@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
     <!-- Appearance Settings -->
     <PreferenceCategory android:title="Appearance">
         <ListPreference
             android:key="theme_color"
             android:title="Theme Color"
             android:summary="Select the theme color" />
+    </PreferenceCategory>
+
+    <!-- Notification Settings -->
+    <PreferenceCategory android:title="Notifications">
+        <SwitchPreferenceCompat
+            android:key="enable_notifications"
+            android:title="Enable Notifications"
+            android:summary="Receive notifications about expiring ingredients"
+            android:defaultValue="true" />
+
+        <ListPreference
+            android:key="notification_timing"
+            android:title="Notification Timing"
+            android:summary="Choose when to be notified before ingredients expire"
+            android:entries="@array/notification_timing_entries"
+            android:entryValues="@array/notification_timing_values"
+            android:defaultValue="3"
+            android:dependency="enable_notifications" />
     </PreferenceCategory>
 
     <!-- Privacy Settings -->
@@ -19,8 +36,6 @@
 
     <!-- Account Management -->
     <PreferenceCategory android:title="Account Management">
-
-        <!-- User Information -->
         <EditTextPreference
             android:key="user_name"
             android:title="Change Email Address"
@@ -37,7 +52,6 @@
             android:title="Log Out"
             android:summary="Log out of your account" />
 
-        <!-- Biometric Authentication -->
         <SwitchPreferenceCompat
             android:key="enable_biometrics"
             android:title="Enable Face Scan Biometrics"
@@ -60,5 +74,4 @@
             android:title="Clear Cache"
             android:summary="Clear cached data" />
     </PreferenceCategory>
-
 </PreferenceScreen>

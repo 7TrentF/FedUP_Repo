@@ -7,8 +7,7 @@ import android.util.Log
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://fedupmanagementapi20240925105410.azurewebsites.net/"
-
+    private const val BASE_URL = "https://fed-up-rejdnno42-trents-projects-8ca3ed96.vercel.app/"
 
     private val retrofit by lazy {
         val logging = HttpLoggingInterceptor()

@@ -81,6 +81,7 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="splash_logo">Splash Logo</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
 
 
 </resources>

@@ -1,5 +1,6 @@
 package com.example.fedup_foodwasteapp
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
@@ -16,22 +17,33 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.google.android.datatransport.cct.internal.NetworkConnectionInfo
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import java.util.concurrent.TimeUnit
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private val authManager: AuthManager by lazy { AuthManager.getInstance() }
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUser: FirebaseUser
+    private val appPreferences by lazy { AppPreferences.getInstance(requireContext()) }
+
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
@@ -42,6 +54,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
         logoutPreference?.setOnPreferenceClickListener {
             authManager.logoutUser(requireContext())
             Log.d("SettingsFragment", "User logged out.")
+            true
+        }
+
+        setupNotificationPreferences()
+
+
+        val timingPreference: ListPreference? = findPreference("notification_timing")
+        timingPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val days = newValue.toString()
+            // Save to SharedPreferences
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("notification_timing", days)
+                .apply()
             true
         }
 
@@ -79,6 +105,65 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
+    }
+    private fun setupNotificationPreferences() {
+        val notificationPreference: SwitchPreferenceCompat? = findPreference("enable_notifications")
+        val timingPreference: ListPreference? = findPreference("notification_timing")
+
+        // Set initial state
+        notificationPreference?.isChecked = appPreferences.areNotificationsEnabled()
+        timingPreference?.isEnabled = notificationPreference?.isChecked == true
+
+        notificationPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val enabled = newValue as Boolean
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("enable_notifications", enabled)
+                .apply()
+
+            if (!enabled) {
+                val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancelAll()
+                WorkManager.getInstance(requireContext())
+                    .cancelUniqueWork("ExpirationCheckWork")
+            } else {
+                scheduleExpirationCheck(requireContext())
+            }
+
+            timingPreference?.isEnabled = enabled
+            true
+        }
+
+        timingPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val days = newValue.toString()
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("notification_timing", days)
+                .apply()
+            true
+        }
+    }
+
+
+    // Add this function to handle work scheduling
+    private fun scheduleExpirationCheck(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<ExpirationCheckWorker>(
+            1, TimeUnit.DAYS,
+            15, TimeUnit.MINUTES
+        )
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueueUniquePeriodicWork(
+                "ExpirationCheckWork",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                workRequest
+            )
     }
 
 
