@@ -95,7 +95,7 @@ class EditIngredientDialogFragment : DialogFragment() {
         binding.btnSaveIngredient.setOnClickListener {
             // Capture the updated ingredient data
             val updatedIngredient = Ingredient(
-                id = 0, // We'll get the correct ID in the repository
+                id = ingredient.id, // We'll get the correct ID in the repository
                 productName = binding.etIngredientName.text.toString(),
                 quantity = binding.etQuantity.text.toString(),
                 expirationDate = binding.etExpirationDate.text.toString(),
@@ -106,7 +106,6 @@ class EditIngredientDialogFragment : DialogFragment() {
             )
                 // If you have a 'notes' field, update it similarly
                 // notes = binding.editText.text.toString()
-
 
             Log.d("EditIngredientDialog", "Original ingredient ID: ${ingredient.id}")
             Log.d("EditIngredientDialog", "Updated ingredient ID: ${updatedIngredient.id}")

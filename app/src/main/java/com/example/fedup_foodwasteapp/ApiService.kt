@@ -7,10 +7,11 @@ interface ApiService {
     suspend fun getIngredients(): Response<List<Ingredient>> // Returns a Response containing a list of Ingredient objects
 
     // GET request to retrieve a specific ingredient by its ID.
+    // In your ApiService interface
     @GET("api/Ingredients/{ingredientId}")
     suspend fun getIngredientById(
-        @Path("ingredientId") ingredientId: String // The ID of the ingredient to retrieve
-    ): Response<Ingredient> // Returns a Response containing the requested Ingredient object
+        @Path("ingredientId") ingredientId: String,
+    ): Response<Ingredient>
 
     // POST request to add a new ingredient.
     @POST("api/Ingredients")

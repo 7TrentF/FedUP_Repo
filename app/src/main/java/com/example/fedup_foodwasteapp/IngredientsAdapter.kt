@@ -74,12 +74,6 @@ class IngredientAdapter(
     }
 
 
-
-
-
-
-
-
     fun updateIngredients(newList: List<Ingredient>) {
         ingredients = newList
         if (ingredients.isEmpty()) {
@@ -127,9 +121,11 @@ class IngredientAdapter(
                 Log.d("EditIngredientDialog", "Received ingredient for update - ID: ${updatedIngredient.id}")
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
+                        //roomDB update
                         ingredientViewModel.updateIngredientDetails(updatedIngredient)
+
                         val response = RetrofitClient.apiService.updateIngredient(
-                            updatedIngredient.firebaseId!!, updatedIngredient
+                            updatedIngredient.firebaseId, updatedIngredient
                         )
                         if (response.isSuccessful) {
                             withContext(Dispatchers.Main) {

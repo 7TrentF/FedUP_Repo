@@ -69,10 +69,17 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE firebase_id = :firebaseId AND is_deleted = 0 LIMIT 1")
     suspend fun getIngredientByFirebaseId(firebaseId: String): Ingredient?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdate(ingredient: Ingredient)
-
-
+    @Transaction
+    suspend fun insertOrUpdate(ingredient: Ingredient) {
+        val existingIngredient = getIngredientByFirebaseId(ingredient.firebaseId)
+        if (existingIngredient != null) {
+            // Update the existing ingredient in Room
+            update(ingredient.copy(id = existingIngredient.id))
+        } else {
+            // Insert the new ingredient into Room
+            insert(ingredient)
+        }
+    }
     @Query("SELECT * FROM ingredients WHERE is_synced = 0")
     suspend fun getUnSyncedIngredients(): List<Ingredient>
 

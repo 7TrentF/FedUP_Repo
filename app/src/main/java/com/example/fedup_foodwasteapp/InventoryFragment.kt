@@ -302,7 +302,7 @@ class InventoryFragment : Fragment() {
         //syncIngredientsIfOnline()
 
     }
-
+/*
     private fun syncIngredientsIfOnline() {
         if (NetworkUtils.isNetworkAvailable(requireContext())) {
             ingredientViewModel.syncUnsyncedIngredients()
@@ -310,6 +310,8 @@ class InventoryFragment : Fragment() {
             // Show a message or UI element indicating offline mode
         }
     }
+    */
+
 
     private fun setupRecyclerView() {
         val recyclerView = view?.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
@@ -343,12 +345,12 @@ class InventoryFragment : Fragment() {
         ingredientViewModel.dataState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is DataResult.Loading -> {
-                    progressBar?.visibility = View.VISIBLE
+                    //progressBar?.visibility = View.VISIBLE
                     errorLayout?.visibility = View.GONE
                 }
 
                 is DataResult.Success -> {
-                    progressBar?.visibility = View.GONE
+                   // progressBar?.visibility = View.GONE
                     errorLayout?.visibility = View.GONE
 
                     if (state.data.isEmpty()) {
@@ -360,7 +362,7 @@ class InventoryFragment : Fragment() {
                 }
 
                 is DataResult.Error -> {
-                    progressBar?.visibility = View.GONE
+                  //  progressBar?.visibility = View.GONE
 
                     if (NetworkUtils.isNetworkAvailable(requireContext())) {
                         // Show error state only if we're online
@@ -388,6 +390,18 @@ class InventoryFragment : Fragment() {
                 ingredientAdapter.setIngredients(ingredients)
             }
         })
+
+        // Observe sync state
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                ingredientViewModel.isSyncing.collect { isSyncing ->
+                    progressBar?.visibility = if (isSyncing) View.VISIBLE else View.GONE
+                }
+            }
+        }
+
+
+      /*
         // Observe network changes
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -404,6 +418,7 @@ class InventoryFragment : Fragment() {
 
             }
         }
+       */
     }
 
     override fun onDestroyView() {

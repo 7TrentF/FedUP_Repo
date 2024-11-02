@@ -22,8 +22,10 @@ class IngredientRepository(
 
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var lastSyncTime: Long = 0 // This variable will hold the last sync time
 
-    val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients()
+
+    val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients() // Fetch all ingredients from the Room database
 
 
     suspend fun insertIngredient(ingredient: Ingredient): Long {
@@ -44,7 +46,10 @@ class IngredientRepository(
         return ingredientDao.getUnsyncedIngredients()
     }
     suspend fun addIngredientToFirebase(ingredient: Ingredient): Response<Ingredient> {
+        Log.d("IngredientSync", "addIngredientToFirebase: $ingredient")
+
         return apiService.addIngredient(ingredient)
+
     }
     suspend fun updateIngredientInFirebase(ingredient: Ingredient): Response<Void> {
         return apiService.updateIngredient(ingredient.firebaseId, ingredient)
@@ -78,6 +83,21 @@ class IngredientRepository(
         return ingredientDao.getAllIngredients()
     }
 
+
+    // Get the last sync time
+    fun getLastSyncTime(): Long {
+        return lastSyncTime
+    }
+
+    // Set the last sync time
+    fun setLastSyncTime(time: Long) {
+        lastSyncTime = time
+    }
+
+    // Call this function after a successful sync to update the last sync time
+    suspend fun updateLastSyncTime() {
+        lastSyncTime = System.currentTimeMillis()
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,6 +159,35 @@ class IngredientRepository(
             false // No ingredient found; nothing to update
         }
     }
+
+
+
+    suspend fun updateIngredientSync(updatedIngredient: Ingredient): Boolean {
+        // Look up the existing ingredient by Room `id` instead of `firebaseId`
+        val existingIngredient = ingredientDao.getIngredientById(updatedIngredient.id)
+        Log.d("ingredientUpdate", "Original ingredient ID: ${updatedIngredient.id}")
+
+        return if (existingIngredient != null) {
+            // Ensure we're updating the existing record and incrementing its version
+            val ingredientToUpdate = existingIngredient.copy(
+                productName = updatedIngredient.productName,
+                quantity = updatedIngredient.quantity,
+                expirationDate = updatedIngredient.expirationDate,
+                category = updatedIngredient.category,
+                firebaseId = existingIngredient.firebaseId.ifEmpty { updatedIngredient.firebaseId },
+                version = existingIngredient.version + 1, // Increment only on update
+                lastModified = System.currentTimeMillis(),
+                isSynced = true
+            )
+
+            // Update the ingredient in the Room database
+            ingredientDao.updateIng(ingredientToUpdate) > 0
+        } else {
+            false // No ingredient found; nothing to update
+        }
+    }
+
+
 
 
     suspend fun delete(ingredient: Ingredient) {
