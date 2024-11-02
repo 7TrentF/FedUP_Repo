@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Outer Border Shape -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#121a21"/>  <!-- Border color (white) -->
+            <corners android:radius="1dp"/>  <!-- Adjust radius for rounded corners -->
+        </shape>
+    </item>
+
+    <!-- Background Shape -->
+    <item android:inset="100dp">  <!-- Inset to create space for the border -->
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white"/>  <!-- Background color -->
+            <corners android:radius="1dp"/>  <!-- Adjust radius for rounded corners -->
+        </shape>
+    </item>
+
+</layer-list>
+
