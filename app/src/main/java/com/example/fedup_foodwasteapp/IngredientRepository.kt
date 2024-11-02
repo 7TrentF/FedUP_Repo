@@ -18,15 +18,16 @@ import retrofit2.Response
 class IngredientRepository(
     private val ingredientDao: IngredientDao,
     val apiService: ApiService, // Made apiService public for ViewModel access
-
-
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var lastSyncTime: Long = 0 // This variable will hold the last sync time
 
 
-    val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients() // Fetch all ingredients from the Room database
+   // val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients() // Fetch all ingredients from the Room database
 
+
+    // In your Repository
+    val allIngredients: Flow<List<Ingredient>> = ingredientDao.getAllIngredientsWhereDeleted()
 
     suspend fun insertIngredient(ingredient: Ingredient): Long {
         return ingredientDao.insert(ingredient)
@@ -359,6 +360,21 @@ class IngredientRepository(
     // Fetch all ingredients from RoomDB for offline usage
     fun allIngredientsFromRoomDB(): LiveData<List<Ingredient>> {
         return ingredientDao.getAllIngredients() // Uses LiveData to observe RoomDB changes
+    }
+
+    suspend fun softDeleteIngredient(ingredient: Ingredient) {
+        ingredient.apply {
+            isDeleted = true     // Mark for deletion
+            isSynced = false     // Mark as unsynced so it will be processed when online
+            lastModified = System.currentTimeMillis()
+            version += 1         // Increment version
+        }
+        ingredientDao.update(ingredient)  // Update in Room
+    }
+
+    // This will be called after successful Firebase deletion
+    suspend fun hardDeleteIngredient(ingredient: Ingredient) {
+        ingredientDao.delete(ingredient)  // Actually remove from Room
     }
 
 

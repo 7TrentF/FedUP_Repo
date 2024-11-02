@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,7 +42,7 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val networkMonitor = NetworkMonitor(application)
     private val coroutineScope = viewModelScope
     private val repository: IngredientRepository
-    val allIngredients: LiveData<List<Ingredient>>
+    val allIngredients: Flow<List<Ingredient>>
 
     // Define the LiveData with the correct type
     //private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
@@ -390,9 +391,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun deleteIngredient(ingredient: Ingredient) {
+    fun deleteIngredient(firebaseId: String) {
         viewModelScope.launch {
-            repository.delete(ingredient)
+            repository.deleteIngredientByFirebaseId(firebaseId)
+
         }
     }
 
@@ -528,16 +530,61 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private suspend fun handleDeletedIngredient(ingredient: Ingredient) {
-        Log.d("IngredientSync", "Processing deletion for ingredient: ${ingredient.productName}")
-        val deleteResponse = repository.deleteIngredientFromFirebase(ingredient)
-        if (deleteResponse.isSuccessful) {
-            Log.d("IngredientSync", "Successfully deleted ingredient from Firebase: ${ingredient.productName}")
-            repository.removeIngredient(ingredient)
-            Log.d("IngredientSync", "Removed ingredient from RoomDB: ${ingredient.productName}")
-        } else {
-            Log.e("IngredientSync", "Failed to delete ingredient from Firebase: ${ingredient.productName}, Error: ${deleteResponse.errorBody()}")
+        try {
+            Log.d("IngredientSync", "Processing deletion for ingredient: ${ingredient.productName}")
+
+            // If the ingredient has no Firebase ID, it was created offline and then deleted
+            // We can just remove it from Room without syncing to Firebase
+            if (ingredient.firebaseId.isEmpty()) {
+                Log.d("IngredientSync", "Ingredient was never synced to Firebase, removing locally: ${ingredient.productName}")
+                repository.hardDeleteIngredient(ingredient)
+                return
+            }
+
+            // Otherwise, try to delete from Firebase
+            val deleteResponse = repository.deleteIngredientFromFirebase(ingredient)
+            if (deleteResponse.isSuccessful) {
+                Log.d("IngredientSync", "Successfully deleted ingredient from Firebase: ${ingredient.productName}")
+                // Remove from local database after successful Firebase deletion
+                repository.hardDeleteIngredient(ingredient)
+                Log.d("IngredientSync", "Removed ingredient from RoomDB: ${ingredient.productName}")
+            } else {
+                // If deletion from Firebase fails, keep the soft delete mark but update sync status
+                ingredient.apply {
+                    isSynced = false  // Mark for retry
+                    lastModified = System.currentTimeMillis()
+                }
+                repository.updateIngredient(ingredient)
+                Log.e("IngredientSync", "Failed to delete ingredient from Firebase: ${ingredient.productName}, Error: ${deleteResponse.errorBody()}")
+            }
+        } catch (e: Exception) {
+            // In case of error, keep the soft delete mark but update sync status
+            ingredient.apply {
+                isSynced = false  // Mark for retry
+                lastModified = System.currentTimeMillis()
+            }
+            repository.updateIngredient(ingredient)
+            Log.e("IngredientSync", "Exception while deleting ingredient ${ingredient.productName}: ${e.message}")
         }
     }
+
+
+    fun SoftDeleteIngredient(ingredient: Ingredient) {
+        viewModelScope.launch {
+            try {
+                repository.softDeleteIngredient(ingredient)
+                // If we're online, trigger sync immediately
+                if (networkMonitor.isNetworkAvailable.value) {
+                    syncUnsyncedIngredients()
+                }
+            } catch (e: Exception) {
+                Log.e("IngredientSync", "Error deleting ingredient: ${e.message}")
+            }
+        }
+    }
+
+
+
 
     private suspend fun handleNewIngredient(ingredient: Ingredient) {
         try {

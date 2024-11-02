@@ -73,18 +73,15 @@ class IngredientAdapter(
         notifyDataSetChanged()
     }
 
-
     fun updateIngredients(newList: List<Ingredient>) {
         ingredients = newList
         if (ingredients.isEmpty()) {
             Log.w("IngredientAdapter", "No updated ingredients available to display in RecyclerView.")
             Log.w("flow", "No  updated ingredients available to display in RecyclerView.")
 
-
         } else {
             Log.d("IngredientAdapter", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
             Log.d("flow", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
-
         }
         notifyDataSetChanged()
     }
@@ -157,17 +154,15 @@ class IngredientAdapter(
             .setPositiveButton("Yes") { _, _ ->
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // Call the method to delete the ingredient via the API using its Firebase ID
-                        deleteIngredientFromFirebase(ingredientId)
-
-                        withContext(Dispatchers.Main) {
-                            showCustomSnackbar("Ingredient deleted.", ingredientId)
+                        if (NetworkUtils.isNetworkAvailable(context)) {
+                            // Online flow
+                            deleteIngredientFromFirebase(ingredientId)
+                        } else {
+                            // Offline flow
+                            deleteIngredientFromRoom(ingredientId)
                         }
                     } catch (e: Exception) {
-                        Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
-
                         withContext(Dispatchers.Main) {
-                            Snackbar.make((context as Activity).findViewById(android.R.id.content), "Failed to delete ingredient: ${e.message}", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -182,8 +177,8 @@ class IngredientAdapter(
                 Log.d("DeleteIngredientDebug", "Attempting to delete ingredient with Firebase ID: $firebaseId")
 
 
-                //  ingredientViewModel.deleteIngredient()
-                deleteIngredientFromRoom(firebaseId)
+                ingredientViewModel.deleteIngredientByFirebaseId(firebaseId)
+               // deleteIngredientFromRoom(firebaseId)
 
                 // Call the API to delete the ingredient by its Firebase ID
                 val response = RetrofitClient.apiService.deleteIngredient(firebaseId)
@@ -222,47 +217,34 @@ class IngredientAdapter(
     }
 
     private suspend fun deleteIngredientFromRoom(firebaseId: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                Log.d(
-                    "DeleteIngredientDebug",
-                    "Attempting to delete ingredient with Firebase ID: $firebaseId"
-                )
+        try {
+            Log.d("DeleteIngredientDebug", "Attempting to delete ingredient from Room with Firebase ID: $firebaseId")
 
-                val ingredientToDelete = ingredientViewModel.getIngredientByFirebaseId(firebaseId)
+            // First get the ingredient from Room
+            val ingredient = ingredientDao.getIngredientByFirebaseId(firebaseId)
 
-                if (ingredientToDelete != null) {
-                    ingredientViewModel.deleteIngredientByFirebaseId(firebaseId)
-                    withContext(Dispatchers.Main) {
-                        showCustomSnackbar("Ingredient deleted.", firebaseId)
-                    }
-                } else {
-                    Log.e(
-                        "DeleteIngredientError",
-                        "Ingredient with Firebase ID $firebaseId not found in local database"
-                    )
-                    withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            (context as Activity).findViewById(android.R.id.content),
-                            "Ingredient not found in local database",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
+            val roomId = ingredientDao.getIngredientByFirebaseId(firebaseId)
+
+
+            if (ingredient != null) {
+                // Instead of immediate deletion, mark it for deletion
+                ingredient.apply {
+                    isDeleted = true     // Mark for deletion
+                    isSynced = false     // Mark as unsynced so it will be processed when online
+                    lastModified = System.currentTimeMillis()
+                    version += 1         // Increment version
                 }
-            } catch (e: Exception) {
-                Log.e(
-                    "DeleteIngredientException",
-                    "Exception while deleting ingredient: ${e.message}",
-                    e
-                )
-                withContext(Dispatchers.Main) {
-                    Snackbar.make(
-                        (context as Activity).findViewById(android.R.id.content),
-                        "Failed to delete ingredient: ${e.message}",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
+
+                // Update the ingredient in Room
+                ingredientDao.update(ingredient)
+
+                Log.d("DeleteIngredientDebug", "Ingredient marked for deletion in Room: ${ingredient.productName}")
+            } else {
+                Log.e("DeleteIngredientDebug", "Ingredient with Firebase ID $firebaseId not found in Room")
             }
+        } catch (e: Exception) {
+            Log.e("DeleteIngredientDebug", "Error marking ingredient for deletion in Room: ${e.message}")
+            throw e
         }
     }
 

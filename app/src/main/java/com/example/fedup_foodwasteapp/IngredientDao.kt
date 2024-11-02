@@ -18,6 +18,10 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients")
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
+
+    @Query("SELECT * FROM ingredients WHERE is_deleted = 0")
+    fun getAllIngredientsWhereDeleted(): Flow<List<Ingredient>>
+
     @Query("SELECT * FROM ingredients")
     suspend fun getAllIngredientsNonLive(): List<Ingredient>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
