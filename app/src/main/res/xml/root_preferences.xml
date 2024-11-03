@@ -63,9 +63,10 @@
 
         <SwitchPreferenceCompat
             android:key="enable_biometrics"
-            android:title="Enable Face Scan Biometrics"
-            android:summary="Use your face/fingerprint as an extra security layer for scan to sign in"
+            android:title="@string/enable_biometrics_title"
+            android:summary="@string/enable_biometrics_summary"
             android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <!-- Help & Support -->

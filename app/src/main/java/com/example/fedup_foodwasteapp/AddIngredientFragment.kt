@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -40,6 +41,7 @@ class AddIngredientFragment : DialogFragment() {
     private lateinit var btnPlus: ImageButton
     private lateinit var btnMinus: ImageButton
     private var currentCategoryIndex = 0
+    private lateinit var ingredientImageView: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -145,7 +147,23 @@ class AddIngredientFragment : DialogFragment() {
                 Toast.makeText(requireContext(), "Something went wrong", Toast.LENGTH_SHORT).show()
             }
         })
+
+
+        ingredientImageView = view.findViewById(R.id.ingredientImageView)
+        ingredientImageView.setOnClickListener {
+            showIconSelector()
+        }
+
         return view
+    }
+
+    private fun showIconSelector() {
+        val iconSelector = IconSelectorDialog().apply {
+            setOnIconSelectedListener { iconResId ->
+                ingredientImageView.setImageResource(iconResId)
+            }
+        }
+        iconSelector.show(childFragmentManager, "iconSelector")
     }
 
     fun insertIngredient(

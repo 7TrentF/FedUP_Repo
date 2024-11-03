@@ -122,5 +122,8 @@
         <string name="sort_by">Hlela Ngokwaziswa</string>
         <string name="about_to_expire">Uzosuka Kuleli</string>
         <string name="alphabetical">Ngokwe-Alfabhethi</string>
+    <string name="select_icon">khetha_icon</string>
+    <string name="enable_biometrics_title">Vula I-Biometrics</string>
+    <string name="enable_biometrics_summary">Sebenzisa ubuso/bhola lakho njengendawo yokuphepha eyengeziwe ukuze ungene ngokuhlola</string>
 
 </resources>

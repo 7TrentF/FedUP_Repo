@@ -172,4 +172,8 @@
         <string name="about_to_expire">Gereed om te Verval</string>
         <string name="alphabetical">Alfabeties</string>
 
+    <string name="select_icon">kies_ikoon</string>
+    <string name="enable_biometrics_title">Aktiveer Biometrie</string>
+    <string name="enable_biometrics_summary">Gebruik jou gesig/vingerafdruk as n ekstra sekuriteitslaag vir skandering om aan te meld</string>
+
 </resources>

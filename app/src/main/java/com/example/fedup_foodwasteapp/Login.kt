@@ -17,6 +17,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.Firebase
@@ -33,6 +36,9 @@ class Login : AppCompatActivity() {
     private lateinit var emailEdit: EditText
     private lateinit var passwordEdit: EditText
     private lateinit var signIn: Button
+    private val BIOMETRIC_PREF_KEY = "biometric_enabled_"
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var signUp: Button
     private lateinit var mAuth: FirebaseAuth
     private lateinit var togglePasswordVisibility: ImageView
@@ -50,16 +56,54 @@ class Login : AppCompatActivity() {
         passwordEdit = findViewById(R.id.editTextPassword)
         signIn = findViewById(R.id.btnSignIn)
         signUp = findViewById(R.id.SignUpButton)
-
         mAuth = Firebase.auth
         togglePasswordVisibility = findViewById(R.id.TogglePassword) // Toggle checkbox
+
+        // Initialize Biometric prompt and prompt info
+        val executor = ContextCompat.getMainExecutor(this)
+        biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    // Automatically log the user in after successful biometric authentication
+                    val loginEmail = emailEdit.text.toString()
+                    val loginPassword = passwordEdit.text.toString()
+
+                    // Use email and password for Firebase login if needed, or directly navigate to main screen
+                    if (loginEmail.isNotBlank() && loginPassword.isNotBlank()) {
+                        userLogin(loginEmail, loginPassword)
+                    } else {
+                        // Alternatively, navigate to the main screen if biometrics alone are sufficient
+                        val intent = Intent(this@Login, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()  // Optional: Finish Login activity to prevent returning to login screen
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    showSnackbar("Authentication failed", android.R.color.holo_red_dark)
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    showSnackbar("Authentication error: $errString", android.R.color.holo_red_dark)
+                }
+            }
+        )
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Biometric login for FedUp")
+            .setSubtitle("Log in using your biometric credential")
+            .setNegativeButtonText("Use account password")
+            .build()
 
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("160835827466-av691ujd9v27dd98hhhdqnad7d58o3f1.apps.googleusercontent.com")  // client_id from google-services.json
 
 
-                .requestEmail()
+            .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -96,19 +140,22 @@ class Login : AppCompatActivity() {
             val loginPassword = passwordEdit.text.toString()
 
             if (!Patterns.EMAIL_ADDRESS.matcher(loginEmail).matches()) {
-                // Show error for incorrect email format
                 showSnackbar("Invalid Email Format", android.R.color.holo_red_dark)
                 return@setOnClickListener
             }
 
             if (loginPassword.length < 6) {
-                // Show error for short password
                 showSnackbar("Password must be at least 6 characters long", android.R.color.holo_red_dark)
                 return@setOnClickListener
             }
 
-            // Proceed with login if validations pass
-            userLogin(loginEmail, loginPassword)
+            val biometricManager = BiometricManager.from(this)
+            if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
+                BiometricManager.BIOMETRIC_SUCCESS) {
+                biometricPrompt.authenticate(promptInfo)
+            } else {
+                userLogin(loginEmail, loginPassword)
+            }
         }
 
 
@@ -175,6 +222,73 @@ class Login : AppCompatActivity() {
             }
     }
 
+    // Biometric authentication with a callback
+    private fun authenticateUserWithBiometrics(onSuccess: () -> Unit) {
+        // Shared preference check ensures biometrics are only used if enabled
+        val sharedPref = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val biometricEnabled = sharedPref.getBoolean(BIOMETRIC_PREF_KEY, false)
+        if (biometricEnabled) {
+            val executor = ContextCompat.getMainExecutor(this)
+            biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    onSuccess()
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    showSnackbar("Incorrect biometrics", android.R.color.holo_red_dark)
+                }
+            })
+
+            promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric Authentication")
+                .setSubtitle("Confirm your identity with biometrics")
+                .setNegativeButtonText("Cancel")
+                .build()
+
+            biometricPrompt.authenticate(promptInfo)
+        } else {
+            showSnackbar("Biometric login is disabled in settings", android.R.color.holo_red_dark)
+        }
+    }
+
+    // Function to handle successful biometric authentication
+    private fun onSuccessfulBiometricAuthentication() {
+        showSnackbar("Login Successful", android.R.color.holo_green_dark)
+        navigateToMain()
+    }
+
+    // Navigate to MainActivity
+    private fun navigateToMain() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun startBiometricPrompt(email: String) {
+        val executor = ContextCompat.getMainExecutor(this)
+        val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                // Handle successful biometric login
+                navigateToMain("")  // Or re-authenticate silently with Firebase if needed
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Biometric Login")
+            .setSubtitle("Log in using your biometric credential")
+            .setNegativeButtonText("Use account password")
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
+    }
 
 
     private fun togglePasswordVisibility() {
@@ -197,7 +311,7 @@ class Login : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val idToken = task.result?.token
                     if (idToken != null) {
-                         Log.d("JWT Token", "Token received: $idToken") // Print to Logcat
+                        Log.d("JWT Token", "Token received: $idToken") // Print to Logcat
                         val rootView = findViewById<View>(android.R.id.content) // Get the root view
                         Snackbar.make(rootView, "Token: $idToken", Snackbar.LENGTH_LONG).show()
 

@@ -173,7 +173,10 @@
         <string name="sort_by">Sort By</string>
         <string name="about_to_expire">About to Expire</string>
         <string name="alphabetical">Alphabetical</string>
+    <string name="select_icon">select_icon</string>
 
+    <string name="enable_biometrics_title">Enable Biometrics</string>
+    <string name="enable_biometrics_summary">Use your face/fingerprint as an extra security layer for scan to sign in</string>
 
 
 </resources>

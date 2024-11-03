@@ -140,6 +140,8 @@
         <string name="sort_by">Hlula Ngokwe</string>
         <string name="about_to_expire">Uzakuphelelwa</string>
         <string name="alphabetical">Ngokwe-Alfabhethi</string>
-
+    <string name="select_icon">khetha_i-icon</string>
+    <string name="enable_biometrics_title">Vula iBiometrics</string>
+    <string name="enable_biometrics_summary">Sebenzisa ubuso bakho/umkhondo wesithupha njengesalathiso sokhuseleko olongezelelweyo lokungena nge-scan</string>
 
 </resources>
