@@ -201,7 +201,6 @@ class Login : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, now get the Firebase token
                     getFirebaseToken { token ->
-                        Log.d("Login", "User authenticated, token: $token")
                         // Now you have the token, make the network request to your API
 
                         val rootView = findViewById<View>(android.R.id.content) // Get the root view
@@ -311,7 +310,7 @@ class Login : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val idToken = task.result?.token
                     if (idToken != null) {
-                        Log.d("JWT Token", "Token received: $idToken") // Print to Logcat
+
                         val rootView = findViewById<View>(android.R.id.content) // Get the root view
                         Snackbar.make(rootView, "Token: $idToken", Snackbar.LENGTH_LONG).show()
 

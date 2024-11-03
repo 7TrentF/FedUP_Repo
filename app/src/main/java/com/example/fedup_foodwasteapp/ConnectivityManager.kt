@@ -19,14 +19,12 @@ class ConnectivityManager(
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
-            Log.d("flow", "Network available, triggering sync")
             isConnected = true
             syncService.startSync()
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
-            Log.d("flow", "Network lost")
             isConnected = false
         }
     }

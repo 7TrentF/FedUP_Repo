@@ -27,7 +27,6 @@ class AuthManager private constructor() {
     fun getIdToken(onTokenReceived: (String?, String?) -> Unit) {
         // Return cached token if available
         if (cachedToken != null) {
-            Log.d("Token", "Using cached token: $cachedToken")
             onTokenReceived(cachedToken, null)
             return
         }
@@ -37,10 +36,8 @@ class AuthManager private constructor() {
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     cachedToken = task.result?.token
-                    Log.d("Token", "New token: $cachedToken")  // This will print the token in Logcat
                     onTokenReceived(cachedToken, null)
                 } else {
-                    Log.d("Token", "Token retrieval failed: ${task.exception?.message}")
                     onTokenReceived(null, task.exception?.message)
                 }
             }
