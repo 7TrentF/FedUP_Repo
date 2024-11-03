@@ -18,6 +18,7 @@ firebaseAuthVersion = "21.0.1"
 firebaseBom = "33.3.0"
 firebaseDatabase = "21.0.0"
 firebaseDatabaseVersion = "20.2.2"
+googleMaterial = "1.11.0"
 hiltAndroid = "2.44"
 kotlin = "1.9.0"
 coreKtx = "1.10.1"
@@ -117,6 +118,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 
+material-v1110 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 mockito-core-v390 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
@@ -139,4 +141,3 @@ androidx-ui-desktop = { group = "androidx.compose.ui", name = "ui-desktop", vers
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-

@@ -78,13 +78,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         repository = IngredientRepository(ingredientDao, apiService)
         allIngredients = repository.allIngredients
         _filteredIngredients.value = emptyList()
-
-
         setupNetworkMonitoring()
-        //loadFromRoomOffline()
-        //fetchIngredientsFromFirebase()
-        // syncApiToFirebase()  // Sync from API to Firebase
-        // syncData()   // Sync from Firebase to RoomDB
+
     }
 
 

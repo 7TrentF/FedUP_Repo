@@ -5,8 +5,39 @@
         <item>Reply to all</item>
     </string-array>
 
+    <string-array name="notification_timing_entries">
+        <item>1 day before</item>
+        <item>3 days before</item>
+        <item>5 days before</item>
+        <item>7 days before</item>
+    </string-array>
+
+    <string-array name="notification_timing_values">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>7</item>
+    </string-array>
+
     <string-array name="reply_values">
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+
+
+    <string-array name="language_names">
+        <item>English</item>
+        <item>Afrikaans</item>
+        <item>Zulu</item>
+        <item>Xhosa</item>
+
+    </string-array>
+
+    <string-array name="language_codes">
+        <item>en</item>
+        <item>af</item>
+        <item>zu</item>
+        <item>xh</item>
+    </string-array>
+
 </resources>

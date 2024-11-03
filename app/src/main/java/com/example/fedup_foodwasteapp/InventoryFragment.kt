@@ -1,5 +1,6 @@
 package com.example.fedup_foodwasteapp
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -19,6 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.OneTimeWorkRequest
@@ -33,7 +35,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-class InventoryFragment : Fragment() {
+class InventoryFragment : BaseFragment() {
 
     private lateinit var ingredientViewModel: IngredientViewModel
     private lateinit var ingredientAdapter: IngredientAdapter
@@ -420,6 +422,9 @@ class InventoryFragment : Fragment() {
         }
        */
     }
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

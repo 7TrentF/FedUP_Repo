@@ -2,19 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_inventory"
-        android:title="Inventory"
+        android:title="@string/inventory"
         android:icon="@drawable/ic_inventory"
         android:iconTint="@color/green" />
 
     <item
         android:id="@+id/nav_Recipe"
-        android:title="Recipe"
+        android:title="@string/recipe"
         android:icon="@drawable/ic_recipe"
         android:iconTint="@color/green" />
 
     <item
         android:id="@+id/nav_settings"
-        android:title="Settings"
+        android:title="@string/settings"
         android:icon="@drawable/ic_settings"
         android:iconTint="@color/green" />
 </menu>

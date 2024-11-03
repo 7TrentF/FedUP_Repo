@@ -81,6 +81,91 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="splash_logo">Splash Logo</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+
+
+
+    <string name="sign_in">Sign In</string>
+    <string name="email">Email</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="password">Password</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="or">Or</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="don_t_have_an_account">Don\'t have an Account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_up_with_google">Sign up Google</string>
+    <string name="add_ingredient">Add Ingredient</string>
+    <string name="tap_to_select_ingredient_image">Tap to select ingredient image</string>
+    <string name="decrease_quantity">decrease quantity</string>
+    <string name="fridge">Fridge</string>
+    <string name="increase_quantity">increase quantity</string>
+    <string name="save_ingredient_button">Save Ingredient Button</string>
+    <string name="edit_ingredient">Edit Ingredient</string>
+    <string name="category_icon">Category Icon</string>
+    <string name="grams">grams</string>
+    <string name="name">Name:</string>
+    <string name="notes">Notes:</string>
+    <string name="recipe">Recipe</string>
+    <string name="settings">Settings</string>
+
+        <!-- Appearance Settings -->
+        <string name="appearance">Appearance</string>
+        <string name="theme_color">Theme Color</string>
+        <string name="language">Language</string>
+        <string name="choose_language">Choose Language</string>
+
+        <!-- Notification Settings -->
+        <string name="notifications">Notifications</string>
+        <string name="enable_notifications">Enable Notifications</string>
+        <string name="notification_timing">Notification Timing</string>
+
+        <!-- Privacy Settings -->
+        <string name="privacy">Privacy</string>
+        <string name="share_data">Share Data</string>
+
+        <!-- Account Management -->
+        <string name="account_management">Account Management</string>
+        <string name="change_email_address">Change Email Address</string>
+        <string name="new_email">New Email</string>
+        <string name="change_password">Change Password</string>
+        <string name="log_out">Log Out</string>
+        <string name="enable_biometrics">Enable Face Scan Biometrics</string>
+
+        <!-- Help & Support -->
+        <string name="help_support">Help &amp; Support</string>
+
+        <!-- Data Management -->
+        <string name="data_management">Data Management</string>
+        <string name="clear_cache">Clear Cache</string>
+
+    <!-- Appearance Settings -->
+    <string name="select_theme_color">Select the theme color</string>
+    <string name="select_your_preferred_language">Select your preferred language</string>
+    <string name="choose_when_to_be_notified_before_ingredients_expire">Choose when to be notified before ingredients expire</string>
+
+    <!-- Notification Settings -->
+    <string name="receive_notifications_about_expiring_ingredients">Receive notifications about expiring ingredients</string>
+
+    <!-- Privacy Settings -->
+    <string name="allow_sharing_data_with_third_parties">Allow sharing data with third parties</string>
+
+    <!-- Account Management -->
+    <string name="change_your_account_email">Change your account email</string>
+    <string name="change_your_account_password">Change your account password</string>
+    <string name="log_out_of_your_account">Log out of your account</string>
+    <string name="use_your_face_fingerprint_as_extra_security_layer_for_scan_to_sign_in">Use your face/fingerprint as an extra security layer for scan to sign in</string>
+
+    <!-- Help & Support -->
+    <string name="get_help_and_contact_support">Get help and contact support</string>
+
+
+    <!-- Data Management -->
+    <string name="clear_cached_data">Clear cached data</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="instructions">Instructions</string>
 
 
 </resources>
+
+

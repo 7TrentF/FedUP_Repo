@@ -3,197 +3,228 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:backgroundTint="@color/grey"
-    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:background="@color/grey"
     android:padding="16dp">
 
+    <!-- Header Section with Title -->
+
+    <!-- Image Selection -->
 
     <TextView
         android:id="@+id/EditView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="8dp"
-        android:text="Add Ingredient"
+        android:layout_width="308dp"
+        android:layout_height="33dp"
+        android:layout_margin="16dp"
+        android:layout_marginStart="142dp"
+        android:layout_marginEnd="158dp"
+        android:paddingLeft="50dp"
+        android:text="@string/add_ingredient"
         android:textColor="@color/white"
-        android:textSize="25sp"
+        android:textSize="28sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/imageContainer"
         android:layout_width="66dp"
         android:layout_height="62dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="48dp"
-        android:background="@color/orange"
-        android:src="@drawable/ic_question_mark"
-        android:contentDescription="Category Icon"
-        app:layout_constraintStart_toEndOf="@+id/btn_plus"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/et_ingredient_name"
-        android:layout_width="192dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="160dp"
-        android:layout_marginEnd="4dp"
-        android:background="@drawable/custom_text_box"
-        android:gravity="center"
-        android:hint="Ingredient Name"
-        android:textColor="@color/white"
-        android:textColorHint="@color/lightgrey"
+        android:layout_marginTop="60dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <EditText
-        android:id="@+id/et_quantity"
-        android:layout_width="190dp"
-        android:layout_height="31dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="4dp"
-        android:background="@drawable/custom_text_box"
-        android:gravity="center"
-        android:hint="grams"
-        android:textColor="@color/white"
-        android:textColorHint="@color/lightgrey"
+        <ImageView
+            android:id="@+id/ingredientImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/orange"
+            android:contentDescription="@string/tap_to_select_ingredient_image"
+            android:foreground="?attr/selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/ic_question_mark" />
+    </androidx.cardview.widget.CardView>
+    <!-- Category Selection Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/categoryCard"
+        android:layout_width="332dp"
+        android:layout_height="45dp"
+        android:layout_marginHorizontal="16dp"
+        app:cardBackgroundColor="#33FFFFFF"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tilIngredientName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_expiration_date" />
-
-    <TextView
-        android:id="@+id/tvExpirationDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:text="Expiration Date:"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/et_expiration_date"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvIngredientName" />
+        app:layout_constraintTop_toBottomOf="@+id/imageContainer">
 
-    <TextView
-        android:id="@+id/tv_category"
-        android:layout_width="149dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="4dp"
-        android:gravity="center"
-        android:text="Fridge"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/btn_plus"
-        app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-    <ImageButton
-        android:id="@+id/btn_minus"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:background="@drawable/custom_button"
-        android:contentDescription="decrease quantity"
-        android:src="@drawable/ic_minus"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_category"
-        app:layout_constraintEnd_toStartOf="@+id/tv_category"
-        app:layout_constraintTop_toTopOf="@+id/tv_category" />
+            <ImageButton
+                android:id="@+id/btn_minus"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/custom_button"
+                android:contentDescription="@string/decrease_quantity"
+                android:src="@drawable/ic_minus" />
 
+            <TextView
+                android:id="@+id/tv_category"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/fridge"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
 
-    <ImageButton
-        android:id="@+id/btn_plus"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="4dp"
-        android:background="@drawable/custom_button"
-        android:backgroundTint="@color/green"
-        android:src="@drawable/ic_plus"
-        android:contentDescription="increase quantity"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_category"
-        app:layout_constraintStart_toEndOf="@+id/tv_category"
-        app:layout_constraintTop_toTopOf="@+id/tv_category" />
+            <ImageButton
+                android:id="@+id/btn_plus"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/custom_button"
+                android:backgroundTint="@color/green"
+                android:contentDescription="@string/increase_quantity"
+                android:src="@drawable/ic_plus" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    <!-- Input Fields -->
 
-    <TextView
-        android:id="@+id/tvIngredientName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
-        android:text="Name:"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/et_ingredient_name"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EditView5" />
-
-    <TextView
-        android:id="@+id/tvQuantity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
-        android:text="Quantity:"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/et_quantity"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvExpirationDate" />
-
-
-    <EditText
-        android:id="@+id/et_expiration_date"
-        android:layout_width="157dp"
-        android:layout_height="39dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="4dp"
-        android:background="@drawable/custom_text_box"
-        android:clickable="true"
-        android:focusable="false"
-        android:gravity="center"
-        android:hint="(YYYY-MM-DD)"
-        android:inputType="none"
-        android:textColor="@color/white"
-        android:textColorHint="@color/lightgrey"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilIngredientName"
+        android:layout_width="251dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="90dp"
+        app:boxBackgroundColor="#33FFFFFF"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_ingredient_name" />
-
-    <TextView
-        android:id="@+id/tvNotes"
-        android:layout_width="55dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="52dp"
-        android:text="Notes:"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/editText"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvQuantity" />
+        app:layout_constraintTop_toBottomOf="@+id/imageContainer">
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="176dp"
-        android:layout_height="110dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/custom_text_box"
-        android:textColor="@color/white"
-        android:contentDescription="Ingredient notes"
-        android:textColorHint="@color/white"
+        <EditText
+            android:id="@+id/et_ingredient_name"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/custom_text_box"
+            android:gravity="center"
+            android:hint="@string/ingredient_name"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightgrey" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilExpirationDate"
+        android:layout_width="251dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="26dp"
+        app:boxBackgroundColor="#33FFFFFF"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_quantity" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tilIngredientName">
+
+        <EditText
+            android:id="@+id/et_expiration_date"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:background="@drawable/custom_text_box"
+            android:clickable="true"
+            android:focusable="false"
+            android:gravity="center"
+            android:hint="(YYYY-MM-DD)"
+            android:inputType="none"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightgrey" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilQuantity"
+        android:layout_width="251dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="26dp"
+        app:boxBackgroundColor="#33FFFFFF"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tilExpirationDate">
+
+        <EditText
+            android:id="@+id/et_quantity"
+            android:layout_width="match_parent"
+            android:layout_height="31dp"
+            android:background="@drawable/custom_text_box"
+            android:gravity="center"
+            android:hint="@string/quantity"
+            android:inputType="numberDecimal"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightgrey" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilNotes"
+        android:layout_width="251dp"
+        android:layout_height="106dp"
+        android:layout_marginTop="26dp"
+        app:boxBackgroundColor="#33FFFFFF"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tilQuantity">
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/custom_text_box"
+            android:gravity="top|start"
+            android:padding="8dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lightgrey" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
         android:id="@+id/btnSaveIngredient"
-        android:layout_width="49dp"
-        android:layout_height="45dp"
+        android:layout_width="105dp"
+        android:layout_height="72dp"
         android:layout_marginTop="44dp"
         android:layout_marginEnd="12dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/custom_button"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_tick"
-        android:contentDescription="Save Ingredient Button"
+        android:contentDescription="@string/save_ingredient_button"
+
+        android:src="@drawable/ic_check"
+        app:backgroundTint="@color/green"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/tilNotes"
+        app:layout_constraintVertical_bias="1.0"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

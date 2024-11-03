@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+        android:configChanges="locale"
         tools:targetApi="31">
         <activity
             android:name=".RecipeDetailActivity"
@@ -40,7 +41,18 @@
             android:name=".MainActivity"
             android:exported="false" />
 
+        <!-- Firebase messaging service -->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
 
     </application>
 

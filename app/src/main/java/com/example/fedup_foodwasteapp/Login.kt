@@ -1,6 +1,7 @@
 package com.example.fedup_foodwasteapp
 
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -16,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -252,6 +254,11 @@ class Login : AppCompatActivity() {
         finish()
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val languageCode = PreferenceManager.getDefaultSharedPreferences(newBase).getString("language_preference", "en") ?: "en"
+        val context = LocaleHelper.wrap(newBase, languageCode)
+        super.attachBaseContext(context)
+    }
 
 
 

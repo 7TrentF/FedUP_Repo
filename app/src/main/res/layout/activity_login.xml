@@ -6,199 +6,200 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Login"
-    android:background="@color/darkgrey">
+    android:background="@color/darkgrey"
+    android:fitsSystemWindows="true">
 
+    <!-- Logo with improved sizing and margins -->
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="32dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo" />
 
+    <!-- Sign In Text with better typography -->
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="240dp"
-        android:layout_height="40dp"
-        android:padding="10dp"
-        android:text="Sign In"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/sign_in"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="24sp"
+        android:fontFamily="sans-serif-medium"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.23" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
-    <Button
-        android:id="@+id/btnSignIn"
-        android:layout_width="80dp"
-        android:layout_height="50dp"
-        android:background="@drawable/round_tv"
-        android:backgroundTint="@color/green"
-        android:text="Sign In"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.519"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.814" />
-
+    <!-- Email label with improved spacing -->
     <TextView
-        android:id="@+id/textView3"
-        android:layout_width="165dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:text="Don't have an Account?"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.341"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.941" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="240dp"
+        android:id="@+id/tv_inventory"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="                              Or"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/email"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.617" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
+    <!-- Email input with enhanced styling -->
     <EditText
         android:id="@+id/editTextEmailAddress"
-        android:layout_width="240dp"
+        android:layout_width="0dp"
         android:layout_height="50dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/round_tv"
         android:backgroundTint="@color/lightgrey"
         android:ems="10"
         android:inputType="textEmailAddress"
-        android:padding="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="16dp"
+        android:hint="@string/enter_your_email"
+        android:textColorHint="@color/black"
+        android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.353" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_inventory" />
 
-    <Button
-        android:id="@+id/btnGoogleSSO"
-        android:layout_width="240dp"
-        android:layout_height="50dp"
-        android:layout_marginHorizontal="50dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/round_tv"
-        android:backgroundTint="@color/orange"
-        android:drawableStart="@drawable/google"
-        android:gravity="start|center_vertical"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="10dp"
-        android:text="Continue with Google"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <!-- Password label with consistent spacing -->
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/password"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.685" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextEmailAddress" />
 
-    <Button
-        android:id="@+id/SignUpButton"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:background="@drawable/round_tv"
-        android:backgroundTint="@color/darkgrey"
-        android:text="Sign Up"
-        android:textColor="@color/green"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.743"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.941" />
-
+    <!-- Password input container with proper alignment -->
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.509">
+        app:layout_constraintTop_toBottomOf="@+id/textView1">
 
-        <!-- Password EditText -->
         <EditText
             android:id="@+id/editTextPassword"
-            android:layout_width="240dp"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/round_tv"
             android:backgroundTint="@color/lightgrey"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/enter_your_password"
             android:inputType="textPassword"
-            android:padding="10dp" />
-
-        <!-- Toggle Password Visibility -->
-
+            android:padding="16dp"
+            android:textColorHint="@color/black"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_inventory"
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:text="Email"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.29" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="240dp"
-        android:layout_height="wrap_content"
-        android:text="Password"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.436" />
-
-
+    <!-- Password visibility toggle with better positioning -->
     <ImageView
         android:id="@+id/TogglePassword"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="36dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="56dp"
+        android:padding="2dp"
+        android:alpha="0.7"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/linearLayout2"
-        app:layout_constraintVertical_bias="0.266"
         app:srcCompat="@drawable/ic_visibility_off" />
 
+    <!-- Sign In button with enhanced styling -->
+    <Button
+        android:id="@+id/btnSignIn"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/round_tv"
+        android:backgroundTint="@color/green"
+        android:text="@string/sign_in"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="253dp"
-        android:layout_height="123dp"
+    <!-- Divider text with improved styling -->
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/or"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />
+
+    <!-- Google SSO button with enhanced styling -->
+    <Button
+        android:id="@+id/btnGoogleSSO"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/round_tv"
+        android:backgroundTint="@color/orange"
+        android:drawableStart="@drawable/google"
+        android:gravity="center"
+        android:paddingHorizontal="16dp"
+        android:text="@string/continue_with_google"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <!-- Sign Up section with better alignment -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.027"
-        app:srcCompat="@drawable/logo" />
+        app:layout_constraintStart_toStartOf="parent">
 
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/don_t_have_an_account"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
-
+        <Button
+            android:id="@+id/SignUpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:text="@string/sign_up"
+            android:textAllCaps="false"
+            android:textColor="@color/green"
+            android:textSize="14sp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

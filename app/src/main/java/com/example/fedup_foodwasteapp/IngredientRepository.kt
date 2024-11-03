@@ -102,6 +102,22 @@ class IngredientRepository(
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    suspend fun sendExpirationData(
+        token: String,
+        fcmToken: String,
+        notificationData: Map<String, String>
+    ) {
+        try {
+            apiService.sendExpirationData(token, fcmToken, notificationData)
+        } catch (e: Exception) {
+            Log.e("IngredientRepository", "Error sending expiration data", e)
+            throw e
+        }
+    }
+
+
+
     suspend fun deleteIngredient(ingredient: Ingredient) {
         ingredient.apply {
             isDeleted = true

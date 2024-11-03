@@ -10,6 +10,7 @@ import android.content.res.ColorStateList
 import android.os.Handler
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -34,11 +35,9 @@ class SplashActivity : AppCompatActivity() {
         // Initialize the ViewModel
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        // Fetch ingredients from Firebase and observe the LiveData
-        //ingredientViewModel.fetchIngredientsFromFirebase()
-
-        // ingredientViewModel.loadIngredients()
-
+        // Animate the background shape
+        val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.background_rotate)
+        findViewById<View>(R.id.background_shape).startAnimation(rotateAnimation)
 
         mAuth = Firebase.auth
         loadingBar = findViewById(R.id.loading_bar)
@@ -89,8 +88,5 @@ class SplashActivity : AppCompatActivity() {
         finish()
         Log.d("SplashActivityLog", "SplashActivity finished.")
     }
-
-
-
 
 }

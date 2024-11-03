@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fed Up</string>
+    <!-- TODO: Susa okanye utshintshe le mibhalo yesikhashana -->
+    <string name="hello_blank_fragment">Molo isiqwengana esingenanto</string>
+    <string name="quantity">Ubungakanani</string>
+    <string name="ingredient_name">Igama lesithako</string>
+    <string name="category">Udidi</string>
+    <string name="expiration_date">Umhla wokuphelelwa</string>
+    <string name="remove_item">Susa into</string>
+    <string name="icon">I-icon</string>
+    <string name="dummy_button">Iqhosha elingelilo</string>
+    <string name="dummy_content">UMNQONQO\nUMNQONQO</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Imiyalezo</string>
+    <string name="sync_header">Lungelelanisa</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Utyikityo lwakho</string>
+    <string name="reply_title">Impendulo eqhelekileyo</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Lungelelanisa i-imeyile rhoqo</string>
+    <string name="attachment_title">Khuphela izihlanganisi ezingenayo</string>
+    <string name="attachment_summary_on">Khuphela ngokuzenzekelayo izihlanganisi kwiimeyile ezingenayo</string>
+    <string name="attachment_summary_off">Khuphela izihlanganisi kuphela xa uceliwe ngesandla</string>
+    <string name="ingredient_icon">I-icon yesithako</string>
+    <string name="inventory">Izinto Ezikhoyo</string>
+    <string name="sort_icon">Icon yokuhlela</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Isiqwengana sokuqala</string>
+    <string name="second_fragment_label">Isiqwengana sesibini</string>
+    <string name="next">Okulandelayo</string>
+    <string name="previous">Edlulileyo</string>
+
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="recipe_image">umfanekiso wesidlo</string>
+    <string name="recipe_title_placeholder">isihloko sesidlo</string>
+    <string name="recipe_summary_placeholder">isishwankathelo sesidlo</string>
+    <string name="no_ingredients_available">Akukho zithako ezifumanekayo</string>
+    <string name="no_instructions_available">Akukho miyalelo ifumanekayo</string>
+
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.
+    </string>
+    <string name="splash_logo">I-logo yokuvula</string>
+    <string name="default_notification_channel_id">Isaziso sokungagqibekanga</string>
+
+    <string name="sign_in">Ngena</string>
+    <string name="email">I-imeyile</string>
+    <string name="enter_your_email">Faka i-imeyile yakho</string>
+    <string name="password">Iphasiwedi</string>
+    <string name="enter_your_password">Faka iphasiwedi yakho</string>
+    <string name="or">Okanye</string>
+    <string name="continue_with_google">Qhubeka ngeGoogle</string>
+    <string name="don_t_have_an_account">Akunayo iAkhawunti?</string>
+    <string name="sign_up">Bhalisa</string>
+    <string name="sign_up_with_google">Bhalisa ngeGoogle</string>
+    <string name="add_ingredient">Yongeza isithako</string>
+    <string name="tap_to_select_ingredient_image">Cofa ukukhetha umfanekiso wesithako</string>
+    <string name="decrease_quantity">nciphisa ubungakanani</string>
+    <string name="fridge">Isikhenkcisi</string>
+    <string name="increase_quantity">yandisa ubungakanani</string>
+    <string name="save_ingredient_button">Iqhosha Lokugcina Isithako</string>
+    <string name="edit_ingredient">Hlela isithako</string>
+    <string name="category_icon">Icon yesigaba</string>
+    <string name="grams">iigrama</string>
+    <string name="name">Igama:</string>
+    <string name="notes">Amanqaku:</string>
+    <string name="recipe">Isidlo</string>
+    <string name="settings">Useto</string>
+
+    <!-- Appearance Settings -->
+    <string name="appearance">Inkangeleko</string>
+    <string name="theme_color">Umbala Womxholo</string>
+    <string name="language">Ulwimi</string>
+    <string name="choose_language">Khetha ulwimi</string>
+
+    <!-- Notification Settings -->
+    <string name="notifications">Izaziso</string>
+    <string name="enable_notifications">Vumela Izaziso</string>
+    <string name="notification_timing">Ixesha Lezaziso</string>
+
+    <!-- Privacy Settings -->
+    <string name="privacy">Ubumfihlo</string>
+    <string name="share_data">Yabelana Ngolwazi</string>
+
+    <!-- Account Management -->
+    <string name="account_management">Ulawulo lweAkhawunti</string>
+    <string name="change_email_address">Tshintsha Idilesi ye-imeyile</string>
+    <string name="new_email">I-imeyile Entsha</string>
+    <string name="change_password">Tshintsha Iphasiwedi</string>
+    <string name="log_out">Phuma</string>
+    <string name="enable_biometrics">Vumela iBiometrics yeScan Face</string>
+
+    <!-- Help & Support -->
+    <string name="help_support">Uncedo &amp; Inkxaso</string>
+
+    <!-- Data Management -->
+    <string name="data_management">Ulawulo Lwedatha</string>
+    <string name="clear_cache">Coca Ikhache</string>
+
+    <!-- Appearance Settings -->
+    <string name="select_theme_color">Khetha umbala womxholo</string>
+    <string name="select_your_preferred_language">Khetha ulwimi lwakho olukhethwayo</string>
+    <string name="choose_when_to_be_notified_before_ingredients_expire">Khetha ukuba waziswe nini phambi kokuphela kwezithako</string>
+
+    <!-- Notification Settings -->
+    <string name="receive_notifications_about_expiring_ingredients">Fumana izaziso ngezithako eziphelayo</string>
+
+    <!-- Privacy Settings -->
+    <string name="allow_sharing_data_with_third_parties">Vumela ukwabelana ngedatha nezinye iinkampani</string>
+
+    <!-- Account Management -->
+    <string name="change_your_account_email">Tshintsha i-imeyile yakho yeakhawunti</string>
+    <string name="change_your_account_password">Tshintsha iphasiwedi yakho yeakhawunti</string>
+    <string name="log_out_of_your_account">Phuma kwiakhawunti yakho</string>
+    <string name="use_your_face_fingerprint_as_extra_security_layer_for_scan_to_sign_in">Sebenzisa ubuso bakho/imizila yezithupha njengesigaba esongezelelekileyo sokhuseleko lokungena</string>
+
+    <!-- Help & Support -->
+    <string name="get_help_and_contact_support">Fumana uncedo kwaye uqhagamshelane nenkxaso</string>
+
+    <!-- Data Management -->
+    <string name="clear_cached_data">Coca idatha ekhutshelwe ngaphakathi</string>
+    <string name="ingredients">Izithako</string>
+    <string name="instructions">Imiyalelo</string>
+
+</resources>

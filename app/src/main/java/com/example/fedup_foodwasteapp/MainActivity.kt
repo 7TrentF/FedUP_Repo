@@ -1,6 +1,7 @@
 package com.example.fedup_foodwasteapp
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
@@ -32,6 +33,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.navigation.fragment.NavHostFragment
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.preference.PreferenceManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.snackbar.Snackbar
@@ -285,4 +287,11 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+    override fun attachBaseContext(newBase: Context) {
+        val languageCode = PreferenceManager.getDefaultSharedPreferences(newBase).getString("language_preference", "en") ?: "en"
+        val context = LocaleHelper.wrap(newBase, languageCode)
+        super.attachBaseContext(context)
+    }
+
 }

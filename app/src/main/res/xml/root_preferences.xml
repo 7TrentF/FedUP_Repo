@@ -1,61 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Account Management -->
-    <PreferenceCategory
-    android:title="App Management">
-
-
-
     <!-- Appearance Settings -->
-    <ListPreference
-        android:key="theme_color"
-        android:title="Theme Color"
-        android:summary="Select the theme color" />
-    <!--
-       android:entries="@array/theme_colors"
-       android:entryValues="@array/theme_color_values" /> -->
+    <PreferenceCategory android:title="@string/appearance">
+        <ListPreference
+            android:key="theme_color"
+            android:title="@string/theme_color"
+            android:summary="@string/select_theme_color" />
 
-    <!-- Privacy Settings -->
-    <CheckBoxPreference
-        android:key="share_data"
-        android:title="Share Data"
-        android:summary="Allow sharing data with third parties" />
-
+        <ListPreference
+            android:key="language_preference"
+            android:title="@string/language"
+            android:summary="@string/select_your_preferred_language"
+            android:entries="@array/language_names"
+            android:entryValues="@array/language_codes"
+            android:defaultValue="en"
+            android:dialogTitle="@string/choose_language" />
     </PreferenceCategory>
 
+    <!-- Notification Settings -->
+    <PreferenceCategory android:title="@string/notifications">
+        <SwitchPreferenceCompat
+            android:key="enable_notifications"
+            android:title="@string/enable_notifications"
+            android:summary="@string/receive_notifications_about_expiring_ingredients"
+            android:defaultValue="true" />
+
+        <ListPreference
+            android:key="notification_timing"
+            android:title="@string/notification_timing"
+            android:summary="@string/choose_when_to_be_notified_before_ingredients_expire"
+            android:entries="@array/notification_timing_entries"
+            android:entryValues="@array/notification_timing_values"
+            android:defaultValue="3"
+            android:dependency="enable_notifications" />
+    </PreferenceCategory>
+
+    <!-- Privacy Settings -->
+    <PreferenceCategory android:title="@string/privacy">
+        <CheckBoxPreference
+            android:key="share_data"
+            android:title="@string/share_data"
+            android:summary="@string/allow_sharing_data_with_third_parties" />
+    </PreferenceCategory>
 
     <!-- Account Management -->
-    <PreferenceCategory
-        android:title="Account Management">
-
-        <!-- User Information -->
+    <PreferenceCategory android:title="@string/account_management">
         <EditTextPreference
             android:key="user_name"
-            android:title="Change Email address"
-            android:summary="Change your account email "
-            android:dialogTitle="User Name" />
-
+            android:title="@string/change_email_address"
+            android:summary="@string/change_your_account_email"
+            android:dialogTitle="@string/new_email" />
 
         <Preference
             android:key="change_password"
-            android:title="Change Password"
-            android:summary="Change your account password" />
+            android:title="@string/change_password"
+            android:summary="@string/change_your_account_password" />
+
         <Preference
             android:key="logout"
-            android:title="Log Out"
-            android:summary="Log out of your account" />
+            android:title="@string/log_out"
+            android:summary="@string/log_out_of_your_account" />
+
+        <SwitchPreferenceCompat
+            android:key="enable_biometrics"
+            android:title="@string/enable_biometrics"
+            android:summary="@string/use_your_face_fingerprint_as_extra_security_layer_for_scan_to_sign_in"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
     <!-- Help & Support -->
-    <Preference
-        android:key="help_support"
-        android:title="Help &amp; Support"
-        android:summary="Get help and contact support" />
+    <PreferenceCategory android:title="@string/help_support">
+        <Preference
+            android:key="help_support"
+            android:title="@string/help_support"
+            android:summary="@string/get_help_and_contact_support" />
+    </PreferenceCategory>
 
     <!-- Data Management -->
-    <Preference
-        android:key="clear_cache"
-        android:title="Clear Cache"
-        android:summary="Clear cached data" />
-
+    <PreferenceCategory android:title="@string/data_management">
+        <Preference
+            android:key="clear_cache"
+            android:title="@string/clear_cache"
+            android:summary="@string/clear_cached_data" />
+    </PreferenceCategory>
 </PreferenceScreen>

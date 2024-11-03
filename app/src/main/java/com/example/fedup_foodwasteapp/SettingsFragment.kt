@@ -21,7 +21,10 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.android.material.textfield.TextInputLayout
-
+import androidx.preference.*
+import android.content.Context
+import android.content.res.Configuration
+import java.util.Locale
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -44,6 +47,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
         logoutPreference?.setOnPreferenceClickListener {
             authManager.logoutUser(requireContext())
             Log.d("SettingsFragment", "User logged out.")
+            true
+        }
+
+        // Language Preference
+        val languagePreference = findPreference<ListPreference>("language_preference")
+        languagePreference?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+            val newLanguageCode = newValue as String
+            setLocale(requireContext(), newLanguageCode)
+            requireActivity().recreate() // Restart to apply new language
             true
         }
 
@@ -84,6 +96,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     Snackbar.make(view, "Failed to update email: ${task.exception?.message}", Snackbar.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun setLocale(context: Context, languageCode: String) {
+        val wrappedContext = LocaleHelper.wrap(context, languageCode)
+        requireActivity().apply {
+            finish()
+            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK))
+            overridePendingTransition(0, 0)  // Avoid transition flash on restart
+        }
     }
 
     private fun updatePassword(newPassword: String) {
@@ -188,13 +209,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        requireActivity().setTheme(R.style.SettingsTheme)
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
+        view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.grey))
         return view
     }
 }
-
-
-
-
-

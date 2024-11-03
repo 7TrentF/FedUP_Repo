@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashActivity"
-    android:background="@color/darkgrey">
+    android:background="@drawable/splash_gradient_background"
+    android:animateLayoutChanges="true"
+    tools:context=".SplashActivity">
+
+    <!-- Add a subtle animated background shape -->
+    <View
+        android:id="@+id/background_shape"
+        android:layout_width="800dp"
+        android:layout_height="800dp"
+        android:background="@drawable/circular_gradient"
+        android:alpha="0.15"
+        android:rotation="45"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/splash_logo"
         android:layout_width="410dp"
         android:layout_height="244dp"
         android:contentDescription="@string/splash_logo"
+        android:elevation="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/fed_up_logo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.126" />
-
+        app:layout_constraintVertical_bias="0.032" />
 
     <TextView
         android:id="@+id/textView"
@@ -33,28 +46,36 @@
         android:text="Loading..."
         android:textSize="28sp"
         android:textColor="@color/white"
+        android:fontFamily="sans-serif-medium"
+        android:elevation="8dp"
+        android:shadowColor="#40000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/splash_logo" />
 
     <ProgressBar
         android:id="@+id/loading_bar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
         android:indeterminate="true"
         android:indeterminateTint="@color/green"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.139" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
+    <!-- Add shine effect overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@drawable/shine_line"
+        android:alpha="0.3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

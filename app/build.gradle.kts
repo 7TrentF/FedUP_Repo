@@ -43,6 +43,15 @@ android {
 }
 
 dependencies {
+
+    implementation (libs.material.v1110) // Use latest stable version
+
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-analytics")
+
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

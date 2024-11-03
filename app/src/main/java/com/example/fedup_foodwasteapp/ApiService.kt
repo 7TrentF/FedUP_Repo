@@ -38,6 +38,14 @@ interface ApiService {
         @Path("category") category: String // The category of ingredients to retrieve
     ): Response<List<Ingredient>> // Returns a Response containing a list of Ingredient objects in the specified category
 
+    @FormUrlEncoded
+    @POST("expiration-data") // Replace with your actual endpoint
+    suspend fun sendExpirationData(
+        @Header("Authorization") token: String,
+        @Field("fcmToken") fcmToken: String,
+        @Field("notificationData") notificationData: Map<String, String>
+    ): Response<Unit>
+
 
 
 

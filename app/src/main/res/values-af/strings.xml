@@ -1,0 +1,167 @@
+<resources>
+    <string name="app_name">Keelvol</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hallo leë fragment</string>
+    <string name="quantity">Hoeveelheid</string>
+    <string name="ingredient_name">Naam van bestanddeel</string>
+    <string name="category">kategorie</string>
+    <string name="expiration_date">Vervaldatum</string>
+    <string name="remove_item">Verwyder item</string>
+    <string name="icon">ikoon</string>
+    <string name="dummy_button">Dummy-knoppie</string>
+    <string name="dummy_content">DUMMY\nINHOUD</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Boodskappe</string>
+    <string name="sync_header">Sinkroniseer</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Jou handtekening</string>
+    <string name="reply_title">Verstek antwoord handeling</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sinkroniseer e-pos van tyd tot tyd</string>
+    <string name="attachment_title">Laai inkomende aanhangsels af</string>
+    <string name="attachment_summary_on">Laai outomaties aanhegsels af vir inkomende e-posse</string>
+    <string name="attachment_summary_off">Laai slegs aanhegsels af wanneer dit met die hand versoek word</string>
+    <string name="ingredient_icon">bestanddeel ikoon</string>
+    <string name="inventory">Voorraad</string>
+    <string name="sort_icon">Sorteer ikoon</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Eerste Fragment</string>
+    <string name="second_fragment_label">Tweede Fragment</string>
+    <string name="next">Volgende</string>
+    <string name="previous">Vorige</string>
+
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="recipe_image">resep_beeld</string>
+    <string name="recipe_title_placeholder">recipe_title_placeholder</string>
+    <string name="recipe_summary_placeholder">resep_opsomming_plekhouer</string>
+    <string name="no_ingredients_available">Geen bestanddele beskikbaar nie</string>
+    <string name="no_instructions_available">Geen instruksies beskikbaar nie</string>
+
+
+
+
+    <string name="lorem_ipsum">Die kliënt is baie belangrik, die kliënt sal deur die kliënt gevolg word. Vir die sjokoladeslaai. Maurice
+        lewe, die pyn is soms \'n korporaal, die gelag van die pyn moet gelees word, laat dit baie vaste eiendom wees
+        Ek lag nie eers nie. Maecenas was nie \'n lid nie, behalwe, of so is gesê. Die klas is geneig om stilswyend en vriendelik te wees
+        hulle verdraai die oewers deur ons huwelike, deur ons himene-projekte. Dit is vleiend vir tieners
+        diam, of rutrum tellus vulputate quis Sommige mense moet gratis busse, finansiering van die spelers van
+        om van te versier Maar CNN is soos \'n gratis aanlooppoort. Bly in die genoemde land.\n\n
+        Soms word die massering vooraf gedoen. Sommige het nie eens \'n kursus nie. Dit is \'n wonderlike resep vir siektes. Ons leef
+        die nood, dit is \'n kwessie van nood, die lelike spelers het hom geteiken, maar in genoemde streek pyn
+        ook nie Morbi was die land, die proteïen was soos \'n slaai, die teikens van die ontwikkelaars. Soms word dit verwag
+        honger en voor hom die eerste in die keel. Curabitur et eros porttitor, ultricies urna vitae,
+        salaris Gebruik die boot op jou gemak, en moenie die vragmotors vrees nie. Maar die grootste aanhangers is nie die pyn nie
+        hy benodig \'n drankie of huiswerk.\n\n
+        Maar soms die tortor nibh, in die pyle wat sag lag. Gesels met my, laat dit \'n storie wees
+        maar die skrywer is sag, nie lelik nie. Geen gratis proef nie, vir kliniese doeleindes of
+        werknemer as Fusce vlei geen tincidunt, wat omgee gratis en maklik. Voltooi
+        nou en dan die wet, en die vrees vir die fermentasie van die amp. Daar is gesê dat die bed van die kat
+        Lacinia gaan pret wees, hoe hartseer is dit nie. Môre sal ek vir jou \'n uitslag gee. Teken nou in
+        sit dit in die boks, maar Dit is \'n wonderlike basketbalspeler, in rou. Maar van die kinders
+        is.\n\n
+        Aenean wil nou hê, maar Lacinia is hartseer, maar daar is geen basketbal-spotprent nie. Selfs uit \'n vergiftigde boek.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nula, id elementum leo dui
+        nie die internet nie. Trouens, die skrywer van die casino is baie sag. Elke element van gratis sokker is gerieflik. In
+        eros nisl, belegging of belegging en, sjokolade van mauris. Kinders is van nou af anders,
+        wat die geld belê en Dit het twee kliniese doeleindes en is die skrywer van die ontwikkelaar. Maar nie spotprente nie
+        baie Nou, wie wil adverteer, \'n kursus hou en \'n werknemer wees. Die siekte sal hom volg, a
+        plaas diam. Selfs vulputate dignissim convallis. Dit behoort aan die einde van die dag vol pret te wees
+        vallei.\n\n
+        Boot op my trokke. Kinders leef op oudag en kleinkinders
+        verwagte honger en slegte behoeftes. In die loopbaan van die boog as \'n sneller van pyle, in die punte van die massa
+        swanger Die kinders van daardie streek van die hospitaal. Dit is volledig gesê, maar dit is in \'n notaboek gemaak,
+        Hy sal net so vrylik agtervolg word, in sagte niss van maar nislis. Tot die grootste korporaal
+        lede Dit is tyd om die land te drink en nie die land nie. In \'n dek is daar geen Tot CNN
+        vry of nou die resultaat, wie kan tincidunt nisl eleifend. Môre moet ons drink uit \'n regverdige rou
+        voorportaal Fusce het vir die vrye man wat die grootste was, die dignistis van die lewe van sy lewe gesê.</string>
+
+
+    <string name="splash_logo">Beginlogo</string>
+    <string name="sign_in">Teken In</string>
+    <string name="email">E-pos</string>
+    <string name="enter_your_email">Voer jou e-pos in</string>
+    <string name="password">Wagwoord</string>
+    <string name="enter_your_password">Voer jou wagwoord in</string>
+    <string name="or">Of</string>
+    <string name="continue_with_google">Gaan voort met Google</string>
+    <string name="don_t_have_an_account">Het jy nie \'n rekening nie?</string>
+    <string name="sign_up">Registreer</string>
+    <string name="sign_up_with_google">Registreer met Google</string>
+    <string name="add_ingredient">Voeg Bestanddeel By</string>
+    <string name="tap_to_select_ingredient_image">Tik om bestanddeelbeeld te kies</string>
+    <string name="decrease_quantity">verlaag hoeveelheid</string>
+    <string name="fridge">Yskas</string>
+    <string name="increase_quantity">verhoog hoeveelheid</string>
+    <string name="save_ingredient_button">Stoor Bestanddeel Knoppie</string>
+    <string name="edit_ingredient">Wysig Bestanddeel</string>
+    <string name="category_icon">Kategorie-ikoon</string>
+    <string name="grams">gram</string>
+    <string name="name">Naam:</string>
+
+    <string name="notes">Notas:</string>
+    <string name="recipe">Resep</string>
+    <string name="settings">Instellings</string>
+
+    <!-- Appearance Settings -->
+        <string name="appearance">Voorkoms</string>
+        <string name="theme_color">Temakleur</string>
+        <string name="language">Taal</string>
+        <string name="choose_language">Kies Taal</string>
+
+        <!-- Notification Settings -->
+        <string name="notifications">Kennisgewings</string>
+        <string name="enable_notifications">Aktiveer Kennisgewings</string>
+        <string name="notification_timing">Kennisgewing Tydsberekening</string>
+
+        <!-- Privacy Settings -->
+        <string name="privacy">Privaatheid</string>
+        <string name="share_data">Deel Data</string>
+
+        <!-- Account Management -->
+        <string name="account_management">Rekeningbestuur</string>
+        <string name="change_email_address">Verander E-posadres</string>
+        <string name="new_email">Nuwe E-pos</string>
+        <string name="change_password">Verander Wagwoord</string>
+        <string name="log_out">Teken Uit</string>
+        <string name="enable_biometrics">Aktiveer Gesigsherkenning Biometrics</string>
+
+        <!-- Help & Support -->
+        <string name="help_support">Hulp &amp; Ondersteuning</string>
+
+        <!-- Data Management -->
+        <string name="data_management">Databestuur</string>
+        <string name="clear_cache">Maak Kas skoon</string>
+
+
+    <!-- Appearance Settings -->
+    <string name="select_theme_color">Kies die tema kleur</string>
+    <string name="select_your_preferred_language">Kies jou voorkeur taal</string>
+    <string name="choose_when_to_be_notified_before_ingredients_expire">Kies wanneer jy kennisgewing wil ontvang voordat bestanddele verval</string>
+
+    <!-- Notification Settings -->
+    <string name="receive_notifications_about_expiring_ingredients">Ontvang kennisgewings oor vervallende bestanddele</string>
+
+    <!-- Privacy Settings -->
+    <string name="allow_sharing_data_with_third_parties">Toestaan om data met derde partye te deel</string>
+
+    <!-- Account Management -->
+    <string name="change_your_account_email">Verander jou rekening e-pos</string>
+    <string name="change_your_account_password">Verander jou rekening wagwoord</string>
+    <string name="log_out_of_your_account">Teken uit van jou rekening</string>
+    <string name="use_your_face_fingerprint_as_extra_security_layer_for_scan_to_sign_in">Gebruik jou gesig/vingerafdruk as n ekstra sekuriteitslaag om in te teken</string>
+
+    <!-- Help & Support -->
+    <string name="get_help_and_contact_support">Kry hulp en kontak ondersteuning</string>
+
+
+
+
+    <!-- Data Management -->
+    <string name="clear_cached_data">Vee gelaaide data uit</string>
+    <string name="ingredients">Bestanddele</string>
+    <string name="instructions">Instruksies</string>
+
+</resources>
