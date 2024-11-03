@@ -21,15 +21,13 @@
         android:title="Share Data"
         android:summary="Allow sharing data with third parties" />
 
-
         <ListPreference
             android:key="language_preference"
             android:title="Language"
-            android:summary="Select your preferred language"
             android:entries="@array/language_names"
-            android:entryValues="@array/language_codes"
-            android:defaultValue="en"
-            android:dialogTitle="Choose Language" />
+            android:entryValues="@array/language_values"
+            android:defaultValue="en" />
+
 
     </PreferenceCategory>
 

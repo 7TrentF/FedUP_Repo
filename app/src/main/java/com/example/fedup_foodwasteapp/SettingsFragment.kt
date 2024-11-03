@@ -214,6 +214,7 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.text.InputType
 import com.google.android.material.textfield.TextInputEditText
@@ -275,13 +276,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun setLocale(context: Context, languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val config = Configuration()
-        config.setLocale(locale)
-
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+        val wrappedContext = LocaleHelper.wrap(context, languageCode)
+        requireActivity().apply {
+            finish()
+            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK))
+            overridePendingTransition(0, 0)  // Avoid transition flash on restart
+        }
     }
 
     private fun updateEmail(newEmail: String) {
