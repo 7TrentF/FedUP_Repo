@@ -153,8 +153,8 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilQuantity"
-        android:layout_width="130dp"
-        android:layout_height="41dp"
+        android:layout_width="252dp"
+        android:layout_height="42dp"
         android:layout_marginTop="26dp"
         app:boxBackgroundColor="#33FFFFFF"
         app:boxCornerRadiusBottomEnd="8dp"
@@ -162,7 +162,7 @@
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
         app:hintEnabled="false"
-        app:layout_constraintEnd_toStartOf="@+id/spinnerUnit"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tilExpirationDate">
 
@@ -178,16 +178,7 @@
             android:textColorHint="@color/lightgrey" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Spinner
-        android:id="@+id/spinnerUnit"
-        android:layout_width="117dp"
-        android:layout_height="41dp"
-        android:background="@drawable/custom_text_box"
-        android:popupBackground="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/tilQuantity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tilQuantity"
-        app:layout_constraintTop_toTopOf="@+id/tilQuantity" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilNotes"
         android:layout_width="251dp"

@@ -140,7 +140,7 @@ class EditIngredientDialogFragment : DialogFragment() {
             val updatedIngredient = Ingredient(
                 id = ingredient.id, // We'll get the correct ID in the repository
                 productName = binding.etIngredientName.text.toString(),
-                quantity = quantity,
+                quantity = binding.etQuantity.text.toString(),
                 expirationDate = binding.etExpirationDate.text.toString(),
                 category = binding.tvCategory.text.toString(),
                 firebaseId = ingredient.firebaseId, // Make sure to keep the firebase_id
