@@ -1,5 +1,6 @@
 package com.example.fedup_foodwasteapp
 
+import android.app.NotificationManager
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -25,13 +26,27 @@ import androidx.preference.*
 import android.content.Context
 import android.content.res.Configuration
 import java.util.Locale
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.work.WorkManager
 
-
+import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.preference.ListPreference
+import androidx.preference.SwitchPreferenceCompat
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import com.google.android.datatransport.cct.internal.NetworkConnectionInfo
+import android.provider.Settings
+import java.util.concurrent.TimeUnit
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private val authManager: AuthManager by lazy { AuthManager.getInstance() }
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUser: FirebaseUser
+    private val appPreferences by lazy { AppPreferences.getInstance(requireContext()) }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
@@ -50,6 +65,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+
+
         // Language Preference
         val languagePreference = findPreference<ListPreference>("language_preference")
         languagePreference?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
@@ -58,6 +75,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
             requireActivity().recreate() // Restart to apply new language
             true
         }
+
+        setupNotificationPreferences()
+
+        val timingPreference: ListPreference? = findPreference("notification_timing")
+        timingPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val days = newValue.toString()
+            // Save to SharedPreferences
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("notification_timing", days)
+                .apply()
+            true
+        }
+
+
 
         // Email (Username) change
         val usernamePreference: EditTextPreference? = findPreference("user_name")
@@ -82,7 +114,96 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
+
+    // Biometric authentication preference
+    val biometricPreference: SwitchPreferenceCompat? = findPreference("enable_biometrics") // Updated key
+    biometricPreference?.setOnPreferenceChangeListener { _, newValue ->
+        if (newValue as Boolean) {
+            enableBiometricAuthentication()
+        } else {
+            disableBiometricAuthentication()
+        }
+        true
     }
+}
+
+
+    private fun enableBiometricAuthentication() {
+        val biometricManager = BiometricManager.from(requireContext())
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                showBiometricPrompt { success ->
+                    if (success) {
+                        saveBiometricEnabledState(true)
+                        Toast.makeText(requireContext(), "Biometric authentication enabled", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                Toast.makeText(requireContext(), "No biometric hardware available.", Toast.LENGTH_SHORT).show()
+            }
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                Toast.makeText(requireContext(), "Biometric hardware unavailable.", Toast.LENGTH_SHORT).show()
+            }
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                    putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED, BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+                }
+                startActivity(enrollIntent)
+            }
+        }
+    }
+
+    // Save biometric authentication preference in SharedPreferences
+    private fun saveBiometricEnabledState(isEnabled: Boolean) {
+        val preferences = requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            preferences.edit().putBoolean("biometric_enabled_$userId", isEnabled).apply()
+        }
+    }
+
+    private fun disableBiometricAuthentication() {
+        val preferences = requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            preferences.edit().remove("biometric_enabled_$userId").apply()
+        }
+        Toast.makeText(requireContext(), "Biometric authentication disabled.", Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun showBiometricPrompt(onAuthenticationSuccess: (Boolean) -> Unit) {
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Enable Biometric Authentication")
+            .setSubtitle("Use your biometrics to log in for enhanced security.")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        val biometricPrompt = BiometricPrompt(this, ContextCompat.getMainExecutor(requireContext()),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    Toast.makeText(requireContext(), "Biometric authentication enabled", Toast.LENGTH_SHORT).show()
+                    onAuthenticationSuccess(true)  // Notify success
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    Toast.makeText(requireContext(), "Authentication failed. Try again.", Toast.LENGTH_SHORT).show()
+                    onAuthenticationSuccess(false)  // Notify failure
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    Toast.makeText(requireContext(), "Error: $errString", Toast.LENGTH_SHORT).show()
+                    onAuthenticationSuccess(false)  // Notify failure
+                }
+            })
+        biometricPrompt.authenticate(promptInfo)
+    }
+
+
 
     private fun updateEmail(newEmail: String) {
         currentUser.updateEmail(newEmail)
@@ -204,6 +325,68 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
         }
     }
+
+
+    private fun setupNotificationPreferences() {
+        val notificationPreference: SwitchPreferenceCompat? = findPreference("enable_notifications")
+        val timingPreference: ListPreference? = findPreference("notification_timing")
+
+        // Set initial state
+        notificationPreference?.isChecked = appPreferences.areNotificationsEnabled()
+        timingPreference?.isEnabled = notificationPreference?.isChecked == true
+
+        notificationPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val enabled = newValue as Boolean
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean("enable_notifications", enabled)
+                .apply()
+
+            if (!enabled) {
+                val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancelAll()
+                WorkManager.getInstance(requireContext())
+                    .cancelUniqueWork("ExpirationCheckWork")
+            } else {
+                scheduleExpirationCheck(requireContext())
+            }
+
+            timingPreference?.isEnabled = enabled
+            true
+        }
+
+        timingPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val days = newValue.toString()
+            requireContext().getSharedPreferences("FedUpPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("notification_timing", days)
+                .apply()
+            true
+        }
+    }
+
+    // Add this function to handle work scheduling
+    private fun scheduleExpirationCheck(context: Context) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<ExpirationCheckWorker>(
+            1, TimeUnit.DAYS,
+            15, TimeUnit.MINUTES
+        )
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context)
+            .enqueueUniquePeriodicWork(
+                "ExpirationCheckWork",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                workRequest
+            )
+    }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

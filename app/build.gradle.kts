@@ -46,6 +46,8 @@ dependencies {
 
     implementation (libs.material.v1110) // Use latest stable version
 
+    implementation (libs.androidx.biometric) // Latest version may vary
+
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
