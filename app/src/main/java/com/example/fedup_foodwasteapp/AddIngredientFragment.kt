@@ -42,6 +42,7 @@ class AddIngredientFragment : DialogFragment() {
     private lateinit var btnMinus: ImageButton
     private var currentCategoryIndex = 0
     private lateinit var ingredientImageView: ImageView
+    private var selectedIconResourceId: Int = R.drawable.ic_question_mark // Default icon
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
