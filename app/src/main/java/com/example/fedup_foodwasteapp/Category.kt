@@ -1,8 +1,10 @@
 package com.example.fedup_foodwasteapp
 
-enum class Category(val displayName: String) {
-    UNCATEGORIZED("Uncategorized"),
-    FRIDGE("Fridge"),
-    FREEZER("Freezer"),
-    PANTRY("Pantry")
+import android.support.annotation.StringRes
+
+enum class Category(@StringRes val displayNameResourceId: Int) {
+    UNCATEGORIZED(R.string.category_uncategorized),
+    FRIDGE(R.string.category_fridge),
+    FREEZER(R.string.category_freezer),
+    PANTRY(R.string.category_pantry)
 }

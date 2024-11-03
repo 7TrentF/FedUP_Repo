@@ -28,6 +28,7 @@ import androidx.work.WorkManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -77,13 +78,14 @@ class InventoryFragment : BaseFragment() {
         expiringSoonTextView = view.findViewById(R.id.tv_warning)
         expiredTextView = view.findViewById(R.id.tv_expired)
 
-        // Fetch ingredients from API and update TextViews
-       // fetchAndDisplayIngredientCounts()
-
 
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
         //syncIngredientsIfOnline()
+
+
+
+        fetchAndDisplayIngredientCountsOffline()
 
 
         // Initialize the RecyclerView and its layout manager.
@@ -162,14 +164,9 @@ class InventoryFragment : BaseFragment() {
             }
         }
     }
-
-
-
-
-    // Displays a dialog for category selection.
     private fun showCategorySelectionDialog() {
         // Get the display names of the categories.
-        val categories = Category.values().map { it.displayName }.toTypedArray()
+        val categories = Category.values().map { getString(it.displayNameResourceId) }.toTypedArray()
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Select Category")
 
@@ -188,9 +185,13 @@ class InventoryFragment : BaseFragment() {
 
 
     private fun  showSortSelectionDialog(){
-        val options = arrayOf("About to Expire", "Alphabetical")
+        val options = arrayOf(
+            getString(R.string.about_to_expire),
+            getString(R.string.alphabetical)
+        )
+
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Sort By")
+        builder.setTitle(R.string.sort_by)
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> { // About to Expire
@@ -251,6 +252,17 @@ class InventoryFragment : BaseFragment() {
         }
     }
 
+
+
+
+    private fun fetchAndDisplayIngredientCountsOffline() {
+        ingredientViewModel.fetchAndDisplayIngredientCounts(
+            freshTextView,
+            expiringSoonTextView,
+            expiredTextView
+        )
+    }
+
     private fun fetchAndDisplayIngredientCounts() {
         // Launch a coroutine in the IO dispatcher for making network requests.
         CoroutineScope(Dispatchers.IO).launch {
@@ -290,6 +302,9 @@ class InventoryFragment : BaseFragment() {
             }
         }
     }
+
+
+
 
 
     // Called after the view hierarchy associated with the fragment has been created.
@@ -374,14 +389,23 @@ class InventoryFragment : BaseFragment() {
 
                         view?.findViewById<Button>(R.id.retryButton)?.setOnClickListener {
                             setupViewModel() // Retry loading data
+                            // Fetch ingredients from API and update TextViews
+                           // fetchAndDisplayIngredientCounts()
+
                         }
                     } else if (!NetworkUtils.isNetworkAvailable(requireContext())) {
                         // Explicit Offline: Load from Room
                         ingredientViewModel.loadFromRoomOffline()
+                      //  fetchAndDisplayIngredientCountsOffline()
+
                     }
                 }
             }
         }
+
+
+
+
 
         // Observe filteredIngredients to ensure RecyclerView is updated when data changes
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
@@ -402,25 +426,6 @@ class InventoryFragment : BaseFragment() {
             }
         }
 
-
-      /*
-        // Observe network changes
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                NetworkMonitor(requireContext()).isNetworkAvailable.collect { isAvailable ->
-                    if (isAvailable) {
-                        // Online: Sync with Firebase
-                        ingredientViewModel.fetchIngredientsFromFirebase()
-                        ingredientViewModel.observeIngredientChanges()
-                    } else if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-                        // Explicit Offline: Load from Room
-                        ingredientViewModel.loadFromRoomOffline()
-                    }
-                }
-
-            }
-        }
-       */
     }
 
 

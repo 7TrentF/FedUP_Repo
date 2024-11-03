@@ -8,10 +8,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -49,13 +53,14 @@ class AddIngredientFragment : DialogFragment() {
         btnPlus = view.findViewById(R.id.btn_plus)
         btnMinus = view.findViewById(R.id.btn_minus)
         val expirationDateEditText = view.findViewById<EditText>(R.id.et_expiration_date)
-        val categories = Category.entries.toTypedArray()
-        tvCategory.text = categories[currentCategoryIndex].displayName
+        val categories = Category.values() // Use values() to get enum constants
+
+        tvCategory.text = getString(categories[currentCategoryIndex].displayNameResourceId)
 
         // Plus button click
         btnPlus.setOnClickListener {
             currentCategoryIndex = (currentCategoryIndex + 1) % categories.size
-            tvCategory.text = categories[currentCategoryIndex].displayName
+            tvCategory.text = getString(categories[currentCategoryIndex].displayNameResourceId) // Update text with string resource
         }
 
         // Minus button click
@@ -65,7 +70,28 @@ class AddIngredientFragment : DialogFragment() {
             } else {
                 currentCategoryIndex - 1
             }
-            tvCategory.text = categories[currentCategoryIndex].displayName
+            tvCategory.text = getString(categories[currentCategoryIndex].displayNameResourceId) // Update text with string resource
+        }
+
+// In your Fragment
+        val spinner = view.findViewById<Spinner>(R.id.spinnerUnit)
+        val units = arrayOf("kg", "g", "lb", "oz", "L", "mL", "units")
+
+        val textColor = ContextCompat.getColor(requireContext(), R.color.white)
+
+// Use requireContext() instead of 'this' since we're in a Fragment
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, units.toList())
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {
+                val selectedUnit = units[pos]
+                (view as? TextView)?.setTextColor(textColor)            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Another interface callback
+            }
         }
 
         expirationDateEditText.setOnClickListener {
@@ -89,15 +115,25 @@ class AddIngredientFragment : DialogFragment() {
 
         view.findViewById<ImageButton>(R.id.btnSaveIngredient).setOnClickListener {
             val name = view.findViewById<EditText>(R.id.et_ingredient_name).text.toString()
-            val quantity = view.findViewById<EditText>(R.id.et_quantity).text.toString()
             val expirationDate = expirationDateEditText.text.toString()
+            val quantityValue = view.findViewById<EditText>(R.id.et_quantity).text.toString()
+            val selectedUnit = spinner.selectedItem.toString()
+
+            // Validate that quantity is not empty
+            if (quantityValue.isEmpty()) {
+                view.findViewById<EditText>(R.id.et_quantity).error = "Quantity is required"
+                return@setOnClickListener
+            }
+
+            // Combine quantity and unit
+            val quantity = "$quantityValue $selectedUnit"
 
             insertIngredient(
                 name,
-                quantity,
-                categories[currentCategoryIndex].displayName,
+                quantity,  // This now contains both the number and unit (e.g. "500 g")
+                getString(categories[currentCategoryIndex].displayNameResourceId), // Get category name from resources
                 expirationDate,
-                requireContext() // Pass context for network check
+                requireContext()
             )
         }
 

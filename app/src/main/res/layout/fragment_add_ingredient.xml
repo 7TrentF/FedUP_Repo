@@ -52,8 +52,8 @@
     <!-- Category Selection Section -->
     <androidx.cardview.widget.CardView
         android:id="@+id/categoryCard"
-        android:layout_width="332dp"
-        android:layout_height="45dp"
+        android:layout_width="341dp"
+        android:layout_height="55dp"
         android:layout_marginHorizontal="16dp"
         app:cardBackgroundColor="#33FFFFFF"
         app:cardCornerRadius="12dp"
@@ -156,10 +156,11 @@
             android:textColorHint="@color/lightgrey" />
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilQuantity"
-        android:layout_width="251dp"
-        android:layout_height="38dp"
+        android:layout_width="130dp"
+        android:layout_height="41dp"
         android:layout_marginTop="26dp"
         app:boxBackgroundColor="#33FFFFFF"
         app:boxCornerRadiusBottomEnd="8dp"
@@ -167,14 +168,14 @@
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
         app:hintEnabled="false"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerUnit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tilExpirationDate">
 
         <EditText
             android:id="@+id/et_quantity"
             android:layout_width="match_parent"
-            android:layout_height="31dp"
+            android:layout_height="match_parent"
             android:background="@drawable/custom_text_box"
             android:gravity="center"
             android:hint="@string/quantity"
@@ -183,6 +184,16 @@
             android:textColorHint="@color/lightgrey" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/spinnerUnit"
+        android:layout_width="117dp"
+        android:layout_height="41dp"
+        android:background="@drawable/custom_text_box"
+        android:popupBackground="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/tilQuantity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tilQuantity"
+        app:layout_constraintTop_toTopOf="@+id/tilQuantity" />
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilNotes"
         android:layout_width="251dp"
@@ -211,20 +222,20 @@
 
     <ImageButton
         android:id="@+id/btnSaveIngredient"
-        android:layout_width="105dp"
-        android:layout_height="72dp"
+        android:layout_width="68dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="64dp"
         android:layout_marginTop="44dp"
-        android:layout_marginEnd="12dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/custom_button"
-        android:contentDescription="@string/save_ingredient_button"
 
+        android:contentDescription="@string/save_ingredient_button"
         android:src="@drawable/ic_check"
         app:backgroundTint="@color/green"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tilNotes"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintVertical_bias="0.0"
         app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -157,11 +157,19 @@
     <string name="get_help_and_contact_support">Kry hulp en kontak ondersteuning</string>
 
 
+    <string name="category_uncategorized">Ongekategoriseerd</string>
+    <string name="category_fridge">Yskas</string>
+    <string name="category_freezer">Vrieskas</string>
+    <string name="category_pantry">Spens</string>
 
 
     <!-- Data Management -->
     <string name="clear_cached_data">Vee gelaaide data uit</string>
     <string name="ingredients">Bestanddele</string>
     <string name="instructions">Instruksies</string>
+
+        <string name="sort_by">Sorteer Volgens</string>
+        <string name="about_to_expire">Gereed om te Verval</string>
+        <string name="alphabetical">Alfabeties</string>
 
 </resources>

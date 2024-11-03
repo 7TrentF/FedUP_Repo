@@ -8,6 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fedup_foodwasteapp.databinding.FragmentEditIngredientBinding
@@ -21,7 +27,7 @@ class EditIngredientDialogFragment : DialogFragment() {
     private val categories = Category.values()
     private var currentCategoryIndex = 0
     lateinit var ingredientViewModel: IngredientViewModel
-
+    private lateinit var spinner : Spinner
     private lateinit var ingredient: Ingredient
 
     // Listener for edit events
@@ -67,8 +73,38 @@ class EditIngredientDialogFragment : DialogFragment() {
             // Log the initial ingredient ID
             Log.d("EditIngredientDialog", "Initial ingredient ID: ${ingredient.id}")
 
+
+
+// In your Fragment
+            spinner = view.findViewById<Spinner>(R.id.spinnerUnit)
+            val units = arrayOf("kg", "g", "lb", "oz", "L", "mL", "units")
+
+            val textColor = ContextCompat.getColor(requireContext(), R.color.white)
+
+// Use requireContext() instead of 'this' since we're in a Fragment
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, units.toList())
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {
+                    val selectedUnit = units[pos]
+                    (view as? TextView)?.setTextColor(textColor)            }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Another interface callback
+                }
+            }
+
+
+
+
             binding.etIngredientName.setText(ingredient.productName)
-            binding.etQuantity.setText(ingredient.quantity)
+
+
+
+
+
 
             // Check if the ingredient has an expiration date
             val expirationDate = ingredient.expirationDate
@@ -93,11 +129,18 @@ class EditIngredientDialogFragment : DialogFragment() {
 
         // Handle save button click
         binding.btnSaveIngredient.setOnClickListener {
+
+            val selectedUnit = spinner.selectedItem.toString()
+
+            val quantityValue = binding.etQuantity.setText(ingredient.quantity)
+
+            // Combine quantity and unit
+            val quantity = "$quantityValue $selectedUnit"
             // Capture the updated ingredient data
             val updatedIngredient = Ingredient(
                 id = ingredient.id, // We'll get the correct ID in the repository
                 productName = binding.etIngredientName.text.toString(),
-                quantity = binding.etQuantity.text.toString(),
+                quantity = quantity,
                 expirationDate = binding.etExpirationDate.text.toString(),
                 category = binding.tvCategory.text.toString(),
                 firebaseId = ingredient.firebaseId, // Make sure to keep the firebase_id
@@ -119,14 +162,6 @@ class EditIngredientDialogFragment : DialogFragment() {
         }
     }
 
-    private fun updateCategoryDisplay() {
-        binding.tvCategory.text = categories[currentCategoryIndex].displayName
-    }
-
-    private fun changeCategory(direction: Int) {
-        currentCategoryIndex = (currentCategoryIndex + direction + categories.size) % categories.size
-        updateCategoryDisplay()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

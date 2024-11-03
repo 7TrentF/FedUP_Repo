@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
@@ -43,6 +44,10 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
     private val coroutineScope = viewModelScope
     private val repository: IngredientRepository
     val allIngredients: Flow<List<Ingredient>>
+
+
+    private val _ingredientCounts = MutableStateFlow<UiState<IngredientCounts>>(UiState.Loading)
+    val ingredientCounts: StateFlow<UiState<IngredientCounts>> = _ingredientCounts.asStateFlow()
 
     // Define the LiveData with the correct type
     //private val _filteredIngredients = MutableLiveData<List<Ingredient>>()
@@ -462,6 +467,8 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
                 Log.w("IngredientViewModel", "Room database returned an empty or null ingredient list.")
             } else {
                 Log.d("IngredientViewModel", "Loaded ${ingredients.size} ingredients from Room database.")
+
+
             }
         }
     }
@@ -695,5 +702,24 @@ class IngredientViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
+    fun fetchAndDisplayIngredientCounts(
+        freshTextView: TextView,
+        expiringSoonTextView: TextView,
+        expiredTextView: TextView
+    ) {
+        viewModelScope.launch {
+            try {
+                val counts = repository.getIngredientCounts()
+                withContext(Dispatchers.Main) {
+                    freshTextView.text = counts.freshCount.toString()
+                    expiringSoonTextView.text = counts.expiringSoonCount.toString()
+                    expiredTextView.text = counts.expiredCount.toString()
+                }
+            } catch (e: Exception) {
+                Log.e("IngredientViewModel", "Failed to fetch ingredient counts", e)
+            }
+        }
+    }
 }
+
+

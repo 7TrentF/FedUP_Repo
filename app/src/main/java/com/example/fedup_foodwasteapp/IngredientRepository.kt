@@ -37,6 +37,9 @@ class IngredientRepository(
         ingredientDao.update(ingredient.copy(isSynced = true))
     }
 
+    suspend fun getIngredientCounts(): IngredientCounts {
+        return ingredientDao.getIngredientCounts()
+    }
 
     suspend fun getIngredientById(id: Long): Ingredient? = withContext(Dispatchers.IO) {
         ingredientDao.getIngredientById(id)

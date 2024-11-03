@@ -131,4 +131,15 @@
     <string name="ingredients">Izithako</string>
     <string name="instructions">Imiyalelo</string>
 
+
+    <string name="category_uncategorized">Akukho Uhlolo</string>
+    <string name="category_fridge">Ifriji</string>
+    <string name="category_freezer">Ifriji Elibandayo</string>
+    <string name="category_pantry">Iphakheji</string>
+
+        <string name="sort_by">Hlula Ngokwe</string>
+        <string name="about_to_expire">Uzakuphelelwa</string>
+        <string name="alphabetical">Ngokwe-Alfabhethi</string>
+
+
 </resources>

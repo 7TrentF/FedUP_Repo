@@ -97,5 +97,19 @@ interface IngredientDao {
     suspend fun getIngredientById(id: Long): Ingredient?
 
 
+    @Query("""
+        SELECT 
+        SUM(CASE WHEN date(expiration_date) > date('now', '+3 days') THEN 1 ELSE 0 END) as freshCount,
+        SUM(CASE 
+            WHEN date(expiration_date) <= date('now', '+3 days') 
+            AND date(expiration_date) >= date('now') THEN 1 
+            ELSE 0 END) as expiringSoonCount,
+        SUM(CASE WHEN date(expiration_date) < date('now') THEN 1 ELSE 0 END) as expiredCount
+        FROM ingredients
+    """)
+    suspend fun getIngredientCounts(): IngredientCounts
 }
+
+
+
 

@@ -165,6 +165,16 @@
     <string name="ingredients">Ingredients</string>
     <string name="instructions">Instructions</string>
 
+    <string name="category_uncategorized">Uncategorized</string>
+    <string name="category_fridge">Fridge</string>
+    <string name="category_freezer">Freezer</string>
+    <string name="category_pantry">Pantry</string>
+
+        <string name="sort_by">Sort By</string>
+        <string name="about_to_expire">About to Expire</string>
+        <string name="alphabetical">Alphabetical</string>
+
+
 
 </resources>
 
