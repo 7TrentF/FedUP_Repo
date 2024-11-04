@@ -19,7 +19,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "Refreshed FCM token: $token")
         // You can store this token in SharedPreferences if needed
         saveTokenToPreferences(token)
     }
@@ -34,17 +33,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        Log.d(TAG, "From: ${remoteMessage.from}")
 
         // Check if message contains data payload
         remoteMessage.data.isNotEmpty().let {
-            Log.d(TAG, "Message data payload: ${remoteMessage.data}")
             handleNotification(remoteMessage.data)
         }
 
         // Check if message contains notification payload
         remoteMessage.notification?.let {
-            Log.d(TAG, "Message Notification Body: ${it.body}")
             it.body?.let { body ->
                 showNotification(
                     it.title ?: "Ingredient Alert",

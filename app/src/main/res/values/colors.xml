@@ -30,4 +30,30 @@
     <color name="snackbar_text_color">#FFFFFF</color> <!-- White text -->
     <color name="snackbar_action_color">#00FF00</color> <!-- Green action text -->
 
+
+
+    <!-- Base colors -->
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_purple">#9C27B0</color>
+    <color name="primary_red">#F44336</color>
+
+    <!-- Theme attributes -->
+    <attr name="themeColor" format="reference|color" />
+
+
+    <!-- Light theme colors -->
+    <color name="primary_light">#2196F3</color>
+    <color name="primary_dark_light">#1976D2</color>
+    <color name="accent_light">#FF4081</color>
+    <color name="background_light">#FFFFFF</color>
+    <color name="text_light">#000000</color>
+
+    <!-- Dark theme colors -->
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_dark_dark">#0D47A1</color>
+    <color name="accent_dark">#FF80AB</color>
+    <color name="background_dark">#121212</color>
+    <color name="text_dark">#FFFFFF</color>
+
 </resources>

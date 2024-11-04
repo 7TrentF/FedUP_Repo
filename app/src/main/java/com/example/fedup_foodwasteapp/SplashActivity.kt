@@ -30,7 +30,6 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash2)
-        Log.d("flow", "this is the SplashActivity")
 
         // Initialize the ViewModel
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
@@ -51,7 +50,6 @@ class SplashActivity : AppCompatActivity() {
             insets
         }
 
-
         // Show loading bar
         loadingBar.visibility = View.VISIBLE
 
@@ -62,31 +60,23 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkAuthentication() {
-        Log.d("SplashActivityLog", "checkAuthentication() called")
-
         // Retrieve the current authenticated user from FirebaseAuth
         val currentUser = mAuth.currentUser
-        Log.d("SplashActivityLog", "Current user: ${currentUser?.uid ?: "No user signed in"}")
 
         // Hide loading bar before navigating
         loadingBar.visibility = View.GONE
-        Log.d("SplashActivityLog", "Loading bar visibility set to GONE")
 
         if (currentUser != null) {
             // If the user is signed in, navigate to MainActivity
-            Log.d("SplashActivityLog", "User is authenticated. Navigating to MainActivity.")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         } else {
             // If no user is signed in, navigate to Login Activity
-            Log.d("SplashActivityLog", "No user is authenticated. Navigating to Login Activity.")
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
-
         // Finish the SplashActivity to prevent the user from returning to it
         finish()
-        Log.d("SplashActivityLog", "SplashActivity finished.")
     }
 
 }

@@ -59,7 +59,6 @@ class RecipeFragment : Fragment() {
 
         authManager.getIdToken { token, error ->
             if (token != null) {
-                Log.d("LoadRecipes", "Firebase token retrieved successfully: $token")
 
                 // Build a standardized Retrofit instance once
                 val recipeRetrofit = Retrofit.Builder()
@@ -83,52 +82,42 @@ class RecipeFragment : Fragment() {
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     try {
-                        Log.d("LoadRecipes", "Fetching ingredients from custom API")
-
                         val ingredientsResponse = RetrofitClient.apiService.getIngredients()
 
                         if (ingredientsResponse.isSuccessful) {
                             val ingredients = ingredientsResponse.body() ?: emptyList()
-                            Log.d("LoadRecipes", "Ingredients fetched: ${ingredients.size} items")
 
                             if (ingredients.isNotEmpty()) {
                                 val ingredientsQuery = ingredients.joinToString(",") { it.productName }
-                                Log.d("LoadRecipes", "Ingredient query: $ingredientsQuery")
 
                                 try {
-                                    Log.d("LoadRecipes", "Fetching recipes using Spoonacular API with ingredients: $ingredientsQuery")
                                     val response = recipeApiService.getRecipesByIngredients(ingredientsQuery)
 
                                     withContext(Dispatchers.Main) {
                                         if (response.isNotEmpty()) {
                                             recipeAdapter.updateData(response)
                                         } else {
-                                            Log.d("LoadRecipes", "No recipes found")
                                             showError("No recipes found.")
                                         }
                                     }
                                 } catch (e: HttpException) {
                                     val errorBody = e.response()?.errorBody()?.string()
-                                    Log.e("LoadRecipes", "Error during API call to Spoonacular: HTTP ${e.code()}, Error Body: $errorBody", e)
                                     withContext(Dispatchers.Main) {
                                         showError("Failed to load recipes. Please check your connection.")
                                     }
                                 }
                             } else {
-                                Log.d("LoadRecipes", "No ingredients found")
                                 withContext(Dispatchers.Main) {
                                     showError("No ingredients found.")
                                 }
                             }
                         } else {
                             val errorBody = ingredientsResponse.errorBody()?.string()
-                            Log.e("LoadRecipes", "Failed to fetch ingredients: $errorBody")
                             withContext(Dispatchers.Main) {
                                 showError("Failed to fetch ingredients.")
                             }
                         }
                     } catch (e: Exception) {
-                        Log.e("LoadRecipes", "Error fetching ingredients", e)
                         withContext(Dispatchers.Main) {
                             showError("Error occurred while fetching ingredients.")
                         }
@@ -136,26 +125,17 @@ class RecipeFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             progressBar.visibility = View.GONE
                         }
-                        Log.d("LoadRecipes", "LoadRecipes process completed")
                     }
                 }
             } else {
-                Log.e("LoadRecipes", "Failed to retrieve Firebase token: $error")
                 showError("Authentication error. Please try again.")
             }
         }
     }
 
-
-
-
-
-
     private fun showError(message: String) {
         Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
     }
-
-
 
     private fun openRecipeDetailActivity(recipe: Recipe) {
         // Create an intent to navigate to RecipeDetailsActivity
@@ -163,10 +143,8 @@ class RecipeFragment : Fragment() {
             // Pass the Recipe object to the activity
             putExtra("recipe", recipe)
         }
-
         // Start the activity
         startActivity(intent)
     }
-
 
 }

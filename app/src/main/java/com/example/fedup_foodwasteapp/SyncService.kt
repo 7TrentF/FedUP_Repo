@@ -34,19 +34,14 @@ class SyncService(
 
     suspend fun syncUnsyncedIngredients() {
         if (!NetworkUtils.isNetworkAvailable(context)) {
-            Log.d("SyncService", "No network available, skipping sync")
             return
         }
 
         try {
             val token = getAuthToken() ?: run {
-                Log.e("SyncService", "Failed to get auth token, skipping sync")
                 return
             }
-
             val unsyncedIngredients = repository.getUnsyncedIngredients()
-            Log.d("SyncService", "Unsynced ingredients: $unsyncedIngredients")
-
             for (ingredient in unsyncedIngredients) {
                 try {
                     val response = RetrofitClient.apiService.addIngredient(ingredient)
@@ -58,27 +53,19 @@ class SyncService(
                                 isSynced = true,
                                 lastModified = System.currentTimeMillis()
                             )
-                            Log.d("SyncService", "Updating local ingredient: $updatedIngredient")
                             repository.updateIngredient(updatedIngredient)
-                        } else {
-                            Log.e("SyncService", "Failed to sync ingredient ${ingredient.id}: Response body is null")
                         }
-                    } else {
-                        Log.e("SyncService", "Failed to sync ingredient ${ingredient.id}: ${response.errorBody()?.string()}")
                     }
-                } catch (e: Exception) {
-                    Log.e("SyncService", "Error syncing ingredient ${ingredient.id}", e)
+                } catch (_: Exception) {
                 }
             }
-        } catch (e: Exception) {
-            Log.e("SyncService", "Error during sync", e)
+        } catch (_: Exception) {
         }
     }
 
     private suspend fun getAuthToken(): String? = suspendCancellableCoroutine { continuation ->
         AuthManager.getInstance().getIdToken { token, error ->
             if (error != null) {
-                Log.e("SyncWorkerLog", "Error getting auth token", error as? Throwable ?: Exception(error))
 
                 continuation.resume(null) { }
             } else {

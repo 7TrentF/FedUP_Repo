@@ -51,6 +51,9 @@ class AddIngredientFragment : DialogFragment() {
         val view = inflater.inflate(R.layout.fragment_add_ingredient, container, false)
         dialog?.window?.setBackgroundDrawableResource(R.color.grey)
 
+
+
+
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
         tvCategory = view.findViewById(R.id.tv_category)
         btnPlus = view.findViewById(R.id.btn_plus)
@@ -254,7 +257,6 @@ class AddIngredientFragment : DialogFragment() {
                     )
 
                     val updatedFirebaseId = createdIngredient.firebaseId
-                    Log.d("OnlineInsertion", "Updating RoomDB with Firebase ID and sync status")
 
                     ingredientViewModel.updateFirebaseIdOnly(roomId, updatedFirebaseId)
 
@@ -285,7 +287,6 @@ class AddIngredientFragment : DialogFragment() {
     // Helper function for error handling
     private suspend fun handleApiError(response: Response<Ingredient>) {
         val errorMessage = response.errorBody()?.string()
-        Log.e("API Error", "Error adding ingredient: $errorMessage")
         withContext(Dispatchers.Main) {
             Snackbar.make(requireView(), "Error adding ingredient: $errorMessage", Snackbar.LENGTH_LONG).show()
         }
@@ -293,7 +294,6 @@ class AddIngredientFragment : DialogFragment() {
 
     // Helper function for exception handling
     private suspend fun handleException(e: Exception) {
-        Log.e("Exception", "Exception: ${e.message}", e)
         withContext(Dispatchers.Main) {
             Snackbar.make(requireView(), "Exception: ${e.message}", Snackbar.LENGTH_LONG).show()
         }

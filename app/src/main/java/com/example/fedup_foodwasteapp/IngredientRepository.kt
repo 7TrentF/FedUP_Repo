@@ -22,10 +22,6 @@ class IngredientRepository(
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var lastSyncTime: Long = 0 // This variable will hold the last sync time
 
-
-   // val allIngredients: LiveData<List<Ingredient>> = ingredientDao.getAllIngredients() // Fetch all ingredients from the Room database
-
-
     // In your Repository
     val allIngredients: Flow<List<Ingredient>> = ingredientDao.getAllIngredientsWhereDeleted()
 
@@ -103,9 +99,6 @@ class IngredientRepository(
         lastSyncTime = System.currentTimeMillis()
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     suspend fun sendExpirationData(
         token: String,
         fcmToken: String,
@@ -114,12 +107,9 @@ class IngredientRepository(
         try {
             apiService.sendExpirationData(token, fcmToken, notificationData)
         } catch (e: Exception) {
-            Log.e("IngredientRepository", "Error sending expiration data", e)
             throw e
         }
     }
-
-
 
     suspend fun deleteIngredient(ingredient: Ingredient) {
         ingredient.apply {
@@ -140,8 +130,6 @@ class IngredientRepository(
         ingredientDao.insert(ingredient)
         val newId = ingredientDao.insert(ingredient) // insert should return the generated ID
 
-        Log.d("Repository", "Ingredient added with ID: $newId")
-
     }
 
     // Update only Firebase ID in RoomDB without incrementing version
@@ -158,7 +146,6 @@ class IngredientRepository(
     suspend fun updateIngredientDetails(updatedIngredient: Ingredient): Boolean {
         // Look up the existing ingredient by Room `id` instead of `firebaseId`
         val existingIngredient = ingredientDao.getIngredientById(updatedIngredient.id)
-        Log.d("ingredientUpdate", "Original ingredient ID: ${updatedIngredient.id}")
 
         return if (existingIngredient != null) {
             // Ensure we're updating the existing record and incrementing its version
@@ -181,38 +168,6 @@ class IngredientRepository(
     }
 
 
-
-    suspend fun updateIngredientSync(updatedIngredient: Ingredient): Boolean {
-        // Look up the existing ingredient by Room `id` instead of `firebaseId`
-        val existingIngredient = ingredientDao.getIngredientById(updatedIngredient.id)
-        Log.d("ingredientUpdate", "Original ingredient ID: ${updatedIngredient.id}")
-
-        return if (existingIngredient != null) {
-            // Ensure we're updating the existing record and incrementing its version
-            val ingredientToUpdate = existingIngredient.copy(
-                productName = updatedIngredient.productName,
-                quantity = updatedIngredient.quantity,
-                expirationDate = updatedIngredient.expirationDate,
-                category = updatedIngredient.category,
-                firebaseId = existingIngredient.firebaseId.ifEmpty { updatedIngredient.firebaseId },
-                version = existingIngredient.version + 1, // Increment only on update
-                lastModified = System.currentTimeMillis(),
-                isSynced = true
-            )
-
-            // Update the ingredient in the Room database
-            ingredientDao.updateIng(ingredientToUpdate) > 0
-        } else {
-            false // No ingredient found; nothing to update
-        }
-    }
-
-
-
-
-    suspend fun delete(ingredient: Ingredient) {
-        ingredientDao.delete(ingredient)
-    }
     suspend fun deleteIngredientByFirebaseId(firebaseId: String) {
         ingredientDao.deleteByFirebaseId(firebaseId)
     }
@@ -260,7 +215,6 @@ class IngredientRepository(
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("IngredientRepository", "Failed to read from Firebase.", error.toException())
                 }
             })
         }
@@ -286,23 +240,16 @@ class IngredientRepository(
         }
     }
 
-
-    // Inside IngredientRepository class
-
     // Fetch from REST API
     suspend fun fetchIngredientsFromApi(token: String): List<Ingredient>? {
         try {
             val response = apiService.getIngredients()
-            Log.d("Token", "fetchIngredientsFromApi Token being used: $token")
             return if (response.isSuccessful) {
                 response.body()  // Return the ingredients list
             } else {
-                Log.e("Repository", "Failed to fetch ingredients from API: ${response.code()} - ${response.message()}")
-
                 null
             }
         } catch (e: Exception) {
-            Log.e("Repository", "Error fetching ingredients from API.", e)
             return null
         }
     }
@@ -324,7 +271,6 @@ class IngredientRepository(
                 ingredientDao.deleteAll()  // Clear local DB
                 ingredientDao.insertAll(ingredients)  // Insert latest data
             } catch (e: Exception) {
-                Log.e("IngredientRepository", "Failed to sync Firebase data with RoomDB", e)
             }
         }
     }
@@ -337,12 +283,9 @@ class IngredientRepository(
         try {
             val response = apiService.addIngredient(ingredient)
             if (response.isSuccessful) {
-                Log.d("Repository", "Ingredient added to API.")
             } else {
-                Log.e("Repository", "Failed to add ingredient to API: ${response.code()}")
             }
         } catch (e: Exception) {
-            Log.e("Repository", "Exception in adding ingredient to API.", e)
         }
     }
 
@@ -359,22 +302,6 @@ class IngredientRepository(
         }
     }
 
-    // Fetch ingredients from REST API
-    fun fetchIngredients(coroutineScope: CoroutineScope,onResult: (List<Ingredient>?, String?) -> Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val response = apiService.getIngredients()
-                if (response.isSuccessful) {
-                    val ingredients = response.body()
-                    onResult(ingredients, null)
-                } else {
-                    onResult(null, "Error: ${response.code()} ${response.message()}")
-                }
-            } catch (e: Exception) {
-                onResult(null, e.localizedMessage)
-            }
-        }
-    }
 
     // Fetch all ingredients from RoomDB for offline usage
     fun allIngredientsFromRoomDB(): LiveData<List<Ingredient>> {
@@ -396,5 +323,9 @@ class IngredientRepository(
         ingredientDao.delete(ingredient)  // Actually remove from Room
     }
 
+    // Add this function
+    suspend fun searchIngredients(query: String): List<Ingredient> {
+        return ingredientDao.searchIngredients(query)
+    }
 
 }

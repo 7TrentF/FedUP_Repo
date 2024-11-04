@@ -2,15 +2,20 @@ package com.example.fedup_foodwasteapp
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -35,23 +40,19 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import com.example.fedup_foodwasteapp.databinding.FragmentInventoryBinding // Import the generated binding class
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 
 class InventoryFragment : BaseFragment() {
 
     private lateinit var ingredientViewModel: IngredientViewModel
     private lateinit var ingredientAdapter: IngredientAdapter
-    private lateinit var categoryButton: ImageButton
     private lateinit var imgCategory: ImageButton
     private lateinit var imgSort: ImageButton
     private lateinit var freshTextView: TextView
     private lateinit var expiringSoonTextView: TextView
     private lateinit var expiredTextView: TextView
-
-    // Called when the fragment is being created.
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     // Called to create the view hierarchy associated with the fragment.
     override fun onCreateView(
@@ -78,15 +79,9 @@ class InventoryFragment : BaseFragment() {
         expiringSoonTextView = view.findViewById(R.id.tv_warning)
         expiredTextView = view.findViewById(R.id.tv_expired)
 
-
         ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
 
-        //syncIngredientsIfOnline()
-
-
-
         fetchAndDisplayIngredientCountsOffline()
-
 
         // Initialize the RecyclerView and its layout manager.
         val recyclerView: RecyclerView = view.findViewById(R.id.Ingredient_recycler_view)
@@ -107,7 +102,6 @@ class InventoryFragment : BaseFragment() {
         view.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.GONE
         view.findViewById<LinearLayout>(R.id.errorLayout)?.visibility = View.GONE
 
-
         return view
     }
 
@@ -115,37 +109,28 @@ class InventoryFragment : BaseFragment() {
     private fun filterByCategory(category: String) {
         lifecycleScope.launch {
             try {
-                Log.d("FilterCategory", "Filtering ingredients by category: $category")
 
                 // Call the API to get ingredients by category
                 val response = RetrofitClient.apiService.getIngredientsByCategory(category)
 
                 if (response.isSuccessful) {
                     val filteredIngredients = response.body() ?: emptyList()
-                    Log.d("FilterCategory", "Successfully fetched ${filteredIngredients.size} ingredients")
-
-
                     // Update the adapter with the filtered ingredients
                     ingredientAdapter.setIngredients(filteredIngredients)
                 } else {
                     // Handle different HTTP error codes
                     when (response.code()) {
                         400 -> {
-                            Log.e("FilterCategory", "Bad Request: Invalid category")
-
                             Snackbar.make(requireView(), "Bad Request: Invalid category", Snackbar.LENGTH_LONG).show()
                         }
                         404 -> {
-                            Log.e("FilterCategory", "Not Found: No ingredients found for this category")
                             Snackbar.make(requireView(), "Not Found: No ingredients found for this category", Snackbar.LENGTH_LONG).show()
                         }
                         500 -> {
-                            Log.e("FilterCategory", "Server Error: Please try again later")
                             Snackbar.make(requireView(), "Server Error: Please try again later", Snackbar.LENGTH_LONG).show()
 
                         }
                         else -> {
-                            Log.e("FilterCategory", "Failed to load ingredients: ${response.message()}")
                             Snackbar.make(requireView(), "Failed to load ingredients: ${response.message()}", Snackbar.LENGTH_LONG).show()
 
                         }
@@ -153,12 +138,9 @@ class InventoryFragment : BaseFragment() {
                 }
             } catch (e: IOException) {
                 // Handle network errors
-                Log.e("FilterCategory", "Network Error: ${e.message}", e)
                 Snackbar.make(requireView(), "Network Error: ${e.message}", Snackbar.LENGTH_LONG).show()
 
             } catch (e: Exception) {
-                // Handle any other errors
-                Log.e("FilterCategory", "Error: ${e.message}", e)
                 Snackbar.make(requireView(), "Error: ${e.message}", Snackbar.LENGTH_LONG).show()
 
             }
@@ -175,7 +157,6 @@ class InventoryFragment : BaseFragment() {
             val selectedCategory = Category.values()[which].name
 
             // Log the selected category
-            Log.d("CategorySelection", "Selected Category: $selectedCategory")
 
             // Call the filter method with the selected category
             filterByCategory(selectedCategory)
@@ -195,10 +176,10 @@ class InventoryFragment : BaseFragment() {
         builder.setItems(options) { dialog, which ->
             when (which) {
                 0 -> { // About to Expire
-                   // sortIngredientsByExpirationDate()
+                   sortIngredientsByExpirationDate()
                 }
                 1 -> { // Alphabetical
-                   // sortIngredientsAlphabetically()
+                   sortIngredientsAlphabetically()
                 }
             }
         }
@@ -226,7 +207,6 @@ class InventoryFragment : BaseFragment() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("SortError", "Error sorting ingredients: ${e.message}")
             }
         }
     }
@@ -247,12 +227,9 @@ class InventoryFragment : BaseFragment() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("SortError", "Error sorting ingredients: ${e.message}")
             }
         }
     }
-
-
 
 
     private fun fetchAndDisplayIngredientCountsOffline() {
@@ -297,38 +274,22 @@ class InventoryFragment : BaseFragment() {
                     }
                 }
             } else {
-                // Log the error or handle the unsuccessful response case.
-                Log.e("InventoryFragment", "Failed to fetch ingredients: ${response.errorBody()?.string()}")
             }
         }
     }
 
-
-
-
-
     // Called after the view hierarchy associated with the fragment has been created.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("InventoryFragmentLog", "this is the InventoryFragment onViewCreated")
-        Log.d("flow", "this is the InventoryFragment onViewCreated")
 
         setupRecyclerView()
         setupViewModel()
+       // setupSearchView() // Add this line
+
         observeData()
         //syncIngredientsIfOnline()
 
     }
-/*
-    private fun syncIngredientsIfOnline() {
-        if (NetworkUtils.isNetworkAvailable(requireContext())) {
-            ingredientViewModel.syncUnsyncedIngredients()
-        } else {
-            // Show a message or UI element indicating offline mode
-        }
-    }
-    */
-
 
     private fun setupRecyclerView() {
         val recyclerView = view?.findViewById<RecyclerView>(R.id.Ingredient_recycler_view)
@@ -351,7 +312,6 @@ class InventoryFragment : BaseFragment() {
             ingredientViewModel.loadFromRoomOffline()
         }
     }
-
 
     private fun observeData() {
         val noInventoryTextView = view?.findViewById<TextView>(R.id.no_inventory_text)
@@ -377,7 +337,6 @@ class InventoryFragment : BaseFragment() {
                         ingredientAdapter.setIngredients(state.data)
                     }
                 }
-
                 is DataResult.Error -> {
                   //  progressBar?.visibility = View.GONE
 
@@ -403,10 +362,6 @@ class InventoryFragment : BaseFragment() {
             }
         }
 
-
-
-
-
         // Observe filteredIngredients to ensure RecyclerView is updated when data changes
         ingredientViewModel.filteredIngredients.observe(viewLifecycleOwner, Observer { ingredients ->
             if (ingredients.isNullOrEmpty()) {
@@ -428,9 +383,6 @@ class InventoryFragment : BaseFragment() {
 
     }
 
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         // Clean up any observers or callbacks if needed
@@ -441,29 +393,3 @@ class InventoryFragment : BaseFragment() {
 
     }
 }
-
-/*
-
-
-private fun observeData() {
-    val noInventoryTextView = view?.findViewById<TextView>(R.id.no_inventory_text)
-    val progressBar = view?.findViewById<ProgressBar>(R.id.progressBar)
-    val errorLayout = view?.findViewById<LinearLayout>(R.id.errorLayout)
-
-    // Observe allIngredients directly for RoomDB updates
-    ingredientViewModel.allIngredients.observe(viewLifecycleOwner) { ingredients ->
-        progressBar?.visibility = View.GONE
-        errorLayout?.visibility = View.GONE
-
-        if (ingredients.isNullOrEmpty()) {
-            noInventoryTextView?.visibility = View.VISIBLE
-        } else {
-            noInventoryTextView?.visibility = View.GONE
-            ingredientAdapter.setIngredients(ingredients)
-        }
-    }
-}
-
-
-
- */

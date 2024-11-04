@@ -40,6 +40,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import com.google.android.datatransport.cct.internal.NetworkConnectionInfo
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatDelegate
 import java.util.concurrent.TimeUnit
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -47,25 +48,30 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUser: FirebaseUser
     private val appPreferences by lazy { AppPreferences.getInstance(requireContext()) }
+    private lateinit var themeManager: ThemeManager
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        themeManager = ThemeManager(requireContext())
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
         currentUser = auth.currentUser ?: return
 
-        Log.d("SettingsFragment", "Current user: ${currentUser.email}")
-
         // Logout preference
         val logoutPreference = findPreference<Preference>("logout")
         logoutPreference?.setOnPreferenceClickListener {
             authManager.logoutUser(requireContext())
-            Log.d("SettingsFragment", "User logged out.")
             true
         }
 
-
+        val themeSwitch = findPreference<SwitchPreference>("theme_mode")
+        themeSwitch?.isChecked = themeManager.isLightMode()
+        themeSwitch?.setOnPreferenceChangeListener { _, newValue ->
+            val isLightMode = newValue as Boolean
+            themeManager.setTheme(isLightMode)
+            true
+        }
 
         // Language Preference
         val languagePreference = findPreference<ListPreference>("language_preference")
@@ -89,14 +95,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-
-
         // Email (Username) change
         val usernamePreference: EditTextPreference? = findPreference("user_name")
         usernamePreference?.summary = currentUser.email
         usernamePreference?.setOnPreferenceChangeListener { _, newValue ->
             val newEmail = newValue.toString()
-            Log.d("SettingsFragment", "Attempting to change email to: $newEmail")
             reauthenticateUser {
                 updateEmail(newEmail)
             }
@@ -107,7 +110,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val changePasswordPreference: Preference? = findPreference("change_password")
         changePasswordPreference?.setOnPreferenceClickListener {
             promptNewPassword { newPassword ->
-                Log.d("SettingsFragment", "Attempting to change password.")
                 reauthenticateUser {
                     updatePassword(newPassword)
                 }
@@ -126,7 +128,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         true
     }
 }
-
 
     private fun enableBiometricAuthentication() {
         val biometricManager = BiometricManager.from(requireContext())
@@ -203,17 +204,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         biometricPrompt.authenticate(promptInfo)
     }
 
-
-
     private fun updateEmail(newEmail: String) {
         currentUser.updateEmail(newEmail)
             .addOnCompleteListener { task ->
                 val view = view ?: return@addOnCompleteListener
                 if (task.isSuccessful) {
-                    Log.d("SettingsFragment", "Email updated to: $newEmail")
                     Snackbar.make(view, "Email updated successfully.", Snackbar.LENGTH_LONG).show()
                 } else {
-                    Log.e("SettingsFragment", "Failed to update email: ${task.exception?.message}")
                     Snackbar.make(view, "Failed to update email: ${task.exception?.message}", Snackbar.LENGTH_SHORT).show()
                 }
             }
@@ -233,10 +230,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .addOnCompleteListener { task ->
                 val view = view ?: return@addOnCompleteListener
                 if (task.isSuccessful) {
-                    Log.d("SettingsFragment", "Password updated successfully.")
                     Snackbar.make(view, "Password updated successfully.", Snackbar.LENGTH_LONG).show()
                 } else {
-                    Log.e("SettingsFragment", "Failed to update password: ${task.exception?.message}")
                     Snackbar.make(view, "Failed to update password: ${task.exception?.message}", Snackbar.LENGTH_SHORT).show()
                 }
             }
@@ -253,19 +248,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setPositiveButton("OK") { _, _ ->
                 val password = passwordInput.text.toString()
                 if (password.isNotEmpty()) {
-                    Log.d("SettingsFragment", "Password entered for re-authentication.")
                     onPasswordReceived(password)
                 } else {
-                    Log.e("SettingsFragment", "Password is empty.")
                     Snackbar.make(dialogView, "Password cannot be empty", Snackbar.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel") { dialog, _ ->
-                Log.d("SettingsFragment", "Re-authentication cancelled.")
                 dialog.cancel()
             }
             .create()
-
         passwordDialog.show()
     }
 
@@ -291,41 +282,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setPositiveButton("OK") { _, _ ->
                 val password = passwordInput.text.toString()
                 if (password.isNotEmpty()) {
-                    Log.d("SettingsFragment", "New password entered.")
                     onPasswordReceived(password)
                 } else {
-                    Log.e("SettingsFragment", "New password is empty.")
                     Snackbar.make(dialogView, "Password cannot be empty", Snackbar.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel") { dialog, _ ->
-                Log.d("SettingsFragment", "New password entry cancelled.")
                 dialog.cancel()
             }
             .create()
-
         passwordDialog.show()
     }
 
 
     private fun reauthenticateUser(onSuccess: () -> Unit) {
         promptCurrentPassword { currentPassword ->
-            Log.d("SettingsFragment", "Attempting to re-authenticate user.")
             val credential = EmailAuthProvider.getCredential(currentUser.email!!, currentPassword)
             currentUser.reauthenticate(credential)
                 .addOnCompleteListener { task ->
                     val view = view ?: return@addOnCompleteListener
                     if (task.isSuccessful) {
-                        Log.d("SettingsFragment", "Re-authentication successful.")
                         onSuccess()
                     } else {
-                        Log.e("SettingsFragment", "Re-authentication failed: ${task.exception?.message}")
                         Snackbar.make(view, "Re-authentication failed: ${task.exception?.message}", Snackbar.LENGTH_SHORT).show()
                     }
                 }
         }
     }
-
 
     private fun setupNotificationPreferences() {
         val notificationPreference: SwitchPreferenceCompat? = findPreference("enable_notifications")
@@ -385,8 +368,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 workRequest
             )
     }
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

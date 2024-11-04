@@ -60,28 +60,24 @@ class MainActivity : AppCompatActivity() {
     private val fromBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.from_bottom_animate) }
     private val toBottom: Animation by lazy { AnimationUtils.loadAnimation(this, R.anim.to_bottom_animate) }
 
-    // ViewModel for managing UI-related data in a lifecycle-conscious way.
-    //private lateinit var ingredientViewModel: IngredientViewModel
-
     // FrameLayouts to contain fragments.
     private lateinit var FrameContainer: FrameLayout
     private lateinit var recipeContainer: FrameLayout
-
     // Boolean to track whether the FAB menu is open.
     private var clicked = false
+    private lateinit var themeManager: ThemeManager
 
     // Called when the activity is created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        Log.d("flow", "this is the MainActivty")
+        ThemeManager(this).applyTheme()
 
         // Initialize navigation elements and other UI components.
         val navInventory = findViewById<LinearLayout>(R.id.nav_inventory)
         val navRecipe = findViewById<LinearLayout>(R.id.nav_Recipe)
         val navSettings = findViewById<LinearLayout>(R.id.nav_settings)
-        //ingredientViewModel = ViewModelProvider(this).get(IngredientViewModel::class.java)
         recipeContainer = findViewById(R.id.fragment_Recipe_container)
         FrameContainer = findViewById(R.id.fragment_container)
         addFabItem = findViewById(R.id.add_fab_item)
@@ -117,13 +113,11 @@ class MainActivity : AppCompatActivity() {
         navInventory.setOnClickListener {
             val inventoryFragment = InventoryFragment()
             loadFragment(inventoryFragment)
-
             // Show the FAB when navigating to the InventoryFragment
             updateFabVisibility(inventoryFragment)
 
             updateSelectedNavItem(R.id.nav_inventory)
         }
-
 
         navRecipe.setOnClickListener {
             loadRecipeFragment(RecipeFragment())
@@ -133,10 +127,8 @@ class MainActivity : AppCompatActivity() {
         navSettings.setOnClickListener {
             val settingsFragment = SettingsFragment()
             loadFragment(settingsFragment)
-
             // Hide the FAB when loading the SettingsFragment
             updateFabVisibility(settingsFragment)
-
             updateSelectedNavItem(R.id.nav_settings)
         }
 
@@ -146,31 +138,10 @@ class MainActivity : AppCompatActivity() {
     // Handles the click action for the add button.
     private fun onAddButtonClicked() {
         clicked = !clicked
-
         if (clicked) {
             // Show the AddIngredientFragment dialog when the button is clicked.
             val dialog = AddIngredientFragment()
             dialog.show(supportFragmentManager, "AddIngredientDialog")
-        }
-    }
-
-    // Handles the animation of the FABs based on their state (opened or closed).
-    private fun setAnimation(clicked: Boolean) {
-        if (!clicked) {
-            categoryFab.startAnimation(fromBottom)
-            addFabItem.startAnimation(rotateOpen)
-        } else {
-            categoryFab.startAnimation(toBottom)
-            addFabItem.startAnimation(rotateClose)
-        }
-    }
-
-    // Sets the visibility of the category FAB based on the state (opened or closed).
-    private fun setVisibility(clicked: Boolean) {
-        if (!clicked) {
-            categoryFab.visibility = View.VISIBLE
-        } else {
-            categoryFab.visibility = View.INVISIBLE
         }
     }
 
@@ -235,8 +206,6 @@ class MainActivity : AppCompatActivity() {
             else -> addFabItem.visibility = View.GONE  // Default to hide in other fragments
         }
     }
-
-
 
     // Updates the UI to highlight the selected navigation item.
     private fun updateSelectedNavItem(selectedItemId: Int) {

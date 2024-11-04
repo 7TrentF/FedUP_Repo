@@ -37,12 +37,8 @@ class IngredientAdapter(
     private val authManager = AuthManager.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IngredientViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.ingredient_item, parent, false)
-        Log.d("flow", "this is the IngredientAdapter")
-
         return IngredientViewHolder(view)
-
     }
-
     override fun onBindViewHolder(holder: IngredientViewHolder, position: Int) {
         val current = ingredients[position]
         holder.nameTextView.text = current.productName
@@ -57,18 +53,11 @@ class IngredientAdapter(
 
     override fun getItemCount(): Int = ingredients.size
 
-
     fun setIngredients(ingredients: List<Ingredient>) {
         this.ingredients = ingredients
         if (ingredients.isEmpty()) {
-            Log.w("IngredientAdapter", "No ingredients available to display in RecyclerView.")
-            Log.w("flow", "No ingredients available to display in RecyclerView.")
-
 
         } else {
-            Log.d("IngredientAdapter", "Setting ${ingredients.size} ingredients in RecyclerView.")
-            Log.d("flow", "Setting ${ingredients.size} ingredients in RecyclerView.")
-
         }
         notifyDataSetChanged()
     }
@@ -76,13 +65,9 @@ class IngredientAdapter(
     fun updateIngredients(newList: List<Ingredient>) {
         ingredients = newList
         if (ingredients.isEmpty()) {
-            Log.w("IngredientAdapter", "No updated ingredients available to display in RecyclerView.")
-            Log.w("flow", "No  updated ingredients available to display in RecyclerView.")
 
         } else {
-            Log.d("IngredientAdapter", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
-            Log.d("flow", "Setting updateIngredients ${ingredients.size} ingredients in RecyclerView.")
-        }
+           }
         notifyDataSetChanged()
     }
 
@@ -115,7 +100,6 @@ class IngredientAdapter(
             val editDialogFragment = EditIngredientDialogFragment.newInstance(ingredient)
             // Set the listener to handle the update
             editDialogFragment.setOnSaveListener { updatedIngredient ->
-                Log.d("EditIngredientDialog", "Received ingredient for update - ID: ${updatedIngredient.id}")
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         //roomDB update
@@ -126,7 +110,6 @@ class IngredientAdapter(
                         )
                         if (response.isSuccessful) {
                             withContext(Dispatchers.Main) {
-                                Log.d("EditIngredientDialog", "API update successful for ingredient: ${updatedIngredient.id}")
                                 Snackbar.make(
                                     fragmentActivity.findViewById(android.R.id.content),
                                     "Ingredient updated successfully",
@@ -134,16 +117,13 @@ class IngredientAdapter(
                                 ).show()
                             }
                         } else {
-                            Log.e("EditIngredientDialog", "API update failed: ${response.message()}")
                         }
                     } catch (e: Exception) {
-                        Log.e("EditIngredientDialog", "Update failed due to exception", e)
                     }
                 }
             }
             editDialogFragment.show(fragmentActivity.supportFragmentManager, "EditIngredientDialogFragment")
         } ?: run {
-            Log.e("EditIngredientDialog", "FragmentActivity is null")
         }
     }
 
@@ -174,8 +154,6 @@ class IngredientAdapter(
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             try {
-                Log.d("DeleteIngredientDebug", "Attempting to delete ingredient with Firebase ID: $firebaseId")
-
 
                 ingredientViewModel.deleteIngredientByFirebaseId(firebaseId)
                // deleteIngredientFromRoom(firebaseId)
@@ -192,14 +170,12 @@ class IngredientAdapter(
 
                 } else {
                     val errorMessage = response.errorBody()?.string() ?: "Unknown error"
-                    Log.e("DeleteIngredientError", "Error deleting ingredient: $firebaseId")
 
                     withContext(Dispatchers.Main) {
                         Snackbar.make((context as Activity).findViewById(android.R.id.content), "Error deleting ingredient", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
-                Log.e("DeleteIngredientException", "Exception while deleting ingredient: ${e.message}", e)
 
                 withContext(Dispatchers.Main) {
                     Snackbar.make((context as Activity).findViewById(android.R.id.content), "Failed to delete ingredient: ${e.message}", Snackbar.LENGTH_SHORT).show()
@@ -218,7 +194,6 @@ class IngredientAdapter(
 
     private suspend fun deleteIngredientFromRoom(firebaseId: String) {
         try {
-            Log.d("DeleteIngredientDebug", "Attempting to delete ingredient from Room with Firebase ID: $firebaseId")
 
             // First get the ingredient from Room
             val ingredient = ingredientDao.getIngredientByFirebaseId(firebaseId)
@@ -238,12 +213,9 @@ class IngredientAdapter(
                 // Update the ingredient in Room
                 ingredientDao.update(ingredient)
 
-                Log.d("DeleteIngredientDebug", "Ingredient marked for deletion in Room: ${ingredient.productName}")
             } else {
-                Log.e("DeleteIngredientDebug", "Ingredient with Firebase ID $firebaseId not found in Room")
             }
         } catch (e: Exception) {
-            Log.e("DeleteIngredientDebug", "Error marking ingredient for deletion in Room: ${e.message}")
             throw e
         }
     }
@@ -276,9 +248,6 @@ class IngredientAdapter(
         // Logic to undo delete (you can implement this as needed)
     }
 
-    private fun deleteIngredient(updatedIngredient: Ingredient) {
-
-    }
 
     class IngredientViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.tv_ingredient_name)

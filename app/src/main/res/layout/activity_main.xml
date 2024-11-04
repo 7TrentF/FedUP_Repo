@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey"
     android:fitsSystemWindows="true"
+    android:theme="@style/Theme.YourApp"
     tools:context=".MainActivity">
 
     <!-- Enhanced logo with better positioning and elevation -->

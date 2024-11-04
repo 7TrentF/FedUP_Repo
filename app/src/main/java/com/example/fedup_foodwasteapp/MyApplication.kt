@@ -11,16 +11,12 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
-
 class MyApplication : Application() {
     //private lateinit var syncManager: SyncManager
     private lateinit var repository: IngredientRepository
 
     override fun onCreate() {
         super.onCreate()
-
-        Log.e("flow", "My application ")
-
 
         FirebaseApp.initializeApp(this)
         val database = Room.databaseBuilder(
@@ -29,25 +25,15 @@ class MyApplication : Application() {
             "my_database"
         ).build()
 
-       val ingredientDao = database.ingredientDao()
-
+        val ingredientDao = database.ingredientDao()
         val apiService = RetrofitClient.apiService
 
-
         repository = IngredientRepository(ingredientDao, apiService)
-        // Initialize SyncManager
-        //syncManager = SyncManager.getInstance(this, repository)
-
-        // Start sync service
-        //syncManager.startSync()
-        Log.e("flow", "starting sync")
 
         scheduleExpirationCheck(applicationContext)
     }
-
     override fun onTerminate() {
         super.onTerminate()
-        //syncManager.stopSync()
     }
 
     private fun scheduleExpirationCheck(context: Context) {

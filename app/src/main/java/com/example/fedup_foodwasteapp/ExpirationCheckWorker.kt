@@ -55,18 +55,15 @@ class ExpirationCheckWorker(
     override suspend fun doWork(): Result {
         // First check if notifications are enabled
         if (!appPreferences.areNotificationsEnabled()) {
-            Log.d("ExpirationCheckWorker", "Notifications are disabled, skipping check")
             // Cancel any existing notifications
             notificationManager.cancelAll()
             return Result.success()
         }
 
         return try {
-            Log.d("ExpirationCheckWorker", "Starting work")
 
             // Fetch ingredients
             val ingredients = fetchIngredientsFromFirebase()
-            Log.d("ExpirationCheckWorker", "Fetched ${ingredients.size} ingredients")
 
             // Process expiration dates
             val (aboutToExpire, expired) = processIngredients(ingredients)
@@ -92,7 +89,6 @@ class ExpirationCheckWorker(
 
         // Get notification timing preference
         val notificationDays = appPreferences.getNotificationDays()
-        Log.d("ExpirationCheckWorker", "Using notification days: $notificationDays")
 
         val aboutToExpire = ingredients.filter {
             val daysUntilExpiry = daysUntilExpiration(it.expirationDate)
@@ -103,7 +99,6 @@ class ExpirationCheckWorker(
             daysUntilExpiration(it.expirationDate) < 0
         }
 
-        Log.d("ExpirationCheckWorker", "Found ${aboutToExpire.size} about to expire and ${expired.size} expired ingredients")
         return Pair(aboutToExpire, expired)
     }
 
@@ -159,9 +154,7 @@ class ExpirationCheckWorker(
                 notificationData = notificationData
             )
 
-            Log.d("ExpirationCheckWorker", "Successfully sent data to server")
         } catch (e: Exception) {
-            Log.e("ExpirationCheckWorker", "Error sending data to server", e)
         }
     }
 
@@ -172,7 +165,6 @@ class ExpirationCheckWorker(
             val today = LocalDate.now()
             today.until(expiryDate).days
         } catch (e: Exception) {
-            Log.e("ExpirationCheckWorker", "Error parsing date: $expirationDate", e)
             Int.MAX_VALUE
         }
     }
@@ -210,9 +202,7 @@ class ExpirationCheckWorker(
             val notificationId = if (title.contains("Expired")) 2 else 1
             notificationManager.notify(notificationId, notification)
 
-            Log.d("ExpirationCheckWorker", "Successfully showed notification: $title")
         } catch (e: Exception) {
-            Log.e("ExpirationCheckWorker", "Error showing notification", e)
         }
     }
 
@@ -235,7 +225,6 @@ class ExpirationCheckWorker(
                 emptyList()
             }
         } catch (e: Exception) {
-            Log.e("ExpirationCheckWorker", "Error fetching ingredients", e)
             emptyList()
         }
     }

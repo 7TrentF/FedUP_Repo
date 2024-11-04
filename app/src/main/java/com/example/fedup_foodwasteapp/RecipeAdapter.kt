@@ -40,31 +40,15 @@ class RecipeAdapter(
         }
     }
 
-
     override fun getItemCount(): Int {
         return recipeList.size
     }
-
-
-    /*
-    fun updateData(newRecipes: List<Recipe>) {
-        val oldSize = recipeList.size
-        recipeList = newRecipes
-        if (newRecipes.size > oldSize) {
-            notifyItemRangeInserted(oldSize, newRecipes.size - oldSize)
-        } else {
-            notifyDataSetChanged() // Fall back to a full refresh if the list shrinks
-        }
-    }
-
-     */
 
     fun updateData(newRecipes: List<Recipe>) {
         val diffResult = DiffUtil.calculateDiff(RecipeDiffCallback(recipeList, newRecipes))
         recipeList = newRecipes
         diffResult.dispatchUpdatesTo(this)
     }
-
 
 
     class RecipeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

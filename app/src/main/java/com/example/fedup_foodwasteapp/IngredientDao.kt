@@ -18,6 +18,9 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients")
     fun getAllIngredients(): LiveData<List<Ingredient>>
 
+    // Add these queries
+    @Query("SELECT * FROM ingredients WHERE ingredient_name LIKE '%' || :searchText || '%'")
+    fun searchIngredients(searchText: String): List<Ingredient>
 
     @Query("SELECT * FROM ingredients WHERE is_deleted = 0")
     fun getAllIngredientsWhereDeleted(): Flow<List<Ingredient>>
@@ -59,7 +62,8 @@ interface IngredientDao {
     @Query("SELECT * FROM ingredients WHERE id = :id LIMIT 1")
     suspend fun getIngredientByIdSuspend(id: Long): Ingredient?
 
-
+    @Query("SELECT * FROM ingredients WHERE category = :category")
+    fun getIngredientsByCategory(category: String): Flow<List<Ingredient>>
 
 
     /////////////////////////////////sync//////////////////////////////////////
@@ -108,6 +112,11 @@ interface IngredientDao {
         FROM ingredients
     """)
     suspend fun getIngredientCounts(): IngredientCounts
+
+
+
+
+
 }
 
 

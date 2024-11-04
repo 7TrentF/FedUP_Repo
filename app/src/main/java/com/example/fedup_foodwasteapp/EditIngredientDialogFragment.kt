@@ -67,23 +67,9 @@ class EditIngredientDialogFragment : DialogFragment() {
 
         // Ensure that ingredient is properly initialized
         if (::ingredient.isInitialized) {
-            // Populate the fields with the current ingredient details
-
-            // Log the initial ingredient ID
-            Log.d("EditIngredientDialog", "Initial ingredient ID: ${ingredient.id}")
-
-
-
-
 
             binding.etIngredientName.setText(ingredient.productName)
             binding.etQuantity.setText(ingredient.quantity)
-
-
-
-
-
-
             // Check if the ingredient has an expiration date
             val expirationDate = ingredient.expirationDate
             if (expirationDate.isNullOrEmpty()) {
@@ -96,8 +82,6 @@ class EditIngredientDialogFragment : DialogFragment() {
             // Uncomment if 'notes' field is available and included in your data class
             // binding.editText.setText(ingredient.notes)
         } else {
-            // Handle the case where ingredient is not initialized (optional logging or error handling)
-            Log.e("EditIngredientDialog", "Ingredient is not initialized properly")
         }
 
         // Set OnClickListener to show DatePickerDialog
@@ -122,10 +106,6 @@ class EditIngredientDialogFragment : DialogFragment() {
                 // If you have a 'notes' field, update it similarly
                 // notes = binding.editText.text.toString()
 
-            Log.d("EditIngredientDialog", "Original ingredient ID: ${ingredient.id}")
-            Log.d("EditIngredientDialog", "Updated ingredient ID: ${updatedIngredient.id}")
-
-            // Trigger the callback
             listener?.invoke(updatedIngredient)
 
 

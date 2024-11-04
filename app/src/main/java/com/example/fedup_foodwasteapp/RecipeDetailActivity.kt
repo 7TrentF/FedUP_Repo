@@ -61,10 +61,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         // Make an API call to fetch the detailed recipe data
         lifecycleScope.launch {
             try {
-                Log.d(
-                    "RecipeDetailActivity",
-                    "Starting API call to fetch details for recipe ID: $recipeId"
-                )
 
                 val retrofit = Retrofit.Builder()
                     .baseUrl("https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/")
@@ -74,21 +70,16 @@ class RecipeDetailActivity : AppCompatActivity() {
                 val apiService = retrofit.create(RecipeApiService::class.java)
 
                 // Fetch detailed recipe information using the recipeId
-                Log.d("RecipeDetailActivity", "Fetching recipe details...")
                 val recipeDetails = apiService.getRecipeDetails(
                     recipeId,
                     "649a3d770bmsh6d6d3423d8e5a25p139e64jsne6fc42e17ee2",
                     "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
                 )
-
-                Log.d("RecipeDetailActivity", "Received recipe details: $recipeDetails")
-
                 // Now that we have the RecipeDetails object, pass it to displayRecipeDetails
                 displayRecipeDetails(recipeDetails)
 
             } catch (e: Exception) {
                 // Handle any errors
-                Log.e("RecipeDetailActivity", "Error loading recipe details: ${e.message}", e)
                 Toast.makeText(
                     this@RecipeDetailActivity,
                     "Failed to load recipe details.",
@@ -100,7 +91,6 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun displayRecipeDetails(details: RecipeDetails) {
         // Set the recipe title
@@ -122,9 +112,6 @@ class RecipeDetailActivity : AppCompatActivity() {
                 getString(R.string.no_instructions_available)
         }
 
-        // Log the image URL to verify the URL is correctly retrieved
-        Log.d("RecipeDetailActivity", "Image URL: ${details.image}")
-
         // Load the recipe image using Picasso with detailed error handling
         val recipeImageView = findViewById<ImageView>(R.id.recipeImageView)
         recipeImageView?.let {
@@ -134,13 +121,9 @@ class RecipeDetailActivity : AppCompatActivity() {
                 .error(R.drawable.error_image) // Fallback image on error
                 .into(it, object : com.squareup.picasso.Callback {
                     override fun onSuccess() {
-                        // Image loaded successfully
-                        Log.d("RecipeDetailActivity", "Image loaded successfully.")
                     }
 
                     override fun onError(e: java.lang.Exception?) {
-                        // Failed to load image
-                        Log.e("RecipeDetailActivity", "Error loading image: ${e?.message}")
                     }
                 })
         }

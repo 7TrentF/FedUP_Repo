@@ -101,14 +101,10 @@ class Login : AppCompatActivity() {
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("160835827466-av691ujd9v27dd98hhhdqnad7d58o3f1.apps.googleusercontent.com")  // client_id from google-services.json
-
-
             .requestEmail()
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -117,12 +113,9 @@ class Login : AppCompatActivity() {
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
-                Log.w("LoginActivity", "Google sign in failed", e)
                 // Use Snackbar to show the error message
                 val rootView = findViewById<View>(android.R.id.content) // Get the root view
                 Snackbar.make(rootView, "Google Sign-In Failed", Snackbar.LENGTH_LONG).show()
-
-
             }
         }
 
@@ -131,9 +124,6 @@ class Login : AppCompatActivity() {
         googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
-
-
-
 
         signIn.setOnClickListener {
             val loginEmail = emailEdit.text.toString()
@@ -158,13 +148,11 @@ class Login : AppCompatActivity() {
             }
         }
 
-
         // Set click listener for sign-up button
         signUp.setOnClickListener {
             val intent = Intent(this@Login, Register::class.java)
             startActivity(intent)
         }
-
         // Set password visibility toggle
         togglePasswordVisibility.setOnClickListener {
             togglePasswordVisibility()
@@ -352,10 +340,6 @@ class Login : AppCompatActivity() {
             }
     }
 
-
-
-
-
     // Navigate to the MainActivity
     private fun navigateToMain(token: String) {
 
@@ -372,9 +356,6 @@ class Login : AppCompatActivity() {
         val context = LocaleHelper.wrap(newBase, languageCode)
         super.attachBaseContext(context)
     }
-
-
-
 
 
 }
