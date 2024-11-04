@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fedup_foodwasteapp"
+    namespace = "com.FedUpGroup.fedup_foodwasteapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.fedup_foodwasteapp"
+        applicationId = "com.FedUpGroup.fedup_foodwasteapp"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
